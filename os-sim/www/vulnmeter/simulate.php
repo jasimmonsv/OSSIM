@@ -81,7 +81,7 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
     <?
     // sensors
     $all_sensors = array();
-    $sensor_list = Sensor::get_all($conn);
+    $sensor_list = Sensor::get_all($conn,"",false);
     foreach ($sensor_list as $s) $all_sensors[$s->get_ip()] = $s->get_name();
     // force scanner
     if ($scan_server>0) {
@@ -137,7 +137,7 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
             $load[] = Sensor::get_load($conn, $sensor);
             $withnmap = in_array($all_sensors[$sensor],$ids);
             $sensor_name = ($sensor=="Local") ? $sensor : $sensor." [".$all_sensors[$sensor]."]";
-            if (!$selected && ($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $scan_server>0)) {
+            if (!$selected && (Session::sensorAllowed($sensor) || $scan_server>0) && ($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $scan_server>0)) {
                 $selected = true;
                 $sensor_name = "<b>$sensor_name</b>"; 
             }

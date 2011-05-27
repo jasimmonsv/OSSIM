@@ -46,21 +46,21 @@ $conn = $db->connect();
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv=""Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
+
 <body>
                                                                         
 <?php
 if (!(GET('withoutmenu')==1 || POST('withoutmenu')==1)) include ("../hmenu.php"); 
 
-$ip = POST('ip');
-$binddn = POST('binddn');
+$ip       = POST('ip');
+$binddn   = POST('binddn');
 $password = POST('password');
-$scope = POST('scope');
+$scope    = POST('scope');
 
 ossim_valid($ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Server IP"));
 ossim_valid($binddn, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Bind DN"));
@@ -71,7 +71,8 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
-if ($ip!="" && $binddn!="") {
+if ($ip!="" && $binddn!="") 
+{
     ActiveDirectory::insert($conn, $ip, $binddn, $password, $scope);
     echo "<p>"._("Active directory succesfully inserted")."</p>";
     ?><script>document.location.href="activedirectory.php"</script><?
@@ -79,38 +80,38 @@ if ($ip!="" && $binddn!="") {
 ?>
 
 <form method="post" action="newactivedirectory.php">
-<table align="center">
-  <tr>
-    <th> <?php
-    echo gettext("Server IP"); ?> </th>
-    <td style="text-align:left;padding-left:3px;" class="nobborder"><input type="text" name="ip" value="<?=$ip?>" size="32"></td>
-  </tr>
-  <tr>
-    <th> <?php
-    echo gettext("Bind DN"); ?> </th>
-    <td style="text-align:left;padding-left:3px;" class="nobborder">
-      <textarea name="binddn" rows="2" style="width:212px"><?=$binddn?></textarea>
-    </td>
-  </tr>
-  <tr>
-    <th> <?php
-    echo gettext("Password"); ?> </th>
-    <td style="text-align:left;padding-left:3px;" class="nobborder"><input type="password" name="password" value="<?=$password?>" size="32"></td>
-  </tr>
-  <tr>
-    <th> <?php
-    echo gettext("Scope"); ?> </th>
-    <td style="text-align:left;padding-left:3px;" class="nobborder">
-      <textarea name="scope" rows="2" style="width:212px"><?=$scope?></textarea>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" style="text-align:center;" class="nobborder">
-      <input type="submit" value="<?=_("OK")?>" class="button" style="font-size:12px">
-      <input type="reset" value="<?=_("reset")?>" class="button" style="font-size:12px">
-    </td>
-  </tr>
-</table>
+	<table align="center">
+		<tr>
+			<th> <?php echo gettext("Server IP"); ?> </th>
+			<td style="text-align:left;padding-left:3px;" class="nobborder"><input type="text" name="ip" value="<?php echo $ip?>" size="32"></td>
+		</tr>
+		
+		<tr>
+		<th> <?php echo gettext("Bind DN"); ?> </th>
+			<td style="text-align:left;padding-left:3px;" class="nobborder">
+				<textarea name="binddn" rows="2" style="width:212px"><?php echo $binddn?></textarea>
+			</td>
+		</tr>
+		
+		<tr>
+		<th> <?php echo gettext("Password"); ?> </th>
+			<td style="text-align:left;padding-left:3px;" class="nobborder"><input type="password" name="password" value="<?php echo $password?>" size="32"></td>
+		</tr>
+		
+		<tr>
+			<th> <?php echo gettext("Scope"); ?> </th>
+			<td style="text-align:left;padding-left:3px;" class="nobborder">
+				<textarea name="scope" rows="2" style="width:212px"><?php echo $scope?></textarea>
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="2" style="text-align:center;" class="nobborder">
+				<input type="submit" value="<?php echo _("OK")?>" class="button" />
+				<input type="reset" value="<?php echo _("Reset")?>" class="button" />
+			</td>
+		</tr>
+	</table>
 </form>
 
 </body>

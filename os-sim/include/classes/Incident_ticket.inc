@@ -123,12 +123,19 @@ class Incident_ticket {
         return Util::timestamp2date($this->date);
     }
     function get_list($conn, $args) {
+        require_once 'classes/Util.inc';
+    
+        $tz = Util::get_timezone();
+        
         $list = array();
         $query = OssimQuery("SELECT * FROM incident_ticket $args");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
+                if($tz!=0) {
+                    $rs->fields["date"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["date"])+3600*$tz);
+                }
                 $list[] = new Incident_ticket($rs->fields["id"], $rs->fields["incident_id"], $rs->fields["date"], $rs->fields["status"], $rs->fields["priority"], $rs->fields["users"], $rs->fields["description"], $rs->fields["action"], $rs->fields["in_charge"], $rs->fields["transferred"]);
                 $rs->MoveNext();
             }
@@ -139,7 +146,12 @@ class Incident_ticket {
     * @param $tags Array with the tag IDs related to this incident
     */
     function insert($conn, $incident_id, $status, $priority, $user, $description, $action, $transferred, $tags, $attachment) {
-		$vals = array(
+    
+        require_once 'classes/Util.inc';
+        
+        $tz = Util::get_timezone();
+        
+        $vals = array(
             'incident_id' => array(
                 OSS_DIGIT,
                 'error:' . _("Invalid Incident ID")
@@ -184,8 +196,8 @@ class Incident_ticket {
             ) ,
         );
 		
-		$description = strip_tags($description,'<span><div><p><ol><ul><li><hr><br>');
-		$action      = strip_tags($action,'<span><div><p><ol><ul><li><br>');
+        $description = strip_tags($description,'<big><span><div><p><ol><ul><li><hr><br>');
+        $action       = strip_tags($action,'<big><span><div><p><ol><ul><li><br>');
 		
 		ossim_valid($incident_id, $vals['incident_id']);
         ossim_valid($status, $vals['status']);
@@ -203,7 +215,13 @@ class Incident_ticket {
 			return ossim_error();
         
 		$ticket_id = $conn->GenID('incident_ticket_seq');
-        $date = date('Y-m-d H:i:s');
+        
+        if($tz==0) {
+            $date = date('Y-m-d H:i:s');
+        }
+        else {
+            $date = gmdate("Y-m-d H:i:s");
+        }
         // Get previous in charge
         $sql = 'SELECT in_charge FROM incident WHERE id=?';
         $in_charge = $conn->GetOne($sql, array($incident_id));

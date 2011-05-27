@@ -45,6 +45,8 @@ $pathtographs = dirname($_SERVER['REQUEST_URI']);
 $proto = "http";
 $date_from = (POST('date_from') != "") ? POST('date_from') : strftime("%d/%m/%Y %H:%M:%S", time() - (24 * 60 * 60));
 $date_to = (POST('date_to') != "") ? POST('date_to') : strftime("%d/%m/%Y %H:%M:%S", time());
+
+
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $proto = "https";
 $datapath = "$proto://" . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . "$pathtographs/graphs";
 //This is used to give the name to the created pdf
@@ -71,6 +73,8 @@ function create_image($url, $args = array()) {
     fclose($fd);
     return $tmp_name;
 }
+
+
 if (POST('submit_security')) {
     $pdf = new PDF("OSSIM Security Report");
     $newpage = false;
@@ -210,7 +214,8 @@ if (POST('submit_security')) {
     if ($type != "ALL") $fil.= " and type_id = '$type'";
     if ($status != "ALL") $fil.= " and status = '$status'";
     if ($in_charge != "") $fil.= " and in_charge = '$in_charge'";
-    /* metrics */
+   
+   /* metrics */
     if (POST('Metric')) {
         $pdf->IncidentSummary(gettext("METRICS") , "Metric", $metrics_notes, $priority, $fil);
         $ids = $pdf->get_metric_ids($priority, $fil);

@@ -109,7 +109,6 @@ require_once 'classes/Security.inc';
 require_once 'classes/Util.inc';
 require_once 'classes/Log_action.inc';
 require_once 'ossim_db.inc';
-require_once 'classes/Util.inc';
 
 
 define('HIGH_PRIORITY', 7);
@@ -218,8 +217,15 @@ class Incident {
         }
         return $in_charge_name;
     }
-    function get_last_modification() {
-        return Util::date_diff(time() , $this->last_update);
+    function get_last_modification($conn) {
+        require_once ('classes/Util.inc');
+        
+        $tz = Util::get_timezone();
+        
+        list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($conn, $this->last_update, $tz);
+        $last_update = "$y-$m-$d $h:$u:$s";
+        
+        return Util::date_diff(gmdate("Y-m-d H:i:s"), $last_update);
     }
     /*
     * Returns an Incident's event duration
@@ -541,6 +547,9 @@ class Incident {
     function get_list($conn, $args = "", $user = "") {
         
 		require_once ('classes/Session.inc');
+        require_once ('classes/Util.inc');
+        
+        $tz = Util::get_timezone();
         
 		$list  = array();
 		$users = array();
@@ -597,6 +606,12 @@ class Incident {
       
 		while (!$rs->EOF) 
 		{
+            if($tz!=0) {
+                $rs->fields["date"]        = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["date"])+3600*$tz);
+                $rs->fields["last_update"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["last_update"])+3600*$tz);
+                $rs->fields["event_start"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_start"])+3600*$tz);
+                $rs->fields["event_end"]   = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_end"])+3600*$tz);
+            }
 			//Users allowed to see this ticket
 			
 			$allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"], $user);
@@ -627,6 +642,10 @@ class Incident {
 	
 	function get_list_all($conn, $args = "") {
         require_once ('classes/Session.inc');
+        require_once ('classes/Util.inc');
+        
+        $tz = Util::get_timezone();
+        
         $list = array();
         $sql = "SELECT incident.id," . "incident.title," . "incident.date, " . "incident.ref, " . "incident.type_id as type, " . "incident.submitter as submitter, " . "incident.priority, " . "incident.in_charge, " . "incident.status, " . "incident.last_update, " . "incident.event_start, " . "incident.event_end " . "FROM incident $args";
 
@@ -636,6 +655,12 @@ class Incident {
 		{
             while (!$rs->EOF) 
 			{
+                if($tz!=0) {
+                    $rs->fields["date"]        = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["date"])+3600*$tz);
+                    $rs->fields["last_update"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["last_update"])+3600*$tz);
+                    $rs->fields["event_start"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_start"])+3600*$tz);
+                    $rs->fields["event_end"]   = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_end"])+3600*$tz);
+                }
                 $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
                 $rs->MoveNext();
             }
@@ -648,6 +673,11 @@ class Incident {
         require_once ('classes/CIDR.inc');
 		require_once ('classes/Net.inc');
 		require_once ('classes/Host.inc');
+        require_once ('classes/Util.inc');
+        
+        $tz = Util::get_timezone();
+        
+        //if (preg_match($arg)) // ***********
         
 		if ( $user != '' || empty($host_ip) )
 		{
@@ -750,6 +780,12 @@ class Incident {
 		{
             while (!$rs->EOF) 
 			{
+                if($tz!=0) {
+                    $rs->fields["date"]        = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["date"])+3600*$tz);
+                    $rs->fields["last_update"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["last_update"])+3600*$tz);
+                    $rs->fields["event_start"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_start"])+3600*$tz);
+                    $rs->fields["event_end"]   = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_end"])+3600*$tz);
+                }
                 $allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"]);
 				
 				$me = Session::get_session_user();
@@ -766,6 +802,9 @@ class Incident {
 	
     function get_list_type_descr($conn, $args = "") {
         require_once ('classes/Session.inc');
+        require_once ('classes/Util.inc');
+        
+        $tz = Util::get_timezone();
         
 		$me   = Session::get_session_user();
         $list = array();
@@ -782,6 +821,13 @@ class Incident {
 				
 				if ( !empty($allowed[$me]) )  
 				{
+                    if($tz!=0) {
+                        $rs->fields["date"]        = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["date"])+3600*$tz);
+                        $rs->fields["last_update"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["last_update"])+3600*$tz);
+                        $rs->fields["event_start"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_start"])+3600*$tz);
+                        $rs->fields["event_end"]   = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_end"])+3600*$tz);
+                    }
+                
                     $my_incident = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
                     $my_incident->set_type_descr($rs->fields["descr"]);
                     $list[] = $my_incident;
@@ -804,6 +850,11 @@ class Incident {
         return $keywords;
     }
     function search($conn, $search_criteria, $order_by = 'life_time', $order_mode = 'DESC', $page=1, $rows_per_page=50) {
+        require_once ('classes/Util.inc');
+        
+        $tz  = Util::get_timezone();
+        $tzc = Util::get_tzc();
+        
         $search_opts = array(
             'incident_id',
             'ref',
@@ -830,7 +881,7 @@ class Incident {
 		        
 		if (is_array($opts['last_update'])) 
 		{
-            $where[] = "incident.last_update between ".$opts['last_update'][0]." AND ".$opts['last_update'][1];
+            $where[] = "convert_tz(incident.last_update,'+00:00','".$tzc."') between ".$opts['last_update'][0]." AND ".$opts['last_update'][1];
         } 
 		elseif ($opts['last_update']) 
 		{
@@ -990,9 +1041,9 @@ class Incident {
         }
 		
 		
-		/*echo "<pre>";
-			print_r($sql);
-		echo "</pre>";*/
+		//echo "<pre>";
+		//print_r($sql);
+		//echo "</pre>";
 		        
 		// Order by
         if ($order_by == 'life_time') $order_by = "date";
@@ -1024,6 +1075,13 @@ class Incident {
                 $life_time_diff = strtotime($rs->fields["date"]) - strtotime($rs->fields["last_update"]);
             }
             $itags  = (isset($tags[$rs->fields["id"]])) ? $tags[$rs->fields["id"]] : array();
+            
+            if($tz!=0) {
+                $rs->fields["date"]        = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["date"])+3600*$tz);
+                $rs->fields["last_update"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["last_update"])+3600*$tz);
+                $rs->fields["event_start"] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_start"])+3600*$tz);
+                $rs->fields["event_end"]   = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$rs->fields["event_start_end"])+3600*$tz);
+            }
             $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type_id"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], $itags, $life_time_diff, $rs->fields["event_start"], $rs->fields["event_end"]);
             $rs->MoveNext();
         }
@@ -1504,23 +1562,41 @@ class Incident {
 		{
             if (!ossim_valid($$var, $rule)) return false;
         }
-        
+        require_once ('classes/Util.inc');
 		require_once ('classes/Session.inc');
         
 		$user = Session::get_session_user();
         
 		if( $in_charge == "" ) $in_charge = $user;
         
-        if (empty($event_start)) $event_start = "now";
-        if (empty($event_end))   $event_end = "now";
+        $tz = Util::get_timezone();
         
-		$event_start = date('Y-m-d H:i:s', strtotime($event_start));
-        $event_end   = date('Y-m-d H:i:s', strtotime($event_end));
-        
-		$query = "INSERT INTO incident (title, type_id, ref, submitter, priority, in_charge, status, date, last_update, event_start, event_end) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-		$date   = date('Y-m-d H:i:s');
-        
+        if($tz!=0) {
+            $date   = gmdate("Y-m-d H:i:s");
+                
+            if (empty($event_start))    $event_start = $date;
+            else {
+                list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($conn, $event_start, $tz);
+                $event_start = "$y-$m-$d $h:$u:$s";
+            }
+            
+            if (empty($event_end))  $event_end = $date;
+            else {
+                list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($conn, $event_end, $tz);
+                $event_end = "$y-$m-$d $h:$u:$s";
+            }
+        }
+        else {
+            $date   = date('Y-m-d H:i:s');
+            
+            if (empty($event_start))    $event_start = $date;
+            else                        $event_start = date('Y-m-d H:i:s', strtotime($event_start));
+            
+            if (empty($event_end))      $event_end   = $date;
+            else                        $event_end   = date('Y-m-d H:i:s', strtotime($event_end));
+        }
+
+        $query = "INSERT INTO incident (title, type_id, ref, submitter, priority, in_charge, status, date, last_update, event_start, event_end) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		$params = array(
             $title,
             $type,
@@ -1795,17 +1871,36 @@ class Incident {
     
 	function __update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end, $in_charge){
         
+        require_once 'classes/Util.inc';
+        
+        $tz = Util::get_timezone();
+
 		foreach(Incident::get_validations('incident_update') as $var => $rule) {
             if (!ossim_valid($$var, $rule)) 
 				return false;
         }
 			
         
-		if (empty($event_start)) $event_start = "now";
-        if (empty($event_end))   $event_end   = "now";
-        
-		$event_start = date('Y-m-d H:i:s', strtotime($event_start));
-        $event_end   = date('Y-m-d H:i:s', strtotime($event_end));
+        if($tz!=0) {
+            if(empty($event_start)) $event_start = gmdate("Y-m-d H:i:s");
+            else {
+                list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($conn, $event_start, $tz);
+                $event_start = "$y-$m-$d $h:$u:$s";
+            }
+            
+            if(empty($event_end))   $event_end = gmdate("Y-m-d H:i:s");
+            else {
+                list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($conn, $event_end, $tz);
+                $event_end = "$y-$m-$d $h:$u:$s";
+            }
+        }
+        else {
+            if (empty($event_start)) $event_start = "now";
+            if (empty($event_end))   $event_end   = "now";
+            
+            $event_start = date('Y-m-d H:i:s', strtotime($event_start));
+            $event_end   = date('Y-m-d H:i:s', strtotime($event_end));
+        }
         
 		$sql = "UPDATE incident SET " . "title = ?, type_id = ?, in_charge = ?, submitter = ?, priority = ?, date = date, event_start = ?, event_end = ? " . "WHERE id = ?";
         
@@ -2189,7 +2284,7 @@ class Incident {
 		{
 			foreach($incident_list as $incident) 
 			{
-				$incident->_life_time_diff = strtotime($incident->get_date()) - strtotime($incident->get_last_modification());
+				$incident->_life_time_diff = strtotime($incident->get_date()) - strtotime($incident->get_last_modification($conn));
 				$incident->tags            = ( isset($tags[$incident->get_id()]) ) ? $tags[$incident->get_id()] : array();
 			}
 		}
@@ -2313,8 +2408,10 @@ class Incident {
 							  "Anomaly"        => 'ref="Anomaly"',
 							  "Vulnerability"  => 'ref="Vulnerability"'
 							  );
-		
-				
+                              
+		require_once('classes/Util.inc');
+		$tzc = Util::get_tzc();
+        
 		for ($i = 11; $i>=0 ; $i--)
 		{
 			$time    = strtotime("-".$i." months");
@@ -2328,10 +2425,10 @@ class Incident {
 			$y_s     = date("y", $time);
 			$m       = date("m", $time);
 			$m_s     = date("M", $time);
-			$d       = date("d", $time);
+			//$d       = date("d", $time);
 				
-			$months["$m_s-$y_s"] = "date >= \"$y-$m-01 00:00:00\" and date <= \"$y-$m-$d 23:59:59\""; 
-			
+			//$months["$m_s-$y_s"] = "date >= \"$y-$m-01 00:00:00\" and date <= \"$y-$m-$d 23:59:59\""; 
+			$months["$m_s-$y_s"] = "month(convert_tz(date,'+00:00','$tzc'))=$m AND year(convert_tz(date,'+00:00','$tzc'))=$y";
 		}
 		
 		foreach($event_types as $et => $sql_et)

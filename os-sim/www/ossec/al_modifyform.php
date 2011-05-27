@@ -157,9 +157,9 @@ else
 		$ip 	  = $agentless->get_ip();
 		$hostname = $agentless->get_hostname();
 		$user 	  = $agentless->get_user();
-		$pass     = $agentless->get_pass();
+		$pass     = Util::fake_pass($agentless->get_pass());
 		$passc    = $pass;
-		$ppass    = $agentless->get_ppass();
+		$ppass    = Util::fake_pass($agentless->get_ppass());
 		$ppassc   = $ppass;
 		$descr 	  = $agentless->get_descr();
 		
@@ -581,6 +581,7 @@ else
 					<tr>
 						<th><label for='pass'><?php echo _("Password"); ?></label></th>
 						<td class="left">
+							
 							<input type="password" class='req_field vfield' name="pass" id="pass" value="<?php echo $pass;?>"/>
 							<span style="padding-left: 3px;">*</span>
 						</td>

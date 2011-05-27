@@ -355,9 +355,10 @@ class AlarmGroups {
 		if ($group_type == "name") {
 			$query = "SELECT SQL_CALC_FOUND_ROWS count( * ) AS howmany,
 			sha1( alarm_event.name ) AS group_id,
-			alarm_event.name AS name
+			alarm_event.name AS name,
+			max(alarm_event.risk) as max_risk
 			FROM (
-			(SELECT p.name FROM alarm a, plugin_sid p$sensor_join$directive_join$tag_join
+			(SELECT p.name, a.risk FROM alarm a, plugin_sid p$sensor_join$directive_join$tag_join
 			WHERE a.plugin_id = p.plugin_id
 			AND a.plugin_sid = p.sid
 			$closed_where
@@ -376,9 +377,10 @@ class AlarmGroups {
 		$query = "SELECT SQL_CALC_FOUND_ROWS count( * ) AS howmany,
 			CONCAT( sha1( alarm_event.name ) , DATE( alarm_event.timestamp ) ) AS group_id,
 			alarm_event.name AS name,
+			max(alarm_event.risk) as max_risk,
 			DATE( alarm_event.timestamp ) AS day
 			FROM (
-			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join$directive_join$tag_join
+			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp,a.risk FROM alarm a, plugin_sid p$sensor_join$directive_join$tag_join
 			WHERE a.plugin_id = p.plugin_id
 			AND a.plugin_sid = p.sid
 			$closed_where
@@ -395,13 +397,15 @@ class AlarmGroups {
 		// Group by name, ips, date (all)
 		} else {
 		$query = "SELECT SQL_CALC_FOUND_ROWS count( * ) AS howmany,
-			CONCAT( sha1( alarm_event.name ) , CONCAT( 'S', alarm_event.src_ip, 'D', alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) ) AS group_id,
+			CONCAT( sha1( alarm_event.name ) , 
+			CONCAT( 'S', alarm_event.src_ip, 'D', alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) ) AS group_id,
 			alarm_event.name AS name,
 			INET_NTOA( alarm_event.src_ip ) AS src_ip,
 			INET_NTOA( alarm_event.dst_ip ) AS dst_ip,
+			max(alarm_event.risk) as max_risk,
 			DATE( alarm_event.timestamp ) AS day
 			FROM (
-			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join$directive_join$tag_join
+			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp,a.risk FROM alarm a, plugin_sid p$sensor_join$directive_join$tag_join
 			WHERE a.plugin_id = p.plugin_id
 			AND a.plugin_sid = p.sid
 			$closed_where
@@ -437,7 +441,8 @@ class AlarmGroups {
 					"date" => $rs->fields['day'],
 					"ip_src" => $rs->fields['src_ip'],
 					"ip_dst" => $rs->fields['dst_ip'],
-					"id_tag" => $tag
+					"id_tag" => $tag,
+					"max_risk" => $rs->fields['max_risk']
 				);
 				$rs->MoveNext();
 			}

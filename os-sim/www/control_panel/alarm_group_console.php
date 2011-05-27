@@ -101,7 +101,7 @@ $refresh_time = POST('refresh_time');
 $autorefresh = POST('autorefresh');
 $alarm = POST('alarm');
 $param_unique_id = POST('unique_id');
-$group_type = POST('group_type') ? POST('group_type') : "all";
+$group_type = POST('group_type') ? POST('group_type') : "name";
 $query = (POST('query') != "") ? POST('query') : "";
 $directive_id = POST('directive_id');
 $sensor_query = POST('sensor_query');
@@ -786,7 +786,19 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 			<table class="noborder" align="center" width="100%">
 				<tr>
 					<td width="200" class="nobborder">
-						&nbsp;
+						<table class="transparent">
+							<tr>
+								<td class="nobborder" nowrap><input type="button" onclick="document.location.href='alarm_console.php?hide_closed=1'" value="<?=_("Ungrouped")?>" class="button"><a href="alarm_console.php?hide_closed=1"></td>
+								<td class="nobborder" nowrap><input type="button" value="<?=_("Grouped")?>" class="buttonon" disabled> by:</td>
+								<td class="nobborder">
+									<select name="group_type" onchange="document.filters.submit()">
+										<option value="all" <?php if ($group_type == "all") echo "selected" ?>>Alarm name, Src/Dst, Date</option>
+										<option value="namedate" <?php if ($group_type == "namedate") echo "selected" ?>>Alarm name, Date</option>
+										<option value="name" <?php if ($group_type == "name") echo "selected" ?>>Alarm name</option>
+									</select>
+								</td>
+							</tr>
+						</table>
 					</td>
 			<?
 				print "<td class='nobborder' style='text-align:center'>\n";
@@ -815,20 +827,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 				?>
 					</td>
 					<td width="250" class="nobborder right">
-						<table class="transparent">
-							<tr>
-								<td class="nobborder" nowrap><a href="alarm_console.php?hide_closed=1"><b><?=_("Ungrouped")?></b></a></td>
-								<td class="nobborder"> | </td>
-								<td class="nobborder" nowrap><?=_("Grouped by")?>: </td>
-								<td class="nobborder">
-									<select name="group_type" onchange="document.filters.submit()">
-										<option value="all" <?php if ($group_type == "all") echo "selected" ?>>Alarm name, Src/Dst, Date</option>
-										<option value="namedate" <?php if ($group_type == "namedate") echo "selected" ?>>Alarm name, Date</option>
-										<option value="name" <?php if ($group_type == "name") echo "selected" ?>>Alarm name</option>
-									</select>
-								</td>
-							</tr>
-						</table>
+						&nbsp;
 					</td>
 				</tr>
 			</table>
@@ -836,10 +835,11 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 	</tr>
 	</form>
 	<tr>
-		<td width='3%' class='nobborder' style='text-align:center'><input type='checkbox' name='allcheck' onclick='checkall()'></td>
-		<td class='nobborder' style='text-align: center; padding:0px' width='3%'><a href='javascript: opencloseAll();'><img src='../pixmaps/plus.png' id='expandcollapse' border=0 alt='<?=_("Expand/Collapse ALL")?>' title='<?=_("Expand/Collapse ALL")?>'></a></td>
+		<td width='20' class='nobborder' style='text-align:center'><input type='checkbox' name='allcheck' onclick='checkall()'></td>
+		<td class='nobborder' style='text-align: center; padding:0px' width='20'><a href='javascript: opencloseAll();'><img src='../pixmaps/plus.png' id='expandcollapse' border=0 alt='<?=_("Expand/Collapse ALL")?>' title='<?=_("Expand/Collapse ALL")?>'></a></td>
 		<td style='text-align: left;padding-left:10px; background-color:#9DD131;font-weight:bold'><?=gettext("Group")?></td>
 		<td width='10%' style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Owner")?></td>
+		<td width='90' style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Highest Risk")?></td>
 		<td width='20%' style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Description")?></td>
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold' width='7%'><?=gettext("Status")?></td>
 		<td width='7%' style='text-decoration: none; background-color:#9DD131;font-weight:bold'><?=gettext("Action")?></td>
@@ -852,6 +852,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 		$group_id = $group['group_id'];
 		$_SESSION[$group_id] = $group['name'];
 		$ocurrences = $group['group_count'];
+		$max_risk = $group['max_risk'];
 		$id_tag = $group['id_tag'];
 		if ($group['date'] != $lastday) {
 			$lastday = $group['date'];
@@ -909,8 +910,8 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 	</tr>
 		<? } ?>
 	<tr>
-		<td class="nobborder" width="50"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
-		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?php echo $group['name']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<? echo ($group_type == "name") ? "" : $group['date'] ?>','');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
+		<td class="nobborder" width="20"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
+		<td class="nobborder" width="20" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?php echo $group['name']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<? echo ($group_type == "name") ? "" : $group['date'] ?>','');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
 		<th style='text-align: left; border-width: 0px; background: <?=$background?>'>
 			<table class="transparent">
 			<tr>
@@ -920,11 +921,44 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 			</table>
 		</th>
 		<th width='10%' style='text-align: center; border-width: 0px; background: <?=$background?>'><?=$owner?></th>
+		<th style='text-align: center; border-width: 0px; background: <?=$background?>'><table class="transparent" align="center"><tr>
+		<?php
+		if ($max_risk > 7) {
+            echo "
+            <td class='nobborder' style='text-align:center;background-color:red;padding:5px'>
+              <b>
+                  <font color=\"white\">$max_risk</font>
+              </b>
+            </td>
+            ";
+        } elseif ($max_risk > 4) {
+            echo "
+            <td class='nobborder' style='text-align:center;background-color:orange;padding:5px'>
+              <b>
+                  <font color=\"black\">$max_risk</font>
+              </b>
+            </td>
+            ";
+        } elseif ($max_risk > 2) {
+            echo "
+            <td class='nobborder' style='text-align:center;background-color:green;padding:5px'>
+              <b>
+                  <font color=\"white\">$max_risk</font>
+              </b>
+            </td>
+            ";
+        } else {
+            echo "
+            <td class='nobborder' style='text-align:center;padding:5px'>$max_risk</td>
+            ";
+        } ?>
+        	</tr></table>
+		</th>
 		<th width='20%' style='text-align: center; border-width: 0px; background: <?=$background?>;padding:3px'>
-			<table class='noborder' style='background:$background'>
+			<table class='noborder' style='background:$background' align="center">
 				<tr>
 					<td class='nobborder'><input type='text' name='input<?=$group_id?>' title='<?=$descr?>' <?=$av_description?> style='text-decoration: none; border: 0px; background: #FFFFFF' size='20' value='<?=$descr?>' onkeypress='send_descr(this, event);' /></td>
-					<td class='nobborder'><a href=javascript:change_descr('input<?=$group_id?>')><img valign='middle' border=0 src='../pixmaps/disk-black.png' /></a></td>
+					<td class='nobborder'><?php if ($owner_take) { ?><a href=javascript:change_descr('input<?=$group_id?>')><img valign='middle' border=0 src='../pixmaps/disk-black.png' /></a><?php } ?></td>
 				</tr>
 			</table>
 		</th>

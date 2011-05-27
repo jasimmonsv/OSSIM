@@ -1172,7 +1172,7 @@ function PurgeAlert_ac($sid, $cid, $db) {
     $delsql = "";
     $res = $db->baseExecute("select * from acid_event where sid=$sid and cid=$cid");
     if ($myrow = $res->baseFetchRow()) {
-        $day = date("Y-m-d", strtotime($myrow['timestamp']));
+        $day = preg_replace("/\s.*/","",$myrow['timestamp']);
         $plugin_id = $myrow['plugin_id'];
         $plugin_sid = $myrow['plugin_sid'];
         $ip_src = $myrow['ip_src'];

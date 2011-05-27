@@ -534,24 +534,30 @@ else if(preg_match("/e_(.*)_netgroup/",$key,$found))
     if ($buffer=="[]")  $buffer = "[{title:'"._("No Net Groups Found")."'}]";
     echo $buffer;
 }
-else if(preg_match("/e_(.*)_net/",$key,$found))
+else if(preg_match("/e_(.*)_net$/",$key,$found))
 {
 	$entityPerms = Acl::entityPerms($conn,$found[1]);
 	$all = count($entityPerms["assets"]);
 	$nets = Net::get_all($conn);
 
     $buffer .= "[";
-    $j = 0;
-    foreach($nets as $net) 
-	{
-    	$cidrs = explode(",",$net->get_ips());
-    	if (!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"])) {
-	        $net_title  = Util::htmlentities(utf8_encode($net->get_name()));
-			$li = "url:'../net/newnetform.php?name=".urlencode($net->get_name())."', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$net->get_ips().")</font>'\n";
-	        $buffer .= (($j > 0) ? "," : "") . "{ $li }";
-	        $j++;
-	    }
+    $html    = "";
+
+    $p = 0;
+    foreach($nets as $net) {
+        $cidrs = explode(",",$net->get_ips());
+        if (!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"])) {
+            if($p>=$from && $p<$to) {
+                $net_title  = Util::htmlentities(utf8_encode($net->get_name()));
+                $html .= "{url:'../net/newnetform.php?name=".urlencode($net->get_name())."', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$net->get_ips().")</font>'},";
+            }
+            $p++;
+        }
     }
+    if ($p>$to) {
+        $html.= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."' }";
+    }
+    if ($html != "") $buffer .= preg_replace("/,$/", "", $html); 
 	
     $buffer .= "]";
     if ($buffer=="[]")  $buffer = "[{title:'"._("No Nets Found")."'}]";

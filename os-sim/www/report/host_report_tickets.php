@@ -30,6 +30,7 @@
 ****************************************************************************/
 
 require_once('classes/Host.inc');
+require_once('classes/Util.inc');
 
 
 if( $host != 'any' )
@@ -40,7 +41,10 @@ if( $host != 'any' )
 	{
 		$date_from   = ( preg_match("/^\d+\-\d+\-\d+$/",$date_from) ) ?  $date_from." 00:00:00" : $date_from;
 		$date_to     = ( preg_match("/^\d+\-\d+\-\d+$/",$date_to) ) ?  $date_to." 23:59:59" : $date_to;
-		$date_filter = "AND ( date BETWEEN '$date_from' AND '$date_to')";
+        
+        $tzc = Util::get_tzc();
+
+		$date_filter = "AND (convert_tz(date,'+00:00','$tzc') BETWEEN  '$date_from' AND '$date_to')";
 	}
 	
 	$where          = "AND status='open' $date_filter ORDER BY date DESC";

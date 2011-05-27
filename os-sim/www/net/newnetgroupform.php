@@ -336,11 +336,14 @@ else
         </div>
     </td>
 </tr>
-    <tr>
-        <td colspan="2" class="nobborder">
-            <p align="center" style="font-style: italic;"><?php echo gettext("Values marked with (*) are mandatory"); ?></p>
-        </td>
-    </tr>
+
+<tr>
+	<td class="nobborder">
+		<p align="center" style="font-style: italic;"><?php echo gettext("Values marked with (*) are mandatory"); ?></p>
+	</td>
+	<td class="nobborder">&nbsp;</td>
+</tr>
+
 </table>
 </form>
 

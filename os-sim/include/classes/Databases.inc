@@ -43,65 +43,91 @@ class Databases {
     var $user;
     var $pass;
     var $icon;
+	
     function Databases($name, $ip, $port, $user, $pass, $icon, $foundrows = 0) {
         $this->name = $name;
-        $this->ip = $ip;
+        $this->ip   = $ip;
         $this->port = $port;
         $this->user = $user;
         $this->pass = $pass;
         $this->icon = $icon;
         $this->foundrows = $foundrows;
     }
+	
     function get_name() {
         return $this->name;
     }
+	
     function get_ip() {
         return $this->ip;
     }
+	
     function get_port() {
         return $this->port;
     }
+	
     function get_user() {
         return $this->user;
     }
+	
     function get_pass() {
         return $this->pass;
     }
+	
     function get_icon() {
         return $this->icon;
     }
+	
     function get_foundrows() {
         return $this->foundrows;
     }
+	
     function get_list($conn, $args = "") {
         $list = array();
         $iffoundrows = preg_match("/LIMIT/i", $args) ? true : false;
-        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
-        $query = OssimQuery("SELECT $select FROM `databases` $args");
-        if (!$rs = & $conn->Execute($query)) {
+        $uuid        = Util::get_system_uuid();
+		$select      = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *, AES_DECRYPT(pass,'$uuid') AS pass_decrypt" : "*, AES_DECRYPT(pass,'$uuid') AS pass_decrypt";
+        
+		$query       = OssimQuery("SELECT $select FROM `databases` $args");
+        
+		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
-        } else {
+        } 
+		else 
+		{
             $foundrows = 0;
             if ($iffoundrows) {
                 if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) print $conn->ErrorMsg();
                 else $foundrows = $rf->fields["total"];
             }
             while (!$rs->EOF) {
-                $list[] = new Databases($rs->fields["name"], $rs->fields["ip"], $rs->fields["port"], $rs->fields["user"], $rs->fields["pass"], $rs->fields["icon"], $foundrows);
+                $list[] = new Databases($rs->fields["name"], 
+										$rs->fields["ip"], 
+										$rs->fields["port"], 
+										$rs->fields["user"], 
+										( empty($rs->fields['pass_decrypt']) ) ? $rs->fields['pass'] : $rs->fields['pass_decrypt'], 
+										$rs->fields["icon"], 
+										$foundrows);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
+	
     function insert($conn, $name, $ip, $port, $user, $pass, $icon) {
-        $sql = "INSERT INTO `databases` (name, ip, port, user, pass, icon)
-                VALUES (?, ?, ?, ?, ?, ?)";
-        $params = array(
-            $name,
-            $ip,
-            $port,
-            $user,$pass,$icon
-        );
+        
+		$uuid   = Util::get_system_uuid();
+		$sql    = "INSERT INTO `databases` (name, ip, port, user, pass, icon) VALUES (?, ?, ?, ?, AES_ENCRYPT(?,'$uuid'), ?)";
+		$params = array(
+			$name,
+			$ip,
+			$port,
+			$user,
+			$pass,
+			$icon
+		);
+		
+		
         if (!$conn->Execute($sql, $params)) {
             die($conn->ErrorMsg());
         }
@@ -111,18 +137,36 @@ class Databases {
         );
         Log_action::log(79, $infolog);
     }
+	
     function update($conn, $name, $ip, $port, $user, $pass, $icon) {
-        $sql = "UPDATE `databases` SET name = ?, ip = ?, 
-                port = ?, user = ?, pass = ?, icon = ?
-                WHERE name = ?";
-        $params = array(
-            $name,
-            $ip,
-            $port,
-            $user,$pass,$icon,
-            $name
-        );
-        if (!$conn->Execute($sql, $params)) {
+        if ( Util::is_fake_pass($pass) )
+		{
+			$sql = "UPDATE `databases` SET name = ?, ip = ?, port = ?, user = ?, icon = ? WHERE name = ?";
+			$params = array(
+				$name,
+				$ip,
+				$port,
+				$user,
+				$icon,
+				$name
+			);
+		}
+		else
+		{
+			$uuid   = Util::get_system_uuid();
+			$sql    = "UPDATE `databases` SET name = ?, ip = ?, port = ?, user = ?, pass = AES_ENCRYPT(?,'$uuid'), icon = ? WHERE name = ?";
+			$params = array(
+				$name,
+				$ip,
+				$port,
+				$user,
+				$pass,
+				$icon,
+				$name
+			);
+		}
+        
+		if (!$conn->Execute($sql, $params)) {
             die($conn->ErrorMsg());
         }
         $infolog = array(

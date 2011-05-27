@@ -43,7 +43,9 @@
 * - update()
 */
 require_once ('classes/Log_action.inc');
-require_once ("ossim_db.inc");
+require_once ('ossim_db.inc');
+require_once ('classes/Util.inc');
+
 class ActiveDirectory {
     var $id;
     var $server;
@@ -52,10 +54,10 @@ class ActiveDirectory {
     var $scope;
     function ActiveDirectory($id, $server, $binddn, $password, $scope, $foundrows = 0) {
         $this->id = $id;
-        $this->server = $server;
-        $this->binddn = $binddn;
-        $this->password = $password;
-        $this->scope = $scope;
+        $this->server    = $server;
+        $this->binddn    = $binddn;
+        $this->password  = $password;
+        $this->scope     = $scope;
         $this->foundrows = $foundrows;
     }
     function get_id() {
@@ -78,46 +80,77 @@ class ActiveDirectory {
     }
     function get_list($conn, $args = "") {
         $iffoundrows = preg_match("/LIMIT/i", $args) ? true : false;
-        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
-        $query = OssimQuery("SELECT $select FROM ldap $args");
-        if (!$rs = & $conn->Execute($query)) {
+        $uuid        = Util::get_system_uuid();
+		
+		$select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *, AES_DECRYPT(password,'$uuid') AS pass_decrypt" : "*, AES_DECRYPT(password,'$uuid') AS pass_decrypt";
+        $query  = OssimQuery("SELECT $select FROM ldap $args");
+        
+		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
-        } else {
+        } 
+		else 
+		{
             $foundrows = 0;
             if ($iffoundrows) {
                 if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) print $conn->ErrorMsg();
                 else $foundrows = $rf->fields["total"];
             }
             $list = array();
-            while (!$rs->EOF) {
-                $list[] = new ActiveDirectory($rs->fields["id"], $rs->fields["ip"], $rs->fields["binddn"], $rs->fields["password"], $rs->fields["scope"], $foundrows);
+            while (!$rs->EOF) 
+			{
+				
+                $list[] = new ActiveDirectory($rs->fields["id"], 
+											  $rs->fields["ip"], 
+											  $rs->fields["binddn"], 
+											  ( empty($rs->fields['pass_decrypt']) ) ? $rs->fields['password'] : $rs->fields['pass_decrypt'], 
+											  $rs->fields["scope"], 
+											  $foundrows);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
     function insert($conn, $server, $binddn, $password, $scope) {
-        $sql = "INSERT INTO ldap (ip,binddn,password,scope) VALUES (inet_aton(?), ?, ?, ?)";
-        $params = array(
+        $uuid   = Util::get_system_uuid();
+		$sql    = "INSERT INTO ldap (ip,binddn,password,scope) VALUES (inet_aton(?), ?, AES_ENCRYPT(?,'$uuid'), ?)";
+        
+		$params = array(
             $server,
             $binddn,
             $password,
             $scope
         );        
-        if ($conn->Execute($sql,$params) === false) {
+        
+		if ($conn->Execute($sql,$params) === false) {
             print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
             exit;
         }
     }
     function update($conn, $id, $server, $binddn, $password, $scope) {
-        $sql = "UPDATE ldap SET ip=inet_aton(?),binddn=?,password=?,scope=? WHERE id=?";
-        $params = array(
-            $server,
-            $binddn,
-            $password,
-            $scope,
-            $id
-        );        
+        if ( Util::is_fake_pass($password) )
+		{
+			$sql = "UPDATE ldap SET ip=inet_aton(?),binddn=?,scope=? WHERE id=?";
+			$params = array(
+				$server,
+				$binddn,
+				$scope,
+				$id
+			);  
+		
+		}
+		else
+		{
+			$uuid   = Util::get_system_uuid();
+			$sql = "UPDATE ldap SET ip=inet_aton(?), binddn=?, password = AES_ENCRYPT(?,'$uuid'), scope=? WHERE id=?";
+			$params = array(
+				$server,
+				$binddn,
+				$password,
+				$scope,
+				$id
+			);   
+		}
+		
         if ($conn->Execute($sql,$params) === false) {
             print 'error updating: ' . $conn->ErrorMsg() . '<BR>';
             exit;

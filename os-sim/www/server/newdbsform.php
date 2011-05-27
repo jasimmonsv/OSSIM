@@ -130,7 +130,7 @@ else
 			$ip        = $server->get_ip();
 			$port      = $server->get_port();
 			$user      = $server->get_user();
-			$pass      = $server->get_pass();
+			$pass      = Util::fake_pass($server->get_pass());
 			$icon      = $server->get_name();
             $pass2     = $pass;
         }

@@ -34,42 +34,63 @@
 * Function list:
 * Classes list:
 */
+
 ob_implicit_flush();
 ini_set('include_path', '/usr/share/ossim/include');
+
 require_once ('classes/Scan.inc');
-$net = $argv[1];
-$remote_sensor = $argv[2];
+include_once ('classes/Session.inc');
+
+$net             = $argv[1];
+$remote_sensor   = $argv[2];
 $timing_template = ($argv[3] != "") ? $argv[3] : "-T3";
+
 $full = ($argv[4] == "full" || $argv[4] == "fast") ? $argv[4] : "";
 
-if (!preg_match("/\d+\.\d+\.\d+\.\d+/",$net)) die("Incorrect net/host format $net\n");
+$nmap_completed_scan = $argv[5];
 
-if ($remote_sensor != "" && $remote_sensor != "null") {
-    $rscan = new RemoteScan($net,"ping",$remote_sensor);
+if (!preg_match("/\d+\.\d+\.\d+\.\d+/",$net)) 
+	die("Incorrect net/host format $net\n");
+
+if ($remote_sensor != "" && $remote_sensor != "null") 
+{
+    $rscan = new RemoteScan($net,"ping",$remote_sensor, $nmap_completed_scan);
     $quiet = ($timing_template != "") ? FALSE : TRUE;
     echo "Scanning remote network: $net\n";
     $rscan->do_scan($quiet);
-    if ($rscan->err()=="") {
+    if ($rscan->err()=="") 
+	{
         $ips=$rscan->get_scan();
-    } else {    
+    } 
+	else 
+	{    
         $ips = array();
         echo "Unable to run remote scan: ".$rscan->err()."\n";
     }
-} else {
+} 
+else 
+{
     echo "Scanning local network: $net\n";
-    $scan = new Scan($net);
+    $scan = new Scan($net, null, $nmap_completed_scan);
     $scan->append_option($timing_template);
-    if ($full == "fast") {
-		$scan->append_option("-F");
+    if ($full == "fast") 
+	{
+        $scan->append_option("-F");
     	$scan->do_scan(TRUE);
-    } elseif ($full == "full") {
+    } 
+	elseif ($full == "full") 
+	{
     	$scan->do_scan(TRUE);
-    } else {
+    } 
+	else 
+	{
     	$scan->do_scan(FALSE);
     }
     echo "\n";
-    $ips=$scan->get_scan();
+    
+	$ips=$scan->get_scan();
 }
+
 foreach ($ips as $ip => $val) {
     echo "Host $ip appears to be up\n";
 }

@@ -38,6 +38,7 @@ require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('ossim_db.inc');
 require_once ('classes/Databases.inc');
+require_once ('classes/Util.inc');
 
 Session::logcheck("MenuConfiguration", "PolicyServers");
 

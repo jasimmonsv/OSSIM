@@ -40,24 +40,40 @@
  */
 $NoData=false;
 
-$_GET['report_type']='incident';
-$_GET['hmenu']='PDF+Report';
-$_GET['smenu']='PDF+Report';
+$_GET['report_type']= 'incident';
+$_GET['hmenu']      = 'PDF+Report';
+$_GET['smenu']      = 'PDF+Report';
 
-$_POST['Alarm']='on';
-$_POST['Event']='on';
-$_POST['Metric']='on';
-$_POST['Anomaly']='on';
-$_POST['Vulnerability']='on';
+$_POST['Alarm']         = 'on';
+$_POST['Event']         = 'on';
+$_POST['Metric']        = 'on';
+$_POST['Anomaly']       = 'on';
+$_POST['Vulnerability'] = 'on';
 
-$_POST['Type']=GET('Type');
-$_POST['In_Charge']='';
-$_POST['Title']='';
-$_POST['Date']='December+10%2C+2009%2C+9%3A12+am';
-$_POST['Status']=GET('Status');
-$_POST['High']=GET('High');
-$_POST['Medium']=GET('Medium');
-$_POST['Low']=GET('Low');
+$_POST['Type']      = GET('Type');
+$_POST['In_Charge'] ='';
+$_POST['Title']     = '';
+$_POST['Date']      ='December+10%2C+2009%2C+9%3A12+am';
+$_POST['Status']    = GET('Status');
+$_POST['High']      = GET('High');
+$_POST['Medium']    = GET('Medium');
+$_POST['Low']       = GET('Low');
+$_POST['Low']       = GET('Low');
+$_POST['date_from'] = GET('date_from');
+$_POST['date_to']   = GET('date_to');
+
+if ( POST('date_from') != "" && POST('date_to') != "" )
+{
+	$date_from   = POST('date_from')." 00:00:00";
+	$date_to     = POST('date_to')." 23:59:59";
+}
+else
+{
+	$date_from = strftime("%d/%m/%Y 00:00:00", time() - (24 * 60 * 60));
+	$date_to   = strftime("%d/%m/%Y 23:59:59", time());
+}
+
+
 /*
 date_from=10%2F12%2F2009+00%3A00%3A00&
 date_to=10%2F12%2F2009+09%3A12%3A38&
@@ -92,19 +108,6 @@ $proto        = "http";
 
 $db    = new ossim_db();
 $conn  = $db->connect();
-
-
-if ( POST('date_from') != "" && POST('date_to') != "" )
-{
-	$date_from   = POST('date_from')." 00:00:00";
-	$date_to     = POST('date_to')." 23:59:59";
-}
-else
-{
-	$date_from = strftime("%d/%m/%Y 00:00:00", time() - (24 * 60 * 60));
-	$date_to   = strftime("%d/%m/%Y 23:59:59", time());
-}
-
 
 
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $proto = "https";

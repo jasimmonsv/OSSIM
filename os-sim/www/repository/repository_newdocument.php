@@ -80,12 +80,12 @@ if ( POST('title') != "" && POST('doctext') != "" && $error == false)
     if($vuser != "")   $user = $vuser;
     if($ventity != "") $user = $ventity;
 	
-	$title    = strip_tags(POST('title'),'<span><div><a><p><ol><ul><li><hr><br>');
-	$doctext  = strip_tags(POST('doctext'),'<span><div><a><p><ol><ul><li><hr><br>');
-	$keywords = strip_tags(POST('keywords'),'<span><div><a><p><ol><ul><li><hr><br>');
+	$title    = POST('title');
+	$doctext  = strip_tags(POST('doctext'),'<big><span><div><a><p><ol><ul><li><hr><br>');
+	$keywords = POST('keywords');
 	
    
-    $id_inserted             = Repository::insert($conn, $title , $doctext , $keywords , $user);
+    $id_inserted = Repository::insert($conn, $title , $doctext , $keywords , $user);
 	?>
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 	<html>
@@ -98,6 +98,10 @@ if ( POST('title') != "" && POST('doctext') != "" && $error == false)
 			body { margin: 0px;}
 			.ossim_success {width: auto;}
 			table { margin:auto; width: 98%; text-align: center;}
+						
+			#user {width: 160px;}
+			#entity { width: 200px;}
+			
 		</style>
 	</head>
 
@@ -131,7 +135,7 @@ else
 		<meta http-equiv="Pragma" content="no-cache"/>
 		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 		<link rel="stylesheet" type="text/css" href="../style/jquery.wysiwyg.css"/>
-		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+		<script type="text/javascript" src="../js/jquery-1.4.2.min.js"></script>
 		<script type="text/javascript" src="../js/jquery.wysiwyg.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
@@ -164,6 +168,10 @@ else
 			.pad_title{ padding:3px 0px 0px 5px; }
 			
 			.ossim_error {width: auto;}
+			
+			
+			#user {width: 160px;}
+			#entity { width: 230px;}
 			
 		</style>
 	</head>

@@ -190,7 +190,7 @@ var first_load = 1;
 var byDateStart="";
 var byDateEnd="";
 var load_stop=false;
-var old_query=false;
+var old_query=true;
 
 // ****************************************** ON LOAD ******************************************************
 $(document).ready(function(){

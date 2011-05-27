@@ -138,7 +138,7 @@ input.vsbutton:hover
     margin-right:5px;
 }
 
-.button
+.button, .buttond
 {
     border-width: 0px !important;
 	#border-left-color:#C9C9C9 !important;
@@ -176,6 +176,12 @@ input.button:hover
 	color:white !important;
 	background: url(../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important;
 	padding-bottom:2px !important;
+}
+
+
+input.buttond:hover
+{
+    background: url(../pixmaps/theme/bg_buttonr_on.png) 50% 50% repeat-x !important;
 }
 
 
@@ -399,6 +405,7 @@ td.center {
 }
 
 .white { color:white; }
+
 a.white {
     color:white;
     font-size:11px;

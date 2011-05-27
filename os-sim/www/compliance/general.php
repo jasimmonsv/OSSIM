@@ -97,7 +97,7 @@ $layout      = load_layout($name_layout, $category);
 	}
 	
     function linked_to(rowid) {
-        document.location.href = 'modifygeneralform.php?sid='+urlencode(rowid);
+       	document.location.href = 'modifygeneralform.php?sid='+urlencode(rowid);
     }
 	
 	function action(com,grid) {

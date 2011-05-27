@@ -35,71 +35,157 @@
 * Classes list:
 */
 // menu authentication
-require_once ('classes/Session.inc');
-Session::logcheck("MenuPolicy", "ToolsScan");
-// Get a list of nets from db
+require_once ("classes/Session.inc");
 require_once ("ossim_db.inc");
-$db = new ossim_db();
-$conn = $db->connect();
 require_once ("classes/Net.inc");
 require_once ("classes/Scan.inc");
+
+Session::logcheck("MenuPolicy", "ToolsScan");
+
+$db   = new ossim_db();
+$conn = $db->connect();
+
 $net_list = Net::get_list($conn);
-$networks = "";
+$assets   = array();
+
 foreach ($net_list as $_net) {
-	$networks .= '{ txt:"'.$_net->get_name().' ['.$_net->get_ips().']", id: "'.$_net->get_ips().'" },';
+	$assets_aux[] = '{ txt:"'.$_net->get_name().' ['.$_net->get_ips().']", id: "'.$_net->get_ips().'" }';
 }
+
+$host_list = Host::get_list($conn);
+foreach ($host_list as $_host) {
+	$assets_aux[] = '{ txt:"'.$_host->get_ip().' ['.$_host->get_hostname().']", id: "'.$_host->get_ip().'/32" }';
+}
+
+$assets = implode(",", $assets_aux );
+
 $db->close($conn);
-require_once 'ossim_conf.inc';
-$conf = $GLOBALS["CONF"];
+
+require_once ("ossim_conf.inc");
+$conf      = $GLOBALS["CONF"];
 $nmap_path = $conf->get_conf("nmap_path");
-if (file_exists($nmap_path)) {
-    $nmap_exists = 1;
-} else {
-    $nmap_exists = 0;
-}
+
+$nmap_exists  = ( file_exists($nmap_path) ) ? 1 : 0;
+
 $nmap_running = Scan::scanning_now();
+
+
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
-  <script type="text/javascript" src="../js/autoHeight.js"></script>
-  <script>
-    // enable text input when manual option is selected
-    function check_change() {
-        form = document.forms['net_form'];
-        if (form.net.value != '')
-            form.net_input.disabled = true;
-        else
-            form.net_input.disabled = false;
-        form.net_input.value = form.net.value;
-    }
-
-    $(document).ready(function(){
-    	var networks = [
-    	   	<?= preg_replace("/,$/","",$networks); ?>
-    	   	];
-    	$("#net").autocomplete(networks, {
-    	   	minChars: 0,
-    	    width: 225,
-    	    matchContains: "word",
-    	    autoFill: true,
-    	    formatItem: function(row, i, max) {
-    	    	return row.txt;
-    	    }
-    	    }).result(function(event, item) {
-    	    	$("#net").val(item.id);
-    	});
-    });
-  </script>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link type="text/css" rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
+	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
+	<script type="text/javascript" src="../js/utils.js"></script>
+	<script type='text/javascript'>
+				
+		function start_scan()
+		{
+			var assets = $('#assets').val();
+			
+			if( assets.trim() == '' ) 
+			{
+				alert('<?php echo _("You must choose at least one asset") ?>');
+				return false;
+			}
+			else
+			{
+				$("#process").contents().find("#res_container").remove();
+				$('#process').css('height', '200px');
+				$('#process_div').show()
+				$('#scan_button').removeClass();
+				$('#scan_button').attr('disabled', 'disabled');
+				$('#scan_button').addClass('buttonoff');
+				$('#assets_form').submit();
+			}
+		}
+		
+		function remote_scan()
+		{
+			//$('#process_div').show();
+			document.location.href='remote_scans.php';
+		}
+						
+		$(document).ready(function(){
+			
+			$(".cidr_info").simpletip({
+				position: 'top',
+				offset: [120, 30],
+				content: '',
+				baseClass: 'stooltip',
+				onBeforeShow: function() {
+					var txt = this.getParent().attr('txt');
+					this.update(txt);
+				}
+			});
+			
+			var assets = [ <?php echo $assets; ?> ];
+			
+			$("#assets").autocomplete(assets, {
+				minChars: 0,
+				width: 225,
+				matchContains: "word",
+				autoFill: true,
+				formatItem: function(row, i, max) {
+					return row.txt;
+				}
+				}).result(function(event, item) {
+					$("#assets").val(item.id);
+			});
+								
+		});
+	</script>
+  
+	<style type='text/css'>
+		th { padding: 3px 0px;}
+		
+		.container {
+			margin:auto; 
+			padding: 20px 30px;
+		}
+		
+		#process_div {
+			width: 550px;
+			background: transparent;
+			margin: 20px auto;
+		}
+		
+		#process { 
+			height: 100%;
+			width: 100%;
+			background: transparent;
+		}
+		
+		#assets { 
+			width: 200px; 
+			height: 16px;
+		}
+		
+		small { color: grey; }
+		
+		.div_small { padding: 5px 0px 0px 1px;}
+		
+		.cidr_info {
+			cursor:pointer; 
+			text-decoration: none;
+			outline: none;
+		}
+		
+		.cidr_info div {
+			text-decoration: none;
+			outline: none;
+		}
+		
+	</style>
   
 </head>
 
@@ -108,109 +194,158 @@ echo gettext("OSSIM Framework"); ?> </title>
 <?php
 $typeMenu='horizontal';
 include ("../hmenu.php");
-if (!$nmap_exists) {
+
+if (!$nmap_exists) 
+{
     require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("NMAP_PATH");
 }
 ?>
-  <!-- net selector form -->
-  <form name="net_form" method="GET" action="do_scan.php" target="process">
-  <table align="center">
-    <tr>
-      <th colspan="2">
-        <?php
-echo gettext("Please, select the network you want to scan:") ?>
-      </th>
-    </tr>
-    <tr>
-      <td colspan="2">
-        <p align="center">
-        <input type="text" value="" name="net" id="net"/>
-      	</p>
-      </td>
-    </tr>
+<!-- Asset form -->
 
-    <tr>
-      <th colspan="2"><?=_("Net discover options")?></th>
-    </tr>
+<form name="assets_form" id="assets_form" method="GET" action="do_scan.php" target="process">
+	<table align="center" style='width: 550px;'>
+		<tr>
+			<th colspan="2"><?php echo gettext("Please, select the assets you want to scan:") ?></th>
+		</tr>
+		<tr>
+			<td colspan="2" class='container'>
+				<input type="text" value="" name="assets" id="assets"/>
+				<?php
+					$info_cidr = "<div style='font-weight:normal; width: 170px;'>
+									<div><span class='bold'>Format:</span> CIDR[,CIDR,...] CIDR</div>
+									<div><span class='bold'>CIDR:</span> xxx.xxx.xxx.xxx/xx</div>
+								</div>";
+				?>
+				<span style='margin-left: 5px;'>
+					<a class="cidr_info" txt="<?php echo $info_cidr?>">
+						<img src="../pixmaps/help.png" width="16" border="0" align='absmiddle'/>
+					</a>
+				</span>
+			</td>
+		</tr>
 
-    <!-- full scan -->
-    <tr>
-    <td colspan="2">
-    <p align="center"><?php echo _("Scan type")?>:&nbsp;
-    <select name="full_scan">
-      <option value=""><?=_("Normal")?></option>
-      <option value="fast"><?=_("Fast Scan")?></option>
-      <option value="full"><?=_("Full Scan")?></option>
-    </select>
-    <br/><small style='color:grey'>
-    <?php echo _("<b>Full mode</b> will be much slower but will include OS, services, service versions and MAC address into the inventory")?><br/>
-    <?php echo _("<b>Fast mode</b> will scan fewer ports than the default scan") ?>
-   </small>
-    </p>
-    </td>
-    </tr>
-    <!-- end full scan -->
+		<tr>
+			<th colspan="2"><?php echo _("Assets discover options")?></th>
+		</tr>
 
-    <!-- timing template (T0-5) -->
-    <tr>
-      <td colspan="2">
-        <p align="center"><?=_("Timing template")?>:&nbsp;
-        <select name="timing_template">
-          <option value="-T0">(T0) <?=_("paranoid")?></option>
-          <option value="-T1">(T1) <?=_("sneaky")?></option>
-          <option value="-T2">(T2) <?=_("polite")?></option>
-          <option selected value="-T3">(T3) <?=_("normal")?></option>
-          <option value="-T4">(T4) <?=_("aggressive")?></option>
-          <option value="-T5">(T5) <?=_("insane")?></option>
-        </select>
-        <br/>
-        <small style="color:grey">
-           <?php echo _("<b>Paranoid</b> and <b>Sneaky</b> modes are for IDS evasion<br/>");?>
-           <?php echo _("<b>Polite</b> mode slows down the scan to use less bandwidth and target machine resources<br/>");?>
-           <?php echo _("<b>Aggressive</b> and <b>Insane</b> modes speed up the scan (fast and reliable networks)<br/>");?>
-         </small>
-      </td>
-    </tr>
-    <!-- end timing template -->
+		<!-- full scan -->
+		<tr>
+			<td colspan="2" class='container'>
+				<?php echo _("Scan type")?>:&nbsp;
+				<select name="full_scan">
+					<option value=""><?php echo _("Normal")?></option>
+					<option value="fast"><?php echo _("Fast Scan")?></option>
+					<option value="full"><?php echo _("Full Scan")?></option>
+				</select>
+				<div class='div_small'>
+					<small>
+						<strong><?php echo _("Full mode")?></strong> <?php echo _("will be much slower but will include OS, services, service versions and MAC address into the inventory")?><br/>
+						<strong><?php echo _("Fast mode")?></strong> <?php echo _("will scan fewer ports than the default scan")?>
+					</small>
+				</div>
+			</td>
+		</tr>
+		<!-- end full scan -->
 
-    <!-- do scan -->
-    <tr>
-      <td colspan="2" class="nobborder center">
-        <input type="submit" id="scan_button" class="button" onclick="if(document.net_form.net.value=='') {alert('<?php echo _("You must choose a network") ?>');return false;} $('#process_div').show()" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists || $nmap_running) ? "disabled" : "" ?> />
-        
-        <? if (Session::am_i_admin()) { ?>&nbsp;&nbsp;
-        <input type="button" class="button" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="$('#process_div').show();document.location.href='remote_scans.php'"/>
-		<? } ?>
+		<!-- timing template (T0-5) -->
+		<tr>
+			<td colspan="2" class='container'>
+				<?php echo _("Timing template")?>:&nbsp;
+				<select name="timing_template">
+					<option value="-T0">(T0) <?php echo _("paranoid")?></option>
+					<option value="-T1">(T1) <?php echo _("sneaky")?></option>
+					<option value="-T2">(T2) <?php echo _("polite")?></option>
+					<option selected='selected' value="-T3">(T3) <?php echo _("normal")?></option>
+					<option value="-T4">(T4) <?php echo _("aggressive")?></option>
+					<option value="-T5">(T5) <?php echo _("insane")?></option>
+				</select>
+				
+				<div class='div_small'>
+					<small>
+						<strong><?php echo _("Paranoid")?></strong> <?php echo _("and")?> <strong><?php echo _("Sneaky")?></strong> <?php echo _("modes are for IDS evasion")?><br/>
+						<strong><?php echo _("Polite")?></strong> <?php echo _("mode slows down the scan to use less bandwidth and target machine resources")?><br/>
+						<strong><?php echo _("Aggressive")?></strong> <?php echo _("and")?> <strong><?php echo _("Insane")?></strong> <?php echo _("modes speed up the scan (fast and reliable networks)")?><br/>
+					</small>
+				</div>
+			</td>
+		</tr>
+		<!-- end timing template -->
+
+		<!-- do scan -->
+		<tr>
+			<td colspan="2" class="nobborder center" style='padding: 10px;'>
+				<?php
+					if ( !$nmap_exists || $nmap_running )
+					{
+						$disabled = " disabled='disabled'";
+						$input_class = "buttonoff";
+					}
+					else
+					{
+						$disabled    = "";
+						$input_class = "button";
+					}
+				?>
+			
+				<input type="button" id="scan_button" class="<?php echo $input_class?>" onclick="start_scan();" value="<?php echo _("Start Scan") ?>"<?php echo $disabled?>/>
+			
+				<?php 
+				if (Session::am_i_admin()) 
+				{ 
+					?>&nbsp;&nbsp;
+					<input type="button" class="button" value="<?php echo _("Manage Remote Scans") ?>" onclick="remote_scan()"/>
+					<?php 
+				} 
+				?>
+			
+			</td>
+		</tr>
 		
-		</td>
-    </tr>
-    <!-- end do scan -->
-	<tr><td class="nobborder" id="process_div" style="display:<?php echo ($nmap_running) ? "block" : "none" ?>"><IFRAME name="process" id="process" class="autoHeight" src="<?php if ($nmap_running) echo "do_scan.php?only_status=1" ?>" frameborder="0" width="100%"></IFRAME></td></tr>
-  </table>
-  </form>
-  <!-- end of net selector form -->
+	</table>
+	
+	<!-- end do scan -->
+	
+	<div id='process_div' style="display:<?php echo ($nmap_running) ? "block" : "none"?>">  
+		<table width='100%'>
+			<tr>
+				<td class='nobborder'>
+					<iframe name="process" id="process" src="<?php if ($nmap_running) echo "do_scan.php?only_status=1" ?>" frameborder="0" scrolling="no"></iframe>
+				</td>
+			</tr>
+		</table>
+	</div>
+</form>
+<!-- end of Asset form -->
+
 
 <?php
 require_once ('classes/Scan.inc');
-if (GET('clearscan')) {
-    Scan::del_scan();
-}
+
 $scan = new Scan("");
+
+if ( GET('clearscan') ) 
+    Scan::del_scan($scan->nmap_completed_scan);
+
 $lastscan = $scan->get_scan();
-if (is_array($lastscan) && count($lastscan)>0) {
+
+if (is_array($lastscan) && count($lastscan)>0) 
+{
     require_once ('scan_util.php');
+	$_SESSION["_scan"] = $lastscan;
     scan2html($lastscan);
-} else {
+} 
+else 
+{
     echo "<!-- <p align=\"center\">";
-    echo gettext("NOTE: This tool is a nmap frontend. In order to use all nmap functionality, you need root privileges.");
+    echo _("NOTE: This tool is a nmap frontend. In order to use all nmap functionality, you need root privileges.");
     echo "<br/>";
-    echo gettext("For this purpose you can use suphp, or change group to the web-user and set suid to nmap binary (<b>chgrp www-data /usr/bin/nmap ; chmod 4750 /usr/bin/nmap</b>).");
+    echo _("For this purpose you can use suphp, or change group to the web-user and set suid to nmap binary (<strong>chgrp www-data /usr/bin/nmap ; chmod 4750 /usr/bin/nmap</strong>).");
     echo "</p> -->";
 }
 ?>
 
 
-</body>
+	</body>
 </html>

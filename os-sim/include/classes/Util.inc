@@ -52,6 +52,9 @@
 * - pager_get_data()
 * - pager_draw()
 * - ossim_http_request()
+* - fake_pass()
+* - is_fake_pass()
+* - get_system_uuid()
 * Classes list:
 * - Util
 */
@@ -801,11 +804,12 @@ class Util {
         }
         return true;*/
     } 
-    
+   
     function utf8entities($str) {
     	return html_entity_decode(preg_replace('/&#(\d{4,5});/','&amp;#$1;',mb_convert_encoding($str,'HTML-ENTITIES','UTF-8')));
     }
     
+       
     // TIMEZONE FUNCTIONS
     function timezone($tz) {
         $arr = array( "-12" => "GMT-12:00", "-11" => "GMT-11:00", "-10" => "GMT-10:00",
@@ -824,7 +828,8 @@ class Util {
     }
     
     // Get +TZ.NN variable from timezone for MySQL
-    function get_tzc ($tz) {
+    function get_tzc ($tz=null) {
+        if (empty($tz)) $tz = Util::get_timezone();
 		if (preg_match("/(.*)\.(.*)/","$tz",$fnd)) {
 			$fnd[0] = ($fnd[0]>0) ? "+".$fnd[0] : $fnd[0];
 			$fnd[1] = ($fnd[1]>9) ? $fnd[1] : $fnd[1]."0";
@@ -906,5 +911,22 @@ class Util {
       for ($a=0; $a<strlen($h); $a+=2) { $r.=chr(hexdec($h{$a}.$h{($a+1)})); }
       return $r;
     }
+	
+	// FAKE PASSWORD FUNCTIONS
+    function fake_pass($pass) {
+    	$fakepass="";
+    	for($i=0;$i<strlen($pass);$i++) $fakepass .= "?";
+    	return $fakepass;
+    }
+
+    function is_fake_pass($fakepass) {
+    	return preg_match("/^\?+$/",$fakepass);
+    }
+	
+	
+	function get_system_uuid() {
+		$uuid = `sudo dmidecode -s system-uuid`;
+		return trim($uuid);
+	}
 }
 ?>

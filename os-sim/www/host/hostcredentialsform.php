@@ -91,10 +91,9 @@ else
             
             $type     = $credentials_id['type'];
             $user_ct  = $credentials_id['username'];
-            $pass_ct  = $pass_ct2 = $credentials_id['password'];
+            $pass_ct  = $pass_ct2 = Util::fake_pass($credentials_id['password']);
             $extra    = $credentials_id['extra'];
         }
-        
     }
 }
 
@@ -118,11 +117,10 @@ else
   
     $(document).ready(function() {
         $('#send').bind('click', function() {
-        $('#action').val("edit");
-        submit_form();
-            $('#send').val("Update");
-
-        });
+			$('#action').val("edit");
+        	submit_form();
+				$('#send').val("Update");
+			});
         
         $('#clean_c').bind('click', function() {
                             
@@ -300,14 +298,14 @@ if (GET('withoutmenu') != "1")
             <tr>
                 <th><label for='pass_ct'><?php echo gettext("Password"); ?></label></th>
                 <td class="left nobborder">
-                    <input type="password" class='req_field vfield' name="pass_ct" id="pass_ct" value="<?php echo $pass_ct;?>"/>
+					<input type="password" class='req_field vfield' name="pass_ct" id="pass_ct" value="<?php echo $pass_ct;?>"/>
                     <span style="padding-left: 3px;">*</span>
                 </td>
             </tr>
             <tr>
                 <th><label for='pass_ct2'><?php echo gettext("Repeat Password"); ?></label></th>
                 <td class="left nobborder">
-                    <input type="password" class='req_field vfield' name="pass_ct2" id="pass_ct2" value="<?php echo $pass_ct2;?>"/>
+					<input type="password" class='req_field vfield' name="pass_ct2" id="pass_ct2" value="<?php echo $pass_ct2;?>"/>
                     <span style="padding-left: 3px;">*</span>
                 </td>
             </tr>

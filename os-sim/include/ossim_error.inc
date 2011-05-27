@@ -91,7 +91,7 @@ class OssimMainError {
 		$this->action         = "/* no action */";
     }
 			
-    public function display($error_code = NULL, $extrainfo = NULL, $option = "") {
+    public function display($error_code = NULL, $extrainfo = NULL, $option = "noback") {
         print $this->get(_($error_code), $extrainfo);
 		
 		if ($option == "noback" || $option === false)
@@ -101,6 +101,7 @@ class OssimMainError {
 		
 		if ($this->action) 
 			eval($this->action);
+			
 	}
     
 	function get($error_code = NULL, $extrainfo = NULL) {
@@ -137,7 +138,7 @@ class OssimError extends OssimMainError {
 		/* Action after display error */
         
 		if ( !empty($action) || ($action === false) )
-				$this->action = $action;
+			$this->action = $action;
 		else
 		{
 			$style_div    = "margin:auto; width:90%; text-align:center;";
@@ -237,11 +238,7 @@ class OssimError extends OssimMainError {
             "short_descr" => gettext("Invalid Signature") ,
             "long_descr"  => gettext("Wrong signature name") ,
         );
-        /* Socket error: Framework running? */
-        $this->errors[_("FRAMW_NOTRUN")] = array(
-            "short_descr" => gettext("Socket error") ,
-            "long_descr"  => gettext("Is Ossim framework running at %1% ?") ,
-        );
+        
         /* Wrong user */
         $this->errors[_("WRONG_USER")] = array(
             "short_descr" => gettext("Wrong user") ,

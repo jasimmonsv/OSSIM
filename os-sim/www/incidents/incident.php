@@ -75,7 +75,7 @@ $ref 				= $incident->get_ref();
 $type 				= $incident->get_type();
 $created 			= $incident->get_date();
 $life 				= $incident->get_life_time();
-$updated 			= $incident->get_last_modification();
+$updated 			= $incident->get_last_modification($conn);
 $priority 			= $incident->get_priority();
 $incident_status    = $incident->get_status();
 $incident_in_charge = $incident->get_in_charge();
@@ -364,6 +364,10 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 			}
 			
 			#user, #entity {text-align: center !important;}
+			
+			#user {width: 160px;}
+			#entity { width: 255px;}
+			
 			#user option {text-align: left;}
 			#entity option {text-align: left;}
 		</style>
@@ -934,7 +938,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 								<tr>
 									<td class='format_user'><span><?php echo _("User:");?></span></td>
 									<td class='left'>
-										<select name="transferred_user" id="user" style="width:150px;" onchange="switch_user('user');return false;">
+										<select name="transferred_user" id="user" onchange="switch_user('user');return false;">
 											<?php
 											$num_users = 0;
 																									
@@ -962,7 +966,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 																		
 									<td class="format_or"><?php echo _("OR");?></td>
 									<td class='format_entity'><span style='margin-right: 3px;'><?php echo _("Entity:");?></span></td>
-									<td class='nobborder'>
+									<td class='nobborder right'>
 										<select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;">
 											<?php 
 											unset($entities[$incident_in_charge]);
@@ -993,7 +997,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 					<tr>
 						<th><?php echo _("Description") ?></th>
 						<td style="border-width: 0px;">
-							<textarea name="description" id="description" cols="80"></textarea>
+							<textarea name="description" id="description" rows='3' cols="80"></textarea>
 						</td>
 						<td valign='top' id='desc_info'><span>*</span></td>
 					</tr>
@@ -1001,7 +1005,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 					<tr>
 						<th><?php echo _("Action") ?></th>
 						<td style="border-width: 0px;">
-							<textarea name="action" id="action" cols="80"></textarea>
+							<textarea name="action" id="action" rows='3' cols="80"></textarea>
 						</td>
 						<td valign='top'>&nbsp;</td>
 					</tr>

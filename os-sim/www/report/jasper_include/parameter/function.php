@@ -36,24 +36,32 @@
 */
 require_once ('classes/Session.inc');
 Session::useractive();
-    function parserDate($decremento){
-        $month=date("m")-$decremento;
-        $year=date("Y");
-        $day=date("j");
-        
-        if($month<1){
-            $month=12-(-$month);
-            $year-=1;
-        }
 
-        if(strlen($month)==1){
-            $month="0".$month;
-        }
+function parserDate($decremento){
+	$month   = date("m")-$decremento;
+	$year    = date("Y");
+	$day     = date("j");
+	
+	/*
+	$hour    = ( $decremento == 1) ? "00" : "23";
+	$minute  = ( $decremento == 1) ? "00" : "59";
+	$seconds = ( $decremento == 1) ? "00" : "59";
+	*/
+	
+	if($month<1){
+		$month=12-(-$month);
+		$year-=1;
+	}
 
-        if(strlen($day)==1){
-            $day="0".$day;
-        }
+	if(strlen($month)==1){
+		$month="0".$month;
+	}
 
-        return $year.'-'.$month.'-'.$day;
-    }
+	if(strlen($day)==1){
+		$day="0".$day;
+	}
+	
+	return $year.'-'.$month.'-'.$day;
+	//return $year.'-'.$month.'-'.$day.' '.$hour.":".$minute.":".$seconds;
+}
 ?>

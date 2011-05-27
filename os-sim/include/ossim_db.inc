@@ -76,12 +76,6 @@ class ossim_db {
         $adodb_path = $this->conf->get_conf("adodb_path");
         require_once ("$adodb_path/adodb.inc.php");
         $this->conn = null;
-        $this->message = _("Unable to connect to BBDD. Are you sure MySQL is running?")."<br><a style='color:black' href='".$this->conf->get_conf("ossim_link")."conf/repair_bbdd.php'>"._("Launch Optimize & Repair script for MySQL")."</a>";
-    }
-    function error() {
-    	//if (session_id()=="") session_start();
-    	$_SESSION["_repair_bbdd"] = 1;
-    	die(ossim_error($this->message));
     }
 	//function __destruct () {
 	//	$this->conn->Close();
@@ -93,7 +87,7 @@ class ossim_db {
     	ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($this->conf->get_conf("ossim_type"));
         $err = $this->conn->PConnect($this->conf->get_conf("ossim_host") , $this->conf->get_conf("ossim_user") , $this->conf->get_conf("ossim_pass") , $this->conf->get_conf("ossim_base"));
-        if (!$err) die(ossim_error($this->message));
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
         ini_set("display_errors", "1");
         return $this->conn;
     }
@@ -101,7 +95,7 @@ class ossim_db {
     	ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($this->conf->get_conf("ossim_type"));
         $err = $this->conn->NConnect($this->conf->get_conf("ossim_host") , $this->conf->get_conf("ossim_user") , $this->conf->get_conf("ossim_pass") , $this->conf->get_conf("ossim_base"));
-        if (!$err) die(ossim_error($this->message));
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
         ini_set("display_errors", "1");
         return $this->conn;
     }
@@ -121,7 +115,7 @@ class ossim_db {
         ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($type);
         $err = $this->conn->NConnect($host, $user, $pass, $base);
-        if (!$err) die(ossim_error($this->message));
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
         ini_set("display_errors", "1");
         return $this->conn;
     }
@@ -134,7 +128,7 @@ class ossim_db {
         ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($type);
         $err = $this->conn->NConnect($host, $user, $pass, $base);
-        if (!$err) die(ossim_error($this->message));
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
         ini_set("display_errors", "1");
         return $this->conn;
     }
@@ -148,7 +142,7 @@ class ossim_db {
         ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($type);
         $err = $this->conn->NConnect($host, $user, $pass, $base);
-        if (!$err) die(ossim_error($this->message));
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
         ini_set("display_errors", "1");
         return $this->conn;
     }
@@ -166,7 +160,7 @@ class ossim_db {
         	return $this->conn;
         }
         else {
-        	die(ossim_error($this->message));
+        	die(ossim_error(_("Unable to connect to BBDD")));
         	return NULL;
         }
     }
@@ -184,7 +178,7 @@ class ossim_db {
         	return $this->conn;
         }
         else {
-        	die(ossim_error($this->message));
+        	die(ossim_error(_("Unable to connect to BBDD")));
         	return NULL;
         }
     }
@@ -207,6 +201,13 @@ class ossim_db {
             return "$order DESC";
         } else {
             return $column;
+        }
+    }
+    function get_aorder($column, $order) {
+    	if ($order == $column) {
+            return "$order ASC";
+        } else {
+            return "$column DESC";
         }
     }
 }

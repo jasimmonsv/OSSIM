@@ -85,7 +85,7 @@ foreach($policy_groups as $group) {
 	</td><tr>
 <?php
 } ?>
-	<tr><td style="text-align:left;padding-top:2px"><a href="../conf/main.php?adv=1&hmenu=Main&smenu=Advanced&open=12#end" style="color:gray"><?php echo _("SIEM process priority threshold") ?>: <b><?=$server_logger_if_priority ?></b></a></td></tr>
+	<tr><td style="text-align:left;padding-top:2px"><a href="../conf/main.php?adv=1&hmenu=Main&smenu=Advanced&open=11#end" style="color:gray"><?php echo _("SIEM process priority threshold") ?>: <b><?=$server_logger_if_priority ?></b></a></td></tr>
 	</table>
 
 	<!-- Right Click Menu -->

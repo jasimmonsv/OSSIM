@@ -439,7 +439,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
                                 <tr>
                                     <td class="nobborder" style="text-align:right;paddin-right:5px;"><?=_("Password");?>:</td>
 									<td class="nobborder">
-										<input type="password" name="vuln_pass" value="<?=(($vuln_scanner_options["PASSWORD"]!="")? $vuln_scanner_options["PASSWORD"]:$GLOBALS["CONF"]->db_conf["nessus_pass"])?>"/>
+										<input type="password" name="vuln_pass" value="<?php echo Util::fake_pass(($vuln_scanner_options["PASSWORD"]!="")? $vuln_scanner_options["PASSWORD"]:$GLOBALS["CONF"]->db_conf["nessus_pass"])?>"/>
 									</td>
                                 </tr>
                                 <tr>

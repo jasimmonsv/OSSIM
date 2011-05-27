@@ -39,7 +39,7 @@ $sm_perms = array ("EventsHids", "EventsHidsConfig");
 if ( !Session::menu_perms($m_perms, $sm_perms) )
 	Session::unallowed_section(null, 'noback',$m_perms[0], $sm_perms[0]);
 
-
+	
 $info_error = null;
 $retval     = null;
 $error      = false;
@@ -78,6 +78,7 @@ if ($error != true)
 			
 		if ($retval !== 0)
 			exec('touch /var/ossec/agentless/.passlist', $output);	
+		
 	}
 	
 	if ($error != true)
@@ -271,7 +272,7 @@ if ($error != true)
 			
 				
 				buttons : [
-					<?php if ( $events_hids_config ) { ?>
+					<?php if ( Session::menu_perms('MenuEvents', 'EventsHidsConfig') ) { ?>
 					{name: '<?php echo _("New")?>', bclass: 'add', onpress : action},
 					{separator: true},
 					{name: '<?php echo _("Modify")?>',    bclass: 'modify', onpress : action},
@@ -296,7 +297,7 @@ if ($error != true)
 				nomsg: '<?=_("No Agenteless Host")?>',
 				useRp: true,
 				rp: 20,
-				<?php if ( $events_hids_config ) { ?>
+				<?php if ( Session::menu_perms('MenuEvents', 'EventsHidsConfig') ) { ?>
 				contextMenu: 'myMenu',
 				onContextMenuClick: menu_action,
 				<?php } ?>
@@ -305,7 +306,7 @@ if ($error != true)
 				width: get_width('headerh1'),
 				height: get_height(),
 				onColumnChange: save_layout,
-				<?php if ( $events_hids_config ) { ?>
+				<?php if ( Session::menu_perms('MenuEvents', 'EventsHidsConfig') ) { ?>
 				onDblClick: linked_to,
 				<?php } ?>
 				onEndResize: save_layout

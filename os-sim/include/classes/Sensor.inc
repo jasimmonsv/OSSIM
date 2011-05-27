@@ -61,6 +61,7 @@ require_once 'classes/Net.inc';
 require_once 'classes/Log_action.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/WebIndicator.inc';
+require_once 'classes/Util.inc';
 class Sensor {
     var $name;
     var $ip;
@@ -161,26 +162,40 @@ class Sensor {
     }    
     function get_vuln_scanner_options($conn, $sensor) {
         $result = array();
-        $query = OssimQuery("SELECT port, user, PASSWORD, max_scans FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
-        if (!$rs = & $conn->Execute($query)) {
+		$uuid   = Util::get_system_uuid();
+        $query  = OssimQuery("SELECT port, user, PASSWORD, AES_DECRYPT(PASSWORD,'$uuid') AS pass_decrypt, max_scans FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
+        
+		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } 
-        else {
-            if (!$rs->EOF) {
-                $result = $rs->fields;
-            }
+        else 
+		{
+            if (!$rs->EOF) 
+			{
+                $result             = $rs->fields;
+				$result[2]          = ( empty($rs->fields['pass_decrypt']) ) ? $rs->fields['PASSWORD'] : $rs->fields['pass_decrypt'];
+				$result['PASSWORD'] = $result[2];
+			}
         }
 			
         return $result;
     }
     
     function update_vuln_nessus_servers($conn, $sensor, $name, $user, $password, $port, $vuln_max_scans, $enabled) {
-        $query = "UPDATE vuln_nessus_servers SET name='$name', user='$user', PASSWORD='$password', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'";
-        if (!$rs = & $conn->Execute($query)) {
+    	if (Util::is_fake_pass($password))
+	        $query = "UPDATE vuln_nessus_servers SET name='$name', user='$user', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'";
+	    else
+		{
+	        $uuid   = Util::get_system_uuid();
+			$query  = "UPDATE vuln_nessus_servers SET name='$name', user='$user', PASSWORD=AES_ENCRYPT('$password','$uuid'), port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'"; 
+		}
+		
+		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         }
         
     }
+	
     function insert_vuln_nessus_servers($conn, $sensor, $name, $enabled) {
 
         $query = OssimQuery("SELECT id FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
@@ -248,10 +263,10 @@ class Sensor {
         return $list;
     }
     // use in session/newuserform and when required independency of Host/Net
-    function get_all($conn, $order = "ORDER BY name ASC") {
+    function get_all($conn, $order = "ORDER BY name ASC", $checkperms=true) {
         // User sensor filtering
 		$sensor_where = "";
-		if (Session::allowedSensors() != "") {
+		if ($checkperms && Session::allowedSensors() != "") {
 			$user_sensors = explode(",",Session::allowedSensors());
 			$sensor_str = "";
 			foreach ($user_sensors as $user_sensor) if ($user_sensor != "")
@@ -508,7 +523,7 @@ class Sensor {
     }
     function reorder_sensors($conn,$arr) {
 		$sensors = array();
-        $sql = "SELECT name,hostname FROM vuln_nessus_servers WHERE enabled=1 order by ( current_scans / max_scans ) asc";
+        $sql = "SELECT v.name,v.hostname FROM vuln_nessus_servers v,sensor s WHERE s.ip=v.hostname AND v.enabled=1 order by ( v.current_scans / v.max_scans ) ASC,s.priority DESC";
         if (!$rs = $conn->Execute($sql)) {
             die($conn->ErrorMsg());
         }

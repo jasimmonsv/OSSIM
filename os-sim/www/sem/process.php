@@ -42,6 +42,7 @@ Session::logcheck("MenuEvents", "ControlPanelSEM");
 require_once ("classes/Host.inc");
 require_once ("classes/Net.inc");
 require_once ("classes/Util.inc");
+require_once ("classes/Plugin_sid.inc");
 require_once ("process.inc");
 require_once ('ossim_db.inc');
 
@@ -556,6 +557,8 @@ foreach($result as $res=>$event_date) {
 	    $res = str_replace(">", "", $res);
 
 		# Clean data => matches[12] may contains sig and/or plugin_sid
+		$plugin_sid = "";
+		if (preg_match("/' plugin_sid='(\d+)/",$matches[12],$fnd)) $plugin_sid = $fnd[1];
 		$matches[12] = preg_replace("/' plugin_sid=.*/","",$matches[12]);
 		$signature = "";
 		if (preg_match("/' sig='(.*)('?)/",$matches[12],$found)) {
@@ -565,6 +568,18 @@ foreach($result as $res=>$event_date) {
 
         # decode if data is stored in base64
         $data = $matches[12];
+        
+        $demo = 0;
+        # special case "demo event"
+        if ($data == "demo event" && $plugin_sid!="") {
+        	$demo = 1;
+        	$plugin_sid_name = Plugin_sid::get_name_by_idsid($conn,$matches[4],$plugin_sid);
+        	if ($plugin_sid_name!="") {
+        		$data = $plugin_sid_name;
+        		$matches[12] = $plugin_sid_name;
+        	}
+        }
+        
         #$data = $matches[12];
         #$matches[12] = base64_decode($matches[12],true);
         #if ($matches[12]==FALSE) $matches[12] = $data;
@@ -662,10 +677,10 @@ foreach($result as $res=>$event_date) {
 			
        		$line.= "<td class='nobborder' style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'><a href=\"#\" onclick=\"javascript:SetSearch('<b>plugin</b>=' + this.innerHTML)\"\">$plugin</a></td>";
             $line.="<td class='nobborder' style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'>";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>sensor</b>=$sensor_name');return false\"\">" . Util::htmlentities($sensor_name) . "</a></td><td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src</b>=$src_ip_name');return false\"\">" . Util::htmlentities($src_ip_name) . "</a></div>:";
+            $line.= "<a href=\"#\" alt=\"$sensor\" title=\"$sensor\" onclick=\"javascript:SetSearch('<b>sensor</b>=$sensor_name');return false\"\">" . Util::htmlentities($sensor_name) . "</a></td><td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
+            $line.= "<a href=\"#\" alt=\"$src_ip\" title=\"$src_ip\" onclick=\"javascript:SetSearch('<b>src</b>=$src_ip_name');return false\"\">" . Util::htmlentities($src_ip_name) . "</a></div>:";
             $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src_port</b>=$matches[8]');return false\">" . Util::htmlentities($matches[8]) . "</a>$country_img_src $homelan_src</td><td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst</b>=$dst_ip_name');return false\"\">" . Util::htmlentities($dst_ip_name) . "</a></div>:";
+            $line.= "<a href=\"#\" alt=\"$dst_ip\" title=\"$dst_ip\" onclick=\"javascript:SetSearch('<b>dst</b>=$dst_ip_name');return false\"\">" . Util::htmlentities($dst_ip_name) . "</a></div>:";
             $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst_port</b>=$matches[9]');return false\">" . Util::htmlentities($matches[9]) . "</a>$country_img_dst $homelan_dst</td>";
             if ($alt) {
                 $color = "grey";
@@ -720,11 +735,15 @@ foreach($result as $res=>$event_date) {
                     	$onclick = (preg_match("/(&gt;)|(&lt;)/",$clean_piece)) ? ";" : "SetSearch('<b>data</b>=" . $clean_piece . "')";
                     	$cursor = "pointer";
                     }
-                    if ($red) {
-                        $data.= "<span style=\"color:red\" onmouseover=\"this.style.color = 'green';this.style.cursor='$cursor';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:" . $onclick . "\">" . $clean_piece . " </span>";
+                    if ($demo) {
+	                    $data .= $clean_piece . " ";
                     } else {
-                        $data.= "<span style=\"color:$color\" onmouseover=\"this.style.color = 'green';this.style.cursor='$cursor';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:" . $onclick . "\">" . $clean_piece . " </span>";
-                    }
+	                    if ($red) {
+	                        $data.= "<span style=\"color:red\" onmouseover=\"this.style.color = 'green';this.style.cursor='$cursor';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:" . $onclick . "\">" . $clean_piece . " </span>";
+	                    } else {
+	                        $data.= "<span style=\"color:$color\" onmouseover=\"this.style.color = 'green';this.style.cursor='$cursor';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:" . $onclick . "\">" . $clean_piece . " </span>";
+	                    }
+	                }
                 }
                 if ($verified >= 0) {
                     if ($verified == 1) {

@@ -15,6 +15,10 @@ REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql
 
 ALTER TABLE  `vuln_jobs` CHANGE  `notify`  `notify` TEXT NOT NULL default '';
 ALTER TABLE  `vuln_job_schedule` CHANGE  `email`  `email` TEXT NOT NULL default '';
+ALTER TABLE  `backlog_event_seq` CHANGE  `id`  `id` BIGINT( 20 ) NOT NULL;
+ALTER TABLE  `backlog_seq` CHANGE  `id`  `id` BIGINT( 20 ) NOT NULL;
+ALTER TABLE  `event_tmp_seq` CHANGE  `id`  `id` BIGINT( 20 ) NOT NULL;
+ALTER TABLE  `event_seq` CHANGE  `id`  `id` BIGINT( 20 ) NOT NULL;
 
 DROP PROCEDURE IF EXISTS addcol;
 DELIMITER '//'
@@ -36,7 +40,7 @@ DROP PROCEDURE addcol;
 
 -- ATENCION! Keep this at the end of this file
 use ossim;
-REPLACE INTO config (conf, value) VALUES ('last_update', '2011-05-06');
+REPLACE INTO config (conf, value) VALUES ('last_update', '2011-05-20');
 REPLACE INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.28');
 COMMIT;
 -- NOTHING BELOW THIS LINE / NADA DEBAJO DE ESTA LINEA

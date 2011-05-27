@@ -66,7 +66,7 @@ switch ($action){
 		{
 			$item = explode("###", $v);
 			
-			if ( preg_match ("/item_prop_4_/", $item[0]) )
+			if ( preg_match ("/item_prop_8_/", $item[0]) )
 			{
 				$host     = $item[1];
 				$port     = $item[2];
@@ -87,9 +87,9 @@ switch ($action){
 			else
 			{
 				$id = $item[1];
-				
+								
 				ossim_valid($id, OSS_DIGIT, 'illegal:' . _("Id property host reference"));
-				
+												
 				if ( !ossim_error() )
 					$ret = Host::delete_property($conn, $ip, $id);
 				else

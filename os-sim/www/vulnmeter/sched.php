@@ -102,7 +102,20 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
                 dtnode.data.url = html_entity_decode(dtnode.data.url);
 				var ln = ($('#ip_list').val()!='') ? '\n' : '';
 				var inside = 0;
-				if (dtnode.data.url.match(/NODES/)) {
+				if(dtnode.data.url.match(/AllAssets/)) {
+                    $('#lassets').show();
+                     $.ajax({
+                        type: "GET",
+                        url: "draw_tree.php",
+                        data: { key: dtnode.data.key },
+                        success: function(msg) {
+							var ln = ($('#ip_list').val()!='') ? '\n' : '';
+							$('#ip_list').val($('#ip_list').val() + ln + msg)
+                            $('#lassets').hide();
+                        }
+                    });
+                }
+                else if (dtnode.data.url.match(/NODES/)) {
 					// add childrens if is a C class
 					var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
 					for (c=0;c<children.length; c++) {
@@ -1441,9 +1454,21 @@ EOT;
             </tr>
             <tr>
 			<td valign="top" class="noborder">
+            <table class="transparent" width="100%">
+                <tr>
+                    <td class='nobborder'>
 EOT;
             $discovery .="<textarea name=\"ip_list\" id=\"ip_list\" cols=\"32\" rows=\"8\">".(($ip_list_selected=="") ? "$editdata[meth_TARGET]":"$ip_list_selected")."</textarea>";
+            $discovery .="</td></tr>";
+            $discovery .="<tr><td style='text-align:left;' class='nobborder'>";
+            $discovery .="<div id='lassets' style='display:none'>";
+            $discovery .="<img width=\"16\" align=\"absmiddle\" src=\"./images/loading.gif\" border=\"0\" alt=\""._("Loading assets...")."\" title=\""._("Loading assets...")."\">";
+            $discovery .="<span style='margin-left:4px;'>"._("Loading assets, please wait few seconds...")."</span>";
             $discovery .= <<<EOT
+                        </div>
+                <td>
+                </tr>
+            </table>
 			</td>
 			<td valign="top" style="text-align:left" class="noborder">
 				<div id="htree" style="width:300px"></div>
@@ -2060,7 +2085,7 @@ EOT;*/
             list($forced_server) = $result->fields;
         }
         $all_sensors = array();
-        $sensor_list = Sensor::get_all($dbconn);
+        $sensor_list = Sensor::get_all($dbconn,"",false);
         foreach ($sensor_list as $s) $all_sensors[$s->get_ip()] = $s->get_name();
         // remote nmap
         $rscan = new RemoteScan("","");
@@ -2103,7 +2128,7 @@ EOT;*/
                 $properties = Sensor::get_properties($dbconn, $sen);
                 $withnmap = in_array($all_sensors[$sen],$ids) || !$hosts_alive;
                 //echo "$sen:".$all_sensors[$sen].":$withnmap || $scan_locally:".$properties["has_vuln_scanner"]." || $SVRid:$forced_server<br>\n";
-                if (($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $forced_server!="")) {
+                if ((Session::sensorAllowed($sen) || $forced_server!="") && ($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $forced_server!="")) {
                     //$selected = ($SVRid!="Null" && $all_sensors[$sen]!="") ? $all_sensors[$sen] : $sen;
                     //echo "sel:$selected<br>\n";
                     //break;

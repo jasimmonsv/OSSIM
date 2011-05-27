@@ -36,76 +36,128 @@
 */
 // menu authentication
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
 Session::logcheck("MenuPolicy", "ToolsScan");
 ob_implicit_flush();
 ?>
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<style type='text/css'>
+		
+		.ossim_success, .ossim_error { width: 80%;}
+		.ossim_success a {
+			color:#4F8A10;
+			font-weight: bold;
+		}
+		
+		.agent { padding: 3px 5px;}
+		.scan_jobs { padding: 3px 5px;}
+		.actions { width: 50px; padding: 3px;}
+		
+		.row { padding: 3px 5px;}
+		
+	</style>
 </head>
 <body>
 
 <?php
-require_once 'classes/Security.inc';
+
 include ("../hmenu.php");
-$scan = GET('scan');
+$scan   = GET('scan');
 $delete = GET('delete');
+
+
 ossim_valid($scan, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Scan"));
 ossim_valid($delete, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Scan"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
+
 require_once ('classes/Scan.inc');
 
 $rscan = new RemoteScan("","");
-if ($delete!="") $rscan->delete_scan($delete);
-if ($scan!="") {
 
+if ( $delete!="" ) 
+	$rscan->delete_scan($delete);
+
+if ( $scan != "" ) 
+{
 	$rscan->import_scan($scan);
-	if ($rscan->err()!="") 
-		echo _("Failed remote network scan: ") . "<font color=red>".$rscan->err() ."</font><br/>\n";
+	
+	if ( $rscan->err() !="" ) 
+		echo ossim_error( _("Failed remote network scan: ").$rscan->err() );
 	else
 		$rscan->save_scan();
-	echo gettext("Scan imported successfully") . ".<br/><br/>";
-	echo "<a href=\"index.php#results\">" . gettext("Click here to show the results") . "</a>";
 	
-} else {
+	echo "<div class='ossim_success'>";
+	echo _("Scan imported successfully") . "<span style='margin-left:5px'><a href='index.php#results'>[". _("Click here to show the results")."]</a></span>";
+	echo "</div>";
+} 
+else 
+{
 
 	if ($rscan->available_scan()) {
 		
 		?>
 		<table align="center" cellpadding="2" cellspacing="2">
-		<tr>
-			<th><?=_("Available remote scan jobs")?></th>
-			<th><?=_("Actions")?></th>
-		</tr>
-		<?
-		$reports = $rscan->get_scans();
-		if (count($reports)==0) {
-			echo "<tr><td colspan='2'><i>"._("No remote agents connected")."</i></td>";
-
-		}
-		foreach ($reports as $id => $scans) {
-			echo "<tr><td colspan='2' style='text-align:left'><img src='../pixmaps/arrow-315-small.png' align='absmiddle'/&nbsp;<b>$id</b></td>";
-			foreach ($scans as $scan) {
-				echo "<tr><td style='text-align:left;padding-left:20px' nowrap>&nbsp;$scan</td>";
-				echo "<td><a href='?scan=".urlencode($scan)."'>"._("Import")."</a>&nbsp;&nbsp;<a href='?delete=".urlencode($scan)."'>"._("Delete")."</a></td></tr>";
-			}
-		}
-		?>
-		</table>
-		<?
-		
-	} else {
-	
-		echo _("Unable to launch remote network scan: ") . "<font color=red>".$rscan->err() ."</font><br/>\n";
+			<tr>
+				<th class='agent'><?php echo _("Agent")?></th>
+				<th class='scan_jobs'><?php echo _("Available remote scan jobs")?></th>
+				<th class='actions'><?php echo _("Actions")?></th>
+			</tr>
+			<?php
+			$reports = $rscan->get_scans();
 			
-	}
+			
+			
+			if ( count($reports)==0 ) 
+			{
+				echo "<tr><td colspan='3' style='height: 30px' class='nobborder center'><i>"._("No remote agents connected")."</i></td>";
+			}
+			else
+			{
+				$i = 0;
+				foreach ($reports as $id => $scans) 
+				{
+					if ( !empty($scans) )
+					{
+						echo "<tr><td valing='middle' rowspan='".count($scans)."' class='left row'><img src='../pixmaps/arrow-315-small.png' align='absmiddle'/>&nbsp;<strong>$id</strong></td>";
+					
+						foreach ($scans as $scan) 
+						{
+							?>
+								<td class='left row' nowrap='nowrap'><?php echo $scan?></td>
+								<td style='text-align:center;' class='row'>
+									<a href='?scan=<?php echo urlencode($scan)?>'><img src='../pixmaps/page_add.png' align='absmiddle' alt='<?php echo _("Import")?>'/></a>
+									<a href='?delete=<?php echo urlencode($scan)?>'><img src='../pixmaps/delete.gif' align='absmiddle' alt='<?php echo _("Delete")?>'/></a>
+								</td>
+							</tr>
+							<?php
+						}
+						$i++;
+					}
+				}
+				
+				if ($i == 0)
+				{
+					echo "<tr><td colspan='3' style='height: 30px' class='center'><i>"._("No remote scan jobs availables")."</i></td></tr>";
+				}
+			}
+			?>
+		</table>
+		<?php
+		
+	} 
+	else 
+		echo ossim_error( _("Unable to launch remote network scan: ").$rscan->err() );	
+	
 }
 ?>
 

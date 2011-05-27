@@ -33,6 +33,7 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Ossec.inc');
+require_once ('classes/Util.inc');
 
 $array_types = array ( 	"ssh_integrity_check_bsd"     => "Integrity Check BSD",
 						"ssh_integrity_check_linux"   => "Integrity Check Linux",
@@ -193,7 +194,7 @@ if ( $step == 1 || ($step == 2 && !empty($back)) )
 				
 			if ( $back == 1 )
 			{
-				$res 		= Agentless::modify_host_data($conn, $ip, $hostname, $user, $pass, $ppass, $descr);
+				$res 		= Agentless::modify_host_data($conn, $ip, $hostname, $user, $pass, $ppass, $descr, 1);
 				$info_error = ( $res !== true ) ? _("Error Updating Monitorig Host Data") : null;
 			}
 			else
@@ -201,8 +202,7 @@ if ( $step == 1 || ($step == 2 && !empty($back)) )
 				$res  = Agentless::add_host_data($conn, $ip, $hostname, $user, $pass, $ppass, $descr);
 				$info_error = ( $res !== true ) ? _("Error Adding Monitorig Host Data") : null;
 			}
-						
-						
+			
 			if ( !empty($ip) )
 			{
 				
@@ -598,6 +598,7 @@ else if ($step == 2)
 					<tr>
 						<th><label for='pass'><?php echo _("Password"); ?></label></th>
 						<td class="left">
+							<?php $pass = Util::fake_pass($pass); ?>
 							<input type="password" class='req_field vfield' name="pass" id="pass" value="<?php echo $pass;?>"/>
 							<span style="padding-left: 3px;">*</span>
 						</td>
@@ -606,6 +607,7 @@ else if ($step == 2)
 					<tr>
 						<th><label for='passc'><?php echo _("Password confirm"); ?></label></th>
 						<td class="left">
+							<?php  $passc = Util::fake_pass($passc); ?>
 							<input type="password" class='req_field vfield' name="passc" id="passc" value="<?php echo $passc;?>"/>
 							<span style="padding-left: 3px;">*</span>
 							<div class='al_advice'><?php echo _("(*) If you want to use public key authentication instead of passwords, you need to provide NOPASS as Normal Password ") ?></div>
@@ -615,6 +617,7 @@ else if ($step == 2)
 					<tr>
 						<th><label for='ppass'><?php echo _("Privileged Password"); ?></label></th>
 						<td class="left">
+							<?php  $ppass = Util::fake_pass($ppass); ?>
 							<input type="password" class='vfield' name="ppass" id="ppass" value="<?php echo $ppass;?>"/>
 						</td>
 					</tr>
@@ -622,6 +625,7 @@ else if ($step == 2)
 					<tr>
 						<th><label for='user'><?php echo _("Privileged Password confirm"); ?></label></th>
 						<td class="left">
+							<?php $ppassc = Util::fake_pass($ppassc); ?>
 							<input type="password" class='vfield' name="ppassc" id="ppassc" value="<?php echo $ppassc;?>"/>
 							<div class='al_advice'><?php echo _("(*) If you want to add support for \"su\", you need to provide Privileged Password") ?></div>
 						</td>

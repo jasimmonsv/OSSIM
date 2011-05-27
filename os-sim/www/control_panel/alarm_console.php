@@ -592,32 +592,13 @@ if (!isset($_GET["hide_search"])) {
         <td colspan="11" style="border-bottom:0px solid white" nowrap>
 			<table class="transparent" width="100%">
 				<tr>
-					<td width="200" class="nobborder">
-						<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Apply label to selected alarms") ?></a> 
-				   <div style="position:relative"> 
-						<div id="tags" style="position:absolute;right:0;top:0;display:none">
-						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
+					<td width="150" class="nobborder">
+						<table class="transparent">
 							<tr>
-								<th style="padding-right:3px;border-radius:0px;border-top:0px;border-right:0px;border-left:0px">
-									<div style='float:left; width:60%; text-align: right;padding:3px'><?php echo _("Labels")?></div>
-									<div style='float:right; width:18%; padding: 3px; text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#tags').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
-								</th>
+								<td class="nobborder" nowrap><input type="button" value="<?=_("Ungrouped")?>" class="buttonon" disabled></td>
+								<td class="nobborder"><input type="button" onclick="document.location.href='alarm_group_console.php'" value="<?=_("Grouped")?>" class="button"></td>
 							</tr>
-							<?php if (count($tags) < 1) { ?>
-							<tr><td><?php echo _("No tags found.") ?></td></tr>
-							<?php } else { ?>
-							<? foreach ($tags as $tg) { ?>
-							<tr>
-								<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tg->get_id() ?>';document.fchecks.submit();" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table></td>
-							</tr>
-							<?php } ?>
-							<tr>
-								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td class="nobborder"><a href="" onclick="document.fchecks.move_tag.value='0';document.fchecks.submit();return false"><?php echo _("Remove selected") ?></a></td></tr></table></td>
-							</tr>
-							<?php } ?>
 						</table>
-						</div>
-					</div>
 					</td>
 					<td class="nobborder center">
 <?php
@@ -680,14 +661,32 @@ if ($sup < $count) {
 }
 ?>
 					</td>
-					<td width="150" class="nobborder right">
-						<table class="transparent">
+					<td width="200" class="nobborder right">
+						<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Apply label to selected alarms") ?></a> 
+				   <div style="position:relative"> 
+						<div id="tags" style="position:absolute;right:0;top:0;display:none">
+						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
 							<tr>
-								<td class="nobborder" nowrap><?=_("Ungrouped")?></td>
-								<td class="nobborder"> | </td>
-								<td class="nobborder"><a href="alarm_group_console.php"><b><?=_("Grouped")?></b></a></td>
+								<th style="padding-right:3px;border-radius:0px;border-top:0px;border-right:0px;border-left:0px">
+									<div style='float:left; width:60%; text-align: right;padding:3px'><?php echo _("Labels")?></div>
+									<div style='float:right; width:18%; padding: 3px; text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#tags').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
+								</th>
 							</tr>
+							<?php if (count($tags) < 1) { ?>
+							<tr><td><?php echo _("No tags found.") ?></td></tr>
+							<?php } else { ?>
+							<? foreach ($tags as $tg) { ?>
+							<tr>
+								<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tg->get_id() ?>';document.fchecks.submit();" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table></td>
+							</tr>
+							<?php } ?>
+							<tr>
+								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td class="nobborder"><a href="" onclick="document.fchecks.move_tag.value='0';document.fchecks.submit();return false"><?php echo _("Remove selected") ?></a></td></tr></table></td>
+							</tr>
+							<?php } ?>
 						</table>
+						</div>
+					</div>
 					</td>
 				  </tr>
 				</table>
@@ -707,7 +706,7 @@ echo ossim_db::get_order("plugin_sid", $order) . "&inf=$inf&sup=$sup&src_ip=$src
 echo gettext("Alarm"); ?> </a></td>
         <td style="background-color:#9DD131;padding-left:3px;padding-right:3px;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("risk", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
+echo ossim_db::get_aorder("risk", str_replace(" DESC","",$order)) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Risk"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
@@ -981,9 +980,9 @@ if ($count > 0) {
 		<?php
         $homelan = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $src_ip)) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"".Host::get_homelan_icon($src_ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
 		if ($src_country) {
-            echo "<a href=\"$src_link\">$src_name</a>:$src_port $src_img $src_country_img $homelan";
+            echo "<a href=\"$src_link\" alt=\"$src_ip\" title=\"$src_ip\">$src_name</a>:$src_port $src_img $src_country_img $homelan";
         } else {
-            echo "<a href=\"$src_link\">$src_name</a>:$src_port $src_img $homelan";
+            echo "<a href=\"$src_link\" alt=\"$src_ip\" title=\"$src_ip\">$src_name</a>:$src_port $src_img $homelan";
         }
 ?></div></td>
 		<td nowrap style="text-align:center;padding-left:3px;padding-right:3px" class="nobborder">
@@ -991,9 +990,9 @@ if ($count > 0) {
 		<?php
         $homelan = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $dst_ip)) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"".Host::get_homelan_icon($dst_ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
 		if ($dst_country) {
-            echo "<a href=\"$dst_link\">$dst_name</a>:$dst_port $dst_img $dst_country_img $homelan";
+            echo "<a href=\"$dst_link\" alt=\"$dst_ip\" title=\"$dst_ip\">$dst_name</a>:$dst_port $dst_img $dst_country_img $homelan";
         } else {
-            echo "<a href=\"$dst_link\">$dst_name</a>:$dst_port $dst_img $homelan";
+            echo "<a href=\"$dst_link\" alt=\"$dst_ip\" title=\"$dst_ip\">$dst_name</a>:$dst_port $dst_img $homelan";
         }
 ?></div></td>
         <!-- end src & dst hosts -->

@@ -35,8 +35,10 @@
 * Classes list:
 */
 set_time_limit(300);
-require_once 'classes/Security.inc';
+require_once ('classes/Security.inc');
 require_once ('classes/Session.inc');
+require_once ('ossim_conf.inc');
+
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
 $key = GET('key');
@@ -53,7 +55,7 @@ $from = $to - $maxresults;
 $nextpage = $page + 1;
 
 $cachefile = "/var/ossim/sessions/".$_SESSION["_user"]."_vulnmeter_".base64_encode($key)."_$page.json";
-if (file_exists($cachefile)) {
+if (file_exists($cachefile) && $key!="entities") {
     readfile($cachefile);
     exit;
 }
@@ -62,6 +64,13 @@ require_once ('classes/Host_group.inc');
 require_once ('classes/Net.inc');
 require_once ('classes/Net_group.inc');
 require_once ('ossim_db.inc');
+
+$conf           = $GLOBALS["CONF"];
+$version        = $conf->get_conf("ossim_server_version", FALSE);
+$prodemo        = (preg_match("/pro|demo/i",$version)) ? true : false;
+
+$noprint = true;
+
 $db = new ossim_db();
 $conn = $db->connect();
 
@@ -80,8 +89,34 @@ if ($key=="" || preg_match("/^(all|hostgroup)/",$key)) {
 		    $total_hosts++;
 		}
 }
+if(preg_match("/e_(\d+)_allassets/",$key,$found)) {
 
-if ($key == "hostgroup") {
+    $result = array();
+    
+    $entityPerms = Acl::entityPerms($conn,$found[1]);
+    $all = count($entityPerms["assets"]);
+    $nets = Net::get_all($conn);
+
+    foreach($nets as $net) {
+        $cidrs = explode(",",$net->get_ips());
+        if (!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"])) {
+                $result[] = $net->get_ips();
+        }
+    }
+
+    $all = count($entityPerms["sensors"]);
+    $sensors = Sensor::get_all($conn);
+    
+    foreach($sensors as $sensor) {
+        if (!$all || $entityPerms["sensors"][$sensor->get_ip()]) {
+            $result[] = $sensor->get_ip();
+        }
+    }
+    
+    echo implode("\n",$result);
+    $buffer = implode("\n",$result);
+}
+else if ($key == "hostgroup") {
 	$hg_list = Host_group::get_list($conn, "", "ORDER BY name");
     if (count($hg_list)>0) {
         $buffer .= "[";
@@ -101,13 +136,19 @@ if ($key == "hostgroup") {
         }
         $buffer .= "]";
     }
+    
+    if ( $buffer=="" || $buffer=="[]" )
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
 }
 else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
+    $buffer .= "[";
     if ($hg_hosts = Host_group::get_hosts($conn, base64_decode($found[1]))) {
         $k = 1;
         $j = 0;
         $html = "";
-        $buffer .= "[";
+
         foreach($hg_hosts as $hosts) {
             if($j>=$from && $j<$to) {
                 $host_ip = $hosts->get_host_ip();
@@ -122,13 +163,20 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
             $html.= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("next")." $maxresults "._("hosts")."' }";
         }
         if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
-        $buffer .= "]";
+
     }
+    $buffer .= "]";
+    
+    if ( $buffer=="" || $buffer=="[]" )
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
 }
 else if ($key == "net") {
 	$net_list = Net::get_list($conn, "", "ORDER BY name");
+    $buffer .= "[";
     if (count($net_list)>0) {
-        $buffer .= "[";
+
         $j = 0;
         foreach($net_list as $net) {
             if($j>=$from && $j<$to) {
@@ -144,8 +192,14 @@ else if ($key == "net") {
             $li = "key:'net', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."'";
             $buffer .= ",{ $li }\n";
         }
-        $buffer .= "]";
+        
     }
+    $buffer .= "]";
+    
+    if ($buffer=="" || $buffer=="[]")
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
 }
 else if (preg_match("/net_(.*)/",$key,$found)){
 	$hostin = array();
@@ -183,10 +237,16 @@ else if (preg_match("/net_(.*)/",$key,$found)){
     }
     if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
     $buffer .= "]";
+    
+    if ($buffer=="" || $buffer=="[]")
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
 }
 else if ($key=="netgroup") {
+    $buffer .= "[";
     if ($net_group_list = Net_group::get_list($conn)) {
-        $buffer .= "[";
+
         $j = 0;
         foreach($net_group_list as $net_group) {
             if($j>=$from && $j<$to) {
@@ -202,8 +262,13 @@ else if ($key=="netgroup") {
             $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("net groups")."'";
             $buffer .= ",{ $li }\n";
         }
-        $buffer .= "]";
     }
+    $buffer .= "]";
+    
+    if ($buffer=="" || $buffer=="[]")
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
 }
 else if (preg_match("/netgroup_(.*)/",$key,$found)){
     $buffer .= "[";
@@ -224,6 +289,11 @@ else if (preg_match("/netgroup_(.*)/",$key,$found)){
     }
     if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
     $buffer .= "]";
+    
+    if ($buffer=="" || $buffer=="[]")
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
 }
 else if ($key=="all"){
     $buffer .= "[";
@@ -266,8 +336,12 @@ else if ($key=="all"){
         $buffer .= ",{key:'fqdn_".$fqdn."', isLazy:true, url:'NODES:".$fqdn."', icon:'../../pixmaps/theme/host_add.png', title:'$fqdn <font style=\"font-weight:normal;font-size:80%\">(" . $count . " "._("FQDNs").")</font>'\n}";
     }*/
     
-    
     $buffer .= "]";
+    
+    if ( $buffer=="" || $buffer=="[]" )
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
 }
 
 else if (preg_match("/all_(.*)/",$key,$found)){
@@ -316,6 +390,11 @@ else if (preg_match("/all_(.*)/",$key,$found)){
     
     if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
     $buffer .= "]";
+    
+    if ($buffer=="" || $buffer=="[]")
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
 }
 /*else if (preg_match("/fqdn_(.*)/",$key,$found)){
     
@@ -374,24 +453,157 @@ else if (preg_match("/host_(.*)/",$key,$found)){
     }
     $buffer = preg_replace("/,$/", "", $buffer);
     $buffer .= "]";
+    
+    if ($buffer=="" || $buffer=="[]")
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
+}
+else if(preg_match("/e_(.*)_net$/",$key,$found))
+{
+	$entityPerms = Acl::entityPerms($conn,$found[1]);
+	$all = count($entityPerms["assets"]);
+	$nets = Net::get_all($conn);
 
+    $buffer .= "[";
+    $html = "";
+    $p = 0;
+    foreach($nets as $net) {
+        $cidrs = explode(",",$net->get_ips());
+        if (!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"])) {
+            if($p>=$from && $p<$to) {
+                $net_title  = Util::htmlentities(utf8_encode($net->get_name()));
+                $html .= "{url:'".$net->get_ips()."', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$net->get_ips().")</font>'},\n";
+            }
+            $p++;
+        }
+    }
+
+    if ($p>$to) {
+        $html.= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."' }";
+    }
+    if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
+    
+    $buffer .= "]";
+    
+    if ($buffer=="" || $buffer=="[]")
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
+}
+else if(preg_match("/e_(.*)_sensor/",$key,$found))
+{
+    $entityPerms = Acl::entityPerms($conn,$found[1]);
+    $all = count($entityPerms["sensors"]);
+    $sensors = Sensor::get_all($conn);
+    
+    $buffer .= "[";
+    $j = 0;
+    foreach($sensors as $sensor) 
+	{
+		if (!$all || $entityPerms["sensors"][$sensor->get_ip()]) 
+		{
+			$sensor_title  = Util::htmlentities(utf8_encode($sensor->get_name()));
+			$li = "url:'".$sensor->get_ip()."', icon:'../../pixmaps/theme/server.png', title:'".$sensor_title."'\n";
+			$buffer .= (($j > 0) ? "," : "") . "{ $li }";
+			$j++;
+		}
+    }
+	
+    $buffer .= "]";
+    
+    if ($buffer=="" || $buffer=="[]")
+        echo "[{title:'"._("No assets found")."'}]";
+    else 
+        echo $buffer;
+}
+else if ($key=="entities") {
+    $entities = Acl::get_my_entities($conn);
+
+    echo "[";
+    
+    if ( count($entities) > 0 )
+    {
+        
+        foreach ($entities as $entity)
+        {
+            if ($entity['parent_id'] > 0 || $entity['type'] <= 0 ) 
+                continue;
+            
+            if ( $flag ) 
+                echo ",";
+            
+            $flag = true;
+            
+            $icon        = "../../pixmaps/theme/any.png";
+            $e_key       = $entity['id'];
+            $e_style     = "font-weight:bold";
+            $entity_name = $entity['name'];
+                    
+            echo "{title:'<font style=\"$e_style\">".Util::htmlentities($entity_name)."</font> <font style=\"color:gray\">[".$entity['type_name']."]</font>', key:'e_".$e_key."', icon:'$icon', isFolder:true ,expand:true, name:'".utf8_encode($entity_name)."'";
+                    echochildrens($entities, $entity['id']);
+            echo "}";
+        }
+    }
+    else
+        echo "{title:'"._("No Entities Found")."'}";
+        
+    echo "]";
+    
 }
 else if ($key!="all") {
     $buffer .= "[ {title: '"._("ANY")."', key:'key1', icon:'../../pixmaps/theme/any.png', expand:true, children:[\n";
     $buffer .= "{ key:'hostgroup', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("Host Group")."'},\n";
     $buffer .= "{ key:'net', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("Networks")."'},\n";
     $buffer .= "{ key:'netgroup', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("Network Groups")."'},\n";
+    if($prodemo)
+        $buffer .= "{ key:'entities', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/company.png', title:'"._("Entities")."'},\n";
     $buffer .= "{ key:'all', page:'', isFolder:true, isLazy:true , icon:'../../pixmaps/theme/host.png', title:'"._("All Hosts")." <font style=\"font-weight:normal;font-size:80%\">(" . $total_hosts . " "._("hosts").")</font>'}\n";
     $buffer .= "] } ]";
+    
+    echo $buffer;
 }
 
-if ($buffer=="" || $buffer=="[]")
-    $buffer = "[{title:'"._("No Assets found")."'}]";
-
-echo $buffer;
 error_reporting(0);
-$f = fopen($cachefile,"w");
-fputs($f,$buffer);
-fclose($f);
+if ($key!="entities") {
+    $f = fopen($cachefile,"w");
+    fputs($f,$buffer);
+    fclose($f);
+}
 
+function echochildrens($entities,$parent_id ) {
+    echo ",children:[";
+        
+	if( $parent_id != "" ) 
+	{
+        echo "{title:'<font style=\"font-weight:normal\">"._("All Assets")."</font>', url:'AllAssets', key:'e_".$parent_id."_allassets', icon:'../../pixmaps/menu/assets.gif', isFolder:false, expand:true,";
+        echo "children:[ ";
+        
+        echo "{ key:'e_".$parent_id."_net', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("Networks")."'},";
+        echo "{ key:'e_".$parent_id."_sensor', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/server.png', title:'"._("Sensors")."'}";
+        
+        echo "]}";
+    }
+			
+	$children = $entities[$parent_id]['children'];
+    
+	if ( !empty($children) )
+	{
+		foreach ($children as $child_id)
+		{
+			$icon      = "../../pixmaps/theme/any.png";
+			$child     = $entities[$child_id];
+			$child_key = $child_id;
+			$style     = "font-weight:bold";
+			
+			if ( $child['parent_id'] == $parent_id )
+			{
+				echo ",{title:'<font style=\"$style\">".Util::htmlentities($child['name'])."</font> <font style=\"color:gray\">[".$child['type_name']."]</font>', isFolder:true, key:'e_".$child_key."', icon:'$icon', expand:true, name:'".utf8_encode($child['name'])."'";
+					echochildrens($entities, $child_key );
+				echo "}";
+			}	
+		}
+	}
+    echo "]";
+}	
 ?>

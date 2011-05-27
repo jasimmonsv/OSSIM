@@ -103,6 +103,11 @@ then
 		echo "www-data ALL=NOPASSWD: /usr/share/ossim/scripts/detect.pl" >> /etc/sudoers
 fi
 
+if ! [ `grep -c "dmidecode" /etc/sudoers` -ne 0 ]
+then
+		echo "www-data ALL=NOPASSWD: /usr/sbin/dmidecode" >> /etc/sudoers
+fi
+
 # nmap perms
 if [ -e /usr/bin/nmap ]
 then
@@ -221,7 +226,9 @@ if [ -f "/var/ossec/etc/shared/agent.conf" ]; then
 fi
 
 chmod u+w            /var/ossec/rules/local_rules.xml
-chown www-data:ossec /var/ossec/rules/local_rules.xml 
+chown www-data:ossec /var/ossec/rules/local_rules.xml
+
+chmod u+w            /var/ossec/agentless
 chown www-data:ossec /var/ossec/agentless
 
 if [ -f "/var/ossec/agentless/.passlist" ]; then
@@ -246,6 +253,12 @@ fi
 touch /var/log/ossim/sem.log
 echo "Enable debug at /usr/share/ossim/www/sem/everything.ini" >> /var/log/ossim/sem.log
 chown www-data:www-data /var/log/ossim/sem.log
+
+# Kismet
+if [ ! -d /var/ossim/kismet ]; then
+	mkdir -p /var/ossim/kismet/parsed
+	mkdir -p /var/ossim/kismet/work
+fi
 
 
 # Set default panel dir and fix its perms

@@ -82,9 +82,10 @@ switch(GET("type")) {
 	// Top 10 Event Categories - Last Week
 	case "category":
 		if ($sensor_where!="")
-			$sqlgraph = "SELECT count(a.sid) as num_events,p.category_id,c.name FROM snort.acid_event a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".gmdate("Y-m-d",gmdate("U")-$range)."' AND '".gmdate("Y-m-d")."' $sensor_where group by p.category_id order by num_events desc LIMIT 10";
+			$sqlgraph = "SELECT count(a.sid) as num_events,p.category_id,c.name FROM snort.acid_event a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' $sensor_where group by p.category_id order by num_events desc LIMIT 10";
 		else
 			$sqlgraph = "SELECT sum(a.sig_cnt) as num_events,p.category_id,c.name FROM snort.ac_alerts_signature a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".gmdate("Y-m-d",gmdate("U")-$range)."' AND '".gmdate("Y-m-d")."' group by p.category_id order by num_events desc LIMIT 10";
+			
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {

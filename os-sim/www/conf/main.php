@@ -35,22 +35,24 @@
 * - valid_value()
 * - submit()
 */
-if ($_GET["section"] == "vulnerabilities") {
+if ($_GET["section"] == "vulnerabilities") 
 	header("Location:../vulnmeter/webconfig.php?nohmenu=1");
-} elseif ($_GET["section"] == "hids") {
+elseif ($_GET["section"] == "hids") 
 	header("Location:../ossec/config.php?nohmenu=1");
-} elseif ($_GET["section"] == "wids") {
+elseif ($_GET["section"] == "wids") 
 	header("Location:../wireless/setup.php?nohmenu=1");
-} elseif ($_GET["section"] == "assetdiscovery") {
+elseif ($_GET["section"] == "assetdiscovery") 
 	header("Location:../net/assetdiscovery.php?nohmenu=1");
-}
+
+
+
 require_once 'classes/Session.inc';
 Session::logcheck("MenuConfiguration", "ConfigurationMain");
 require_once 'ossim_conf.inc';
 require_once 'classes/Security.inc';
 require_once 'languages.inc';
 
-$ossim_conf = $GLOBALS["CONF"];
+$ossim_conf       = $GLOBALS["CONF"];
 $config_languages = $GLOBALS["config_languages"];
 
 $CONFIG = array(
@@ -1559,7 +1561,8 @@ ksort($CONFIG);
 function valid_value($key, $value, $numeric_values)
 {
     if (in_array($key, $numeric_values)) {
-        if (!is_numeric($value)) {
+        if (!is_numeric($value)) 
+		{
             require_once ("ossim_error.inc");
             $error = new OssimError();
             $error->display("NOT_NUMERIC", array(
@@ -1580,9 +1583,10 @@ function submit()
 		<!-- end sumbit -->
 	<?php
 }
-if (POST('update'))
+if ( POST('update') )
 {
-    $numeric_values = array(
+   
+	$numeric_values = array(
         "server_port",
         "use_resolv",
         "use_ntop_rewrite",
@@ -1623,7 +1627,19 @@ if (POST('update'))
     require_once 'classes/Config.inc';
     
 	$config = new Config();
-    
+	
+	$pass_fields = array();
+		
+	foreach ($CONFIG as $conf)
+	{
+		foreach ($conf['conf'] as $k => $v)
+		{
+			if ( $v['type'] == "password" )
+				$pass_fields[$k] = 1;
+		}
+	}
+	
+	
 	for ($i = 0; $i < POST('nconfs'); $i++)
 	{
         if(POST("conf_$i") == "pass_length_max")
@@ -1631,10 +1647,12 @@ if (POST('update'))
             $pass_length_max = POST("value_$i");
             continue;
         }
+		
 		if(POST("conf_$i") == "pass_expire")
 		{
             $pass_expire_max = POST("value_$i");
         }
+		
 		if(POST("conf_$i") == "pass_expire_min")
 		{
             $pass_expire_min = POST("value_$i");
@@ -1659,18 +1677,30 @@ if (POST('update'))
            die(ossim_error()); 
         }
         
+		
+		
 		if (valid_value(POST("conf_$i") , POST("value_$i"), $numeric_values))
 		{
-            if (!$ossim_conf->is_in_file(POST("conf_$i"))) {
-                $before_value = $ossim_conf->get_conf(POST("conf_$i"),false); 
-                $config->update(POST("conf_$i") , POST("value_$i"));
-                if (POST("value_$i") != $before_value) Log_action::log(7, array("variable: ".POST("conf_$i")));
-                //echo POST("conf_$i")."---->";
-                //echo POST("value_$i")."<br><br>";
+		    
+			if (!$ossim_conf->is_in_file(POST("conf_$i"))) 
+			{
+                if ( $pass_fields[POST("conf_$i")] == 1 && Util::is_fake_pass(POST("value_$i")) )
+					continue;
+				else
+				{
+					$before_value = $ossim_conf->get_conf(POST("conf_$i"),false); 
+					
+					$config->update(POST("conf_$i") , POST("value_$i"));
+					
+					if (POST("value_$i") != $before_value) 
+						Log_action::log(7, array("variable: ".POST("conf_$i")));
+				}
                 
             }
-        }
-    }
+		}
+	}
+	
+	
     
     // check valid pass lenght max
     if(intval($pass_length_max) < intval($pass_length_min) || intval($pass_length_max) < 1 || intval($pass_length_max) > 255 )
@@ -1843,13 +1873,13 @@ $default_open = intval(GET('open'));
 				$(this).find("tr:last td").css('border', 'none');
 			 });
 
-			<?	if (intval(GET('passpolicy'))==1)  { ?>
-			$('#test13-header').click(); 
-			<?  }  ?>
+			<?php	if (intval(GET('passpolicy'))==1)  { ?>
+			$('#test14-header').click(); 
+			<?php  }  ?>
 			
-			<?	if ($default_open>0)  { ?>
+			<?php	if ($default_open>0)  { ?>
 			$('#test<?=$default_open?>-header').click(); 
-			<?  }  ?>
+			<?php  }  ?>
 			
 		});
 		
@@ -1961,7 +1991,7 @@ $default_open = intval(GET('open'));
 	$onsubmit = ( GET('adv') == '1' ) ? "onsubmit='enableall();'" : "";
 	?>
   
-	<form method="POST" style="margin:0 auto" <?php echo $onsubmit;?> action="<?php echo $_SERVER["SCRIPT_NAME"] ?>" />
+	<form method="POST" style="margin:0px auto" <?php echo $onsubmit;?> action="<?php echo $_SERVER["SCRIPT_NAME"] ?>" />
   
 	<table align='center'>
 	
@@ -2036,23 +2066,21 @@ $default_open = intval(GET('open'));
 								</tr>
 								<?php
 							}
+								
 							foreach($val["conf"] as $conf => $type) 
 							{
 								if ($advanced || ($section == "" && !$advanced && $type["advanced"] == 0) || ($section != "" && preg_match("/$section/",$type['section'])))
 								{
 									//var_dump($type["type"]);
 									$conf_value = $ossim_conf->get_conf($conf,false);
-									$var = ($type["desc"] != "") ? $type["desc"] : $conf;
-									
-																										
-									
-							?>
-								<tr <?php
-									if (in_array($conf, $arr)) echo "bgcolor=#FE9B52" ?>>
+									$var        = ($type["desc"] != "") ? $type["desc"] : $conf;
+									?>
+								
+								<tr <?php if (in_array($conf, $arr)) echo "bgcolor=#FE9B52" ?>>
 
 									<input type="hidden" name="conf_<?php echo $count ?>" value="<?php echo $conf ?>" />
 									
-									<td><b><?php echo $var ?></b></td>
+									<td><strong><?php echo $var ?></strong></td>
 									
 									<td class="left">
 										<?php
@@ -2111,15 +2139,11 @@ $default_open = intval(GET('open'));
 											/* input */
 											else
 											{
-												$input.= "<input ";
-												//if ($ossim_conf->is_in_file($conf)) {
-												//   $input .= " class=\"disabled\" ";
-												//    $input .= " DISABLED ";
-												//}
-												$input.= "type='" . $type["type"] . "' size='30' name='value_$count' value='$conf_value' $disabled/>";
+												$conf_value = ( $type["type"]=="password" ) ? Util::fake_pass($conf_value) : $conf_value;
+												$input.= "<input type='" . $type["type"] . "' size='30' name='value_$count' value='$conf_value' $disabled/>";
 											}
-										
-												echo $input;
+											
+											echo $input;
 											
 										?>
 										</td>

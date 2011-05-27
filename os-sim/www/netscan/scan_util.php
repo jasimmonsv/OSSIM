@@ -60,65 +60,58 @@ function __os2pixmap($os) {
 function scan2html($scan) {
     $count = 0;
     $html = "<br/>";
-    foreach($scan as $host) {
+    
+	foreach($scan as $host) 
+	{
         $html.= "<tr>";
-        $html.= "<td>" . $host['ip'] . "</td>\n";
-        $html.= "<td>" . $host['mac'];
+        $html.= "<td width='120px' nowrap='nowrap'>" . $host['ip'] . "</td>\n";
+        $html.= "<td nowrap='nowrap'>" . $host['mac'];
         $html.= "&nbsp;" . $host['mac_vendor'] . "</td>\n";
-        $html.= "<td>" . $host['os'] . "&nbsp;";
+        $html.= "<td nowrap='nowrap'>" . $host['os'] . "&nbsp;";
         $html.= __os2pixmap($host['os']) . "&nbsp;</td>\n";
         $html.= "<td>";
-        foreach($host["services"] as $k => $service) {
+        
+		foreach($host["services"] as $k => $service) {
             $title = $service["port"] . "/" . $service["proto"] . " " . $service["version"];
             $html.= " <span title=\"$title\"> ";
             $html.= ($service["service"]!="") ? $service["service"] : $k;
             $html.= "</span>&nbsp;";
         }
-        $html.= "&nbsp</td>\n";
-        $html.= "<td><input CHECKED type=\"checkbox\" 
+        
+		$html.= "&nbsp</td>\n";
+        $html.= "<td><input checked='checked' type=\"checkbox\" 
                 value=\"" . $host['ip'] . "\" name=\"ip_$count\"/></td>\n";
         $html.= "</tr>";
         $count+= 1;
     }
-    echo <<<EOF
-    <form action="../host/newhostform.php" method="POST">
-      <input type="hidden" name="scan" value="1" />
-      <input type="hidden" name="ips" value="$count" />
-    <a name="results">
-    <table align="center">
-      <tr>
-EOF;
-    echo "<th colspan='5'>" . gettext("Scan results") . "</th>";
-    echo "</tr></tr>";
-    echo "<th>" . gettext("Host") . "</th>";
-    echo "<th>" . gettext("Mac") . "</th>";
-    echo "<th>" . gettext("OS") . "</th>";
-    echo "<th>" . gettext("Services") . "</th>";
-    echo "<th>" . gettext("Insert") . "</th>";
-    echo <<<EOF
-      </tr>
-      $html
-      <tr></tr>
-      <tr>
-        <td colspan="5">
-EOF;
-    echo "<input type=\"submit\" class=\"button\" value=\"" . gettext("Update database values") . "\" />";
-    echo <<<EOF
-        </td>
-      </tr>
-      <tr>
-        <td colspan="5">
-EOF;
-    echo "<input type=\"button\" class=\"button\" onclick=\"document.location.href='../netscan/index.php?clearscan=1'\" value=\""._('Clear scan result')."\">";
-    echo <<<EOF
-    </a>
-        </td>
-      </tr>
-    </table>
-    </form>
+	
+	?>
+	<form action="../host/newhostform.php" method="POST">
+		<input type="hidden" name="scan" value="1" />
+		<input type="hidden" name="ips" value='<?php echo $count?>'/>
+		
+		<table align="center" width="80%" cellpadding="2">
+			<tr>
+				<th colspan='5'><?php echo _("Scan results")?></th>
+			</tr>
+			</tr>
+				<th style='padding: 3px;'><?php echo _("Host")?></th>
+				<th style='padding: 3px;'><?php echo _("Mac")?></th>
+				<th style='padding: 3px;'><?php echo _("OS")?></th>
+				<th style='padding: 3px;'><?php echo _("Services")?></th>
+				<th style='width:50px; padding: 3px;'><?php echo _("Insert")?></th>
+			</tr>
+			<?php echo $html?>
+			<tr>
+				<td colspan="5" class='center' style='padding: 10px 0px'>
+					<input type='submit'class='button' value='<?php echo _("Update database values")?>'/>
+					<input type="button" class="buttond" onclick="document.location.href='../netscan/index.php?clearscan=1'" value='<?php echo _('Clear scan result')?>'/>
+				</td>
+			</tr>
+		</table>
+	</form>
     <br/>
     <br/>
-EOF;
-    
+	<?php
 }
 ?>
