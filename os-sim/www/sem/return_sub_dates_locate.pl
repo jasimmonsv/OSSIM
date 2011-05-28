@@ -22,7 +22,10 @@ if($a[$i-1] eq "-"){
 	$result = substr($result, 0, $i-1);
 }
 
-$result = substr($result, 0, 10);
-$result =~ s/-/\//g;
+$result = substr($result, 0, 13);
+$result =~ s/[- ]/\//g;
+
+$result =~ s/\/\d[^\d]*$// if ($result !~ /\/\d\d$/);
+
 
 print "$result\n";
