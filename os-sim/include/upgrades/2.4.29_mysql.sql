@@ -3,6 +3,7 @@ SET AUTOCOMMIT=0;
 BEGIN;
 
 REPLACE INTO config (conf, value) VALUES ('def_asset', '2');
+DELETE FROM user_config WHERE category='policy' AND name='sensors_layout';
 
 -- ATENCION! Keep this at the end of this file
 use ossim;
