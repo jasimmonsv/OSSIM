@@ -112,7 +112,7 @@ $total_pages = floor(($total - 1) / $maxrows) + 1;
 		
 		function newdoc(url) {
 			GB_TYPE = 'w';
-			GB_show("<?php echo _("New Document")?>","repository_newdocument.php","90%","550");
+			GB_show("<?php echo _("New Document")?>","repository_newdocument.php","635","600");
 		}
 	
 	<?php if ($id_document == "") { ?>
@@ -124,7 +124,7 @@ $total_pages = floor(($total - 1) / $maxrows) + 1;
 		GB_TYPE = 'w';
 		$("a.greybox").click(function(){
 			var t = this.title || $(this).text() || this.href;
-			GB_show(t,this.href,'80%',550);
+			GB_show(t,this.href,"635","600");
 			return false;
 		});
 		
@@ -146,6 +146,7 @@ $total_pages = floor(($total - 1) / $maxrows) + 1;
 	});
   
   </script>
+     
 </head>
 
 <body>

@@ -100,12 +100,13 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-	<link rel="stylesheet" type="text/css" href="../style/jquery.wysiwyg.css"/>
+	<link rel="stylesheet" type="text/css" href="../js/CLeditor/jquery.cleditor.css"/>
 	
-	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/greybox.js"></script>
 	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-	<script type="text/javascript" src="../js/jquery.wysiwyg.js"></script>
+	
+	<script type="text/javascript" src="../js/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="../js/CLeditor/jquery.cleditor.min.js"></script>
 	<script type="text/javascript" src="../js/utils.js"></script>
 	<script type="text/javascript">
 				
@@ -259,63 +260,14 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 			
 			chg_prio_str();
 			
-			$('textarea').wysiwyg({
-				css : { fontSize : '12px'},
-				controls: {
-					bold          : { visible : true },
-					italic        : { visible : true },
-					underline     : { visible : true },
-					strikeThrough : { visible : true },
-					
-					justifyLeft   : { visible : true },
-					justifyCenter : { visible : true },
-					justifyRight  : { visible : true },
-					justifyFull   : { visible : true },
-					
-					indent  : { visible : true },
-					outdent : { visible : true },
-
-					subscript   : { visible : false },
-					superscript : { visible : false },
-					
-					undo : { visible : false },
-					redo : { visible : false },
-					
-					insertOrderedList    : { visible : true },
-					insertUnorderedList  : { visible : true },
-					insertHorizontalRule : { visible : true },
-					
-					createLink  : { visible : false },
-					insertImage : { visible : false },
-					
-					separator06  : { separator : false },
-					
-					h1mozilla: { visible : false },
-					h2mozilla: { visible : false },
-					h3mozilla: { visible : false },
-					
-					h1: { visible : false },
-					h2: { visible : false },
-					h3: { visible : false },
-					
-					separator07  : { separator : false },
-					
-					cut   : { visible : false },
-					copy  : { visible : false },
-					paste : { visible : false },
-					
-					separator08  : { separator : false },
-					
-					html  : { visible: false },
-					increaseFontSize : { visible : true },
-					decreaseFontSize : { visible : true },
-					
-					separator09  : { separator : false },
-					removeFormat :  { visible : false }
-					
-				  },
+			$("textarea").cleditor({
+				height:  150, // height not including margins, borders or padding
+				
+				controls:     // controls to add to the toolbar
+				"bold italic underline strikethrough style | color highlight removeformat | bullets numbering | outdent " +
+				"indent | alignleft center alignright justify | undo redo | " + " cut copy"
 			});
-			
+					
 			$('#submit_ticket').bind('click', function()  { submit_ticket(); });			
 		});
 			

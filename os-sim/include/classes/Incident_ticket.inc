@@ -196,9 +196,9 @@ class Incident_ticket {
             ) ,
         );
 		
-        $description = strip_tags($description,'<big><span><div><p><ol><ul><li><hr><br>');
-        $action       = strip_tags($action,'<big><span><div><p><ol><ul><li><br>');
-		
+        $description = strip_tags($description,'<div><span><ul><li><ol><b><i><u><strike><p><h1><h2><h3><h4><h5><h6><font><br><blockquote>');
+        $action      = strip_tags($action,'<div><span><ul><li><ol><b><i><u><strike><p><h1><h2><h3><h4><h5><h6><font><br><blockquote>');
+				
 		ossim_valid($incident_id, $vals['incident_id']);
         ossim_valid($status, $vals['status']);
         ossim_valid($priority, $vals['priority']);

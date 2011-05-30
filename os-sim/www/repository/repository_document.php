@@ -121,7 +121,7 @@ if (!$maximized) { ?>
 											}
 										}
 										else
-											echo "<span style='color:#696969;'>"._("No files attached")."</span>";
+											echo "<tr><td class='noborder center'><span style='color:#696969;'>"._("No attached files")."</span></td></tr>";
 										
 										?>
 									</table>
@@ -133,22 +133,28 @@ if (!$maximized) { ?>
 								<td class="nobborder">
 									<table class="noborder" align="center">
 										<?php
-										foreach($rel_list as $rel) 
+										if ( count($rel_list) > 0 )
 										{
-											if ($rel['type'] == "host")       $page = "../report/index.php?host=" . $rel['key'];
-											if ($rel['type'] == "net")        $page = "../net/net.php";
-											if ($rel['type'] == "host_group") $page = "../host/hostgroup.php";
-											if ($rel['type'] == "net_group")  $page = "../net/netgroup.php";
-											if ($rel['type'] == "incident")   $page = "../incidents/incident.php?id=" . $rel['key'];
-											if ($rel['type'] == "directive")  $page = "../directive_editor/index.php?hmenu=Directives&smenu=Directives&level=1&directive=" . $rel['key'];
-											if ($rel['type'] == "plugin_sid") $page = "../forensics/base_qry_main.php?clear_allcriteria=1&search=1&sensor=&sip=&plugin=&ossim_risk_a=+&hmenu=Forensics&smenu=Forensics&submit=Signature&search_str=" . urlencode(Plugin_sid::get_name_by_idsid($conn,$rel['key'],$rel['name']));
-											?>
-											<tr>
-												<td class="nobborder"><a href="<?php echo $page?>" target="main"><?php echo ($rel['type'] == "plugin_sid") ? $rel['key']." (".$rel['name'].")" : $rel['name'] ?></a></td>
-												<td class="nobborder"><?php echo ($rel['type'] == "incident") ? "ticket" : $rel['type'] ?></td>
-											</tr>
-											<?php
-										} 
+											foreach($rel_list as $rel) 
+											{
+												if ($rel['type'] == "host")       $page = "../report/index.php?host=" . $rel['key'];
+												if ($rel['type'] == "net")        $page = "../net/net.php";
+												if ($rel['type'] == "host_group") $page = "../host/hostgroup.php";
+												if ($rel['type'] == "net_group")  $page = "../net/netgroup.php";
+												if ($rel['type'] == "incident")   $page = "../incidents/incident.php?id=" . $rel['key'];
+												if ($rel['type'] == "directive")  $page = "../directive_editor/index.php?hmenu=Directives&smenu=Directives&level=1&directive=" . $rel['key'];
+												if ($rel['type'] == "plugin_sid") $page = "../forensics/base_qry_main.php?clear_allcriteria=1&search=1&sensor=&sip=&plugin=&ossim_risk_a=+&hmenu=Forensics&smenu=Forensics&submit=Signature&search_str=" . urlencode(Plugin_sid::get_name_by_idsid($conn,$rel['key'],$rel['name']));
+												?>
+												<tr>
+													<td class="nobborder"><a href="<?php echo $page?>" target="main"><?php echo ($rel['type'] == "plugin_sid") ? $rel['key']." (".$rel['name'].")" : $rel['name'] ?></a></td>
+													<td class="nobborder"><?php echo ($rel['type'] == "incident") ? "ticket" : $rel['type'] ?></td>
+												</tr>
+												<?php
+											} 
+										}
+										else
+											echo "<tr><td class='noborder center'><span style='color:#696969;'>"._("No related links")."</span></td></tr>";
+									
 										?>
 									</table>
 								</td>

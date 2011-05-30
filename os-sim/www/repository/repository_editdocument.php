@@ -62,7 +62,7 @@ if ( isset($_POST['title']) || isset($_POST['doctext']) )
 		$error        = true;
 	}
 	
-	if ( POST('doctext') == "" ) 
+	if ( strip_tags(POST('doctext')) == "" ) 
 	{
 		$info_error[] = _("Error in the 'text' field (missing required field)");
 		$error        = true;
@@ -72,7 +72,7 @@ if ( isset($_POST['title']) || isset($_POST['doctext']) )
 	{
 		
 		$title    = POST('title');
-		$doctext  = strip_tags(POST('doctext'),'<big><span><div><a><p><ol><ul><li><hr><br>');
+		$doctext  = strip_tags(POST('doctext'),'<div><span><ul><li><ol><b><i><u><strike><p><h1><h2><h3><h4><h5><h6><font><br><blockquote>');
 		$keywords = POST('keywords');
 		
 		Repository::update($conn, $id_document, $title , $doctext , $keywords);
@@ -89,15 +89,21 @@ if ( isset($_POST['title']) || isset($_POST['doctext']) )
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 	<meta http-equiv="Pragma" CONTENT="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
-	<link rel="stylesheet" type="text/css" href="../style/jquery.wysiwyg.css"/>
-	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-	<script type="text/javascript" src="../js/jquery.wysiwyg.js"></script>
+	<link rel="stylesheet" type="text/css" href="../js/CLeditor/jquery.cleditor.css"/>
+	<script type="text/javascript" src="../js/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="../js/CLeditor/jquery.cleditor.min.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			$('#textarea').wysiwyg({
-			css : { fontFamily: 'Arial, Tahoma', fontSize : '13px'}
-			});	
-		});							
+			$(document).ready(function() {
+				$("#textarea").cleditor({
+					height:  250, // height not including margins, borders or padding
+					
+					controls:     // controls to add to the toolbar
+					"bold italic underline strikethrough style | color highlight removeformat | bullets numbering | outdent " +
+					"indent | alignleft center alignright justify | undo redo | " + " cut copy"
+				});
+			});
+		});					
 	</script>
 	
 	<style type='text/css'>
@@ -107,28 +113,59 @@ if ( isset($_POST['title']) || isset($_POST['doctext']) )
 			margin: 10px auto;
 		}
 		
-		.ossim_error, .ossim_success { width: auto;}
+		html, body { margin: 0px; padding: 0px; }
 		
-		body {margin:0px;}
-		
-		table {
-			width: 98%;
-			margin: auto;
-		}
-		
-		.pad_title{ padding:3px 0px 0px 5px; }
-		
-		#update { 
-			padding: 10px 0px 0px 0px;
-			border: none;
-			margin:auto;
-			text-align: center;
-		}
 		
 		.error_item {
 			padding:2px 0px 0px 20px; 
 			text-align:left;
 		}
+		
+		.ossim_success {
+			width: auto;			
+		}
+		
+		.ossim_error {
+			width: auto;
+			padding: 10px 10px 10px 40px;
+			font-size: 12px;
+		}
+		
+		.rep_section{
+			width: 90%;
+			margin:auto;
+			padding: 3px 0px;
+		}
+		
+		.rep_label {
+			text-align: left;
+			font-weight: bold;
+			padding-bottom: 3px; 
+		}
+			
+		input[type='text']{ 
+			text-align: left; 
+			width: 400px; 
+			height: 18px;
+		}
+		
+		#keywords { 
+			width:98%;
+			height: 40px;
+		}
+					
+		
+		table { 
+			margin: auto; 
+			width: 98%;
+			background: transparent;
+			border:none !important;
+		}
+		
+		#update { 
+			padding: 15px 0px 0px 0px;
+			border: none;
+			}
 		
 	</style>
 </head>
@@ -172,24 +209,26 @@ if ( isset($_POST['title']) || isset($_POST['doctext']) )
 			$title    = $document['title'];
 			$text     = $document['text'];
 			$keywords = $document['keywords'];
-			
 		}
 		?>
-		<table cellpadding='0' cellspacing='2' border='0' width="99%" class="transparent">
+		
+		<table cellpadding='0' cellspacing='2' border='0' class="noborder transparent">
 			<?php
 			
 			if ( $error == true ) 
 			{ 
 				$info_error = implode($info_error, "</div><div class='error_item'>");
 				?>
+								
 				<tr>
-					<td>
+					<td class='noborder center'>
 						<div class='ossim_error'>
 							<div class='error_item' style='padding-left: 5px;'><?php echo _("We found the following errors")?>:</div>
 							<div class='error_item'><?php echo $info_error?></div>
 						</div>
 					</td>
 				</tr>
+				
 				<?php
 			}
 			?>	
@@ -199,32 +238,37 @@ if ( isset($_POST['title']) || isset($_POST['doctext']) )
 					<!-- repository insert form -->
 					<form name="repository_insert_form" method="POST" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" enctype="multipart/form-data">
 						<input type="hidden" name="id_document" value="<?php echo $id_document ?>">
+						
 						<table cellpadding='0' cellspacing='2' border='0' class="transparent">
 							<tr>
-								<td class="nobborder pad_title"><strong><?php echo _("Title")?>:</strong></td>
+								<td class="nobborder">
+									<div class='rep_section'>
+										<div class='rep_label'><?php echo _("Title")?>:</div>
+										<input type="text" name="title" value="<?php echo $title ?>">
+									</div>
+								</td>
 							</tr>
+					
 							<tr>
-								<td class="nobborder pad_title"><input type="text" name="title" style="width:473px" value="<?php echo $title;?>"></td>
-							</tr>
-							<tr>
-								<td class="nobborder pad_title"><strong><?php echo _("Text") ?>:</strong></td>
-							</tr>
-							<tr>
-								<td class="nobborder pad_title">
-									<textarea id="textarea" name="doctext" rows="4" style="width:460px; height: 150px"><?php echo $text;?></textarea>
+								<td class="nobborder">
+									<div class='rep_section'>
+										<div class='rep_label'><?php echo _("Text")?>:</div>
+										<textarea id="textarea" name="doctext"><?php echo $text ?></textarea>
+									</div>
 								</td>
 							</tr>
 							
 							<tr>
-								<td class="nobborder" style="padding-left:5px"><strong><?php echo _("Keywords") ?>:</strong></td>
-							</tr>
-							<tr>
-								<td class="nobborder" style="padding-left:5px">
-									<textarea name="keywords" cols="73"><?php echo $keywords;?></textarea>
+								<td class="nobborder">
+									<div class='rep_section'>
+										<div class='rep_label'><?php echo _("Keywords")?>:</div>
+										<textarea name="keywords" id='keywords'><?php echo $keywords ?></textarea>
+									</div>
 								</td>
 							</tr>
 							
-							<tr><td class="nobborder" id='update'><input class="button" type="submit" value="<?php echo _("Update") ?>"></td></tr>
+														
+							<tr><td id='update'><input type='submit' class='button' value='<?php echo _("Update")?>'/></td></tr>
 						</table>
 					</form>
 					<!-- end of repository insert form -->
