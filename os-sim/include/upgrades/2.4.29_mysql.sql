@@ -22,13 +22,13 @@ UPDATE custom_report_types SET inputs=CONCAT(inputs,";Group by:groupby:select:OS
 DROP PROCEDURE IF EXISTS addcol;
 DELIMITER '//'
 CREATE PROCEDURE addcol() BEGIN
-   IF EXISTS
+   IF NOT EXISTS
         (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'vuln_nessus_latest_results' AND INDEX_NAME='falsepositive')
    THEN
 		ALTER TABLE  `vuln_nessus_latest_results` ADD INDEX `falsepositive` (  `falsepositive` ,  `hostIP` );
 		ALTER TABLE  `vuln_nessus_latest_results` DROP INDEX  `report_id` , ADD INDEX  `report_id` (  `report_id` ,  `username` ,  `sid` );
    END IF; 
-   IF EXISTS
+   IF NOT EXISTS
         (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'vuln_nessus_latest_reports' AND INDEX_NAME='deleted')
    THEN
 		ALTER TABLE  `vuln_nessus_latest_reports` ADD INDEX `deleted` (  `deleted` ,  `results_sent` ,  `name` );
