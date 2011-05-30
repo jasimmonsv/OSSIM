@@ -837,6 +837,19 @@ CREATE TABLE plugin_sid (
     PRIMARY KEY (plugin_id, sid)
 );
 
+DROP TABLE IF EXISTS plugin_sid_changes;
+CREATE TABLE `plugin_sid_changes` (
+  `plugin_id` int(11) NOT NULL,
+  `sid` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `reliability` int(11) DEFAULT '1',
+  `priority` int(11) DEFAULT '1',
+  `category_id` int(11) DEFAULT NULL,
+  `subcategory_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`plugin_id`,`sid`)
+);
+
+
 --
 -- Tables for the Policy Groups
 --
@@ -1963,9 +1976,11 @@ CREATE TABLE IF NOT EXISTS `vuln_nessus_latest_reports` (
   `results_sent` int(11) NOT NULL default '0',
   `deleted` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`report_id`,`username`,`sid`),
+  KEY `deleted` (`deleted`,`results_sent`,`name`),
   KEY `subnet` (`fk_name`),
   KEY `scantime` (`scantime`)
 );
+
 DROP TABLE IF EXISTS `vuln_nessus_latest_results`;
 CREATE TABLE IF NOT EXISTS `vuln_nessus_latest_results` (
   `result_id` int(11) NOT NULL auto_increment,
@@ -1985,11 +2000,12 @@ CREATE TABLE IF NOT EXISTS `vuln_nessus_latest_results` (
   `msg` text,
   `falsepositive` char(1) default 'N',
   PRIMARY KEY  (`result_id`),
-  KEY `report_id` (`report_id`),
   KEY `scantime` (`scantime`),
   KEY `scriptid` (`scriptid`),
   KEY `hostIP` (`hostIP`),
-  KEY `risk` (`risk`)
+  KEY `risk` (`risk`),
+  KEY `falsepositive` (`falsepositive`,`hostIP`),
+  KEY `report_id` (`report_id`,`username`,`sid`)  
 );
 
 DROP TABLE IF EXISTS `vuln_hosts`;
