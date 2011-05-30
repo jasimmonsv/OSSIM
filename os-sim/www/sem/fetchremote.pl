@@ -77,7 +77,7 @@ foreach $ip (@ips_arr) {
         } else {
             $cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;perl fetchall.pl '$start' '$end' '$query' $start_line $num_lines $order_by $operation $cache_file $idsesion $ip\"";
         }
-         
+        #print "$cmd\n"; exit; 
         system($cmd);
         exit(0);
     }

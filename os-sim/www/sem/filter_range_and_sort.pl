@@ -206,7 +206,7 @@ foreach my $file (@files) {
 						last LINE if ($reverse && $complete_lines>=$lines_threshold && $currentdate<$lastdate); # jump innecesary events
 						last LINE if (!$reverse && $complete_lines>=$lines_threshold && $currentdate>$lastdate); # jump innecesary events
 						#print "Evento: $currentdate > $start && $currentdate < $end\n" if ($debug);
-						if ($currentdate > $start && $currentdate < $end && pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port,$data)) {
+						if ($currentdate >= $start && $currentdate <= $end && pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port,$data)) {
 							#print "$complete_lines BIEN Plugin $plugin_id - $plugin_sid -> ".pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port)."\n" if ($debug);
 							chomp;
 							$events{$_.";$file;$complete_lines;$server"} = $currentdate;

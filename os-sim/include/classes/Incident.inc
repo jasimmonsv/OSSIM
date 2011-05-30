@@ -875,7 +875,7 @@ class Incident {
             $opts[$o] = isset($search_criteria[$o]) ? $search_criteria[$o] : null;
         }
         
-		$sql   = (!$opts['with_text']) ? "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* " : "SELECT DISTINCT incident.* ";
+		$sql   = (!$opts['with_text']) ? "SELECT SQL_CALC_FOUND_ROWS DISTINCT incident.* " : "SELECT DISTINCT incident.* ";
         $where = $parms = array();
 		
 		        
@@ -1040,11 +1040,7 @@ class Incident {
 			$sql = Incident::_build_sql($sql, $where);
         }
 		
-		
-		//echo "<pre>";
-		//print_r($sql);
-		//echo "</pre>";
-		        
+				        
 		// Order by
         if ($order_by == 'life_time') $order_by = "date";
         $order_by = ($order_by!="") ? "\nORDER BY $order_by $order_mode" : "";
@@ -1060,11 +1056,19 @@ class Incident {
             $tags[$rs->fields["incident_id"]][] = $rs->fields["tag_id"];
             $rs->MoveNext();
         }
+
+		//echo "<pre>";
+		//print_r($sql);
+		//echo "</pre>";
        		
         //$conn->debug = true;
         if (!$rs = $conn->Execute($sql, $parms)) {
             die($conn->ErrorMsg());
         }
+        // Caching total count
+        if ($rf = &$conn->Execute("SELECT FOUND_ROWS() as total"))
+        	$_SESSION["_incident_search_count"] = $rf->fields["total"];
+        
         // Build the resultant list of incidents
         $list = array();
         while (!$rs->EOF) {
@@ -1088,6 +1092,7 @@ class Incident {
         return $list;
     }
     function search_count($conn) {
+        if (isset($_SESSION["_incident_search_count"])) return $_SESSION["_incident_search_count"];
         $foundrows = 0;
         if ($rf = &$conn->Execute("SELECT FOUND_ROWS() as total")) $foundrows = $rf->fields["total"];
         return $foundrows;

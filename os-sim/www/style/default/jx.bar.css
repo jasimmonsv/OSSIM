@@ -48,9 +48,9 @@
 
 /*----- bar separator -----*/
 .jx-bar span {
-	width:1px;
+	width:4px;
 	height:100%;
-	background-color:#ccc;
+	/*background-color:#ccc;*/
 }
 
 	.jx-separator-left {
@@ -81,7 +81,7 @@
 	font-family:Arial, Verdana, Helvetica, sans-serif;
 	font-size:10px;
 	cursor:pointer;
-	padding:3px 5px 3px 5px;
+	padding:3px 3px 3px 3px;
 	border:#e5e5e5 solid 1px;	
 	margin:2px;
 }
@@ -90,7 +90,7 @@
 	.jx-bar-button li:hover {
 		background-color:#eee;
 		border:#ccc solid 1px;
-		padding:3px 5px 3px 5px;
+		padding:3px 3px 3px 3px;
 		margin:2px;
 	}
 
@@ -127,7 +127,7 @@
 	font-family:Arial, Verdana, Helvetica, sans-serif;
 	font-size:11px;
 	color:#666;
-	padding:3px 5px 3px 5px;
+	padding:3px 3px 3px 3px;
 	margin:4px 0px 4px 0px;
 }
 
@@ -148,7 +148,7 @@
 /*----- button tooltip -----*/
 .jx-bar-button-tooltip {
 	height:auto;
-	padding:5px 10px 5px 10px;
+	padding:4px 7px 4px 7px;
 	color:#fff;
 	background-color:#36393D;
 	font-family:Arial, Verdana, Helvetica, sans-serif;
@@ -208,7 +208,7 @@
 	font-size:11px;
 	cursor:pointer;
 	background-color:#ccc;
-	padding:3px 5px 3px 5px;
+	padding:3px 3px 3px 3px;
 	margin:2px;
 }
 

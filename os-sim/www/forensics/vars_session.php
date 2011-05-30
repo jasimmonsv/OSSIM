@@ -92,6 +92,7 @@ $_SESSION['views_data'] = array(
 	"SID_NAME" => array("title"=>"sid name","width"=>"40","celldata" => ""),
 	"IP_PROTO" => array("title"=>"L4-proto","width"=>"40","celldata" => "")
 );
+
 // TIME RANGE
 if ($_GET['time_range'] != "") {
     // defined => save into session
@@ -111,7 +112,7 @@ if ($_GET['time_range'] != "") {
         if (isset($_SESSION['time_range'])) $_GET['time_range'] = $_SESSION['time_range'];
     }
 } elseif ($_GET['date_range'] == "week") {
-	$start_week = explode("-",date("Y-m-d", $timetz - (24 * 60 * 60 * 7)));
+	$start_week = explode("-",gmdate("Y-m-d", $timetz - (24 * 60 * 60 * 7)));
 	$_GET['time'][0] = array(
         null,
         ">=",
@@ -134,9 +135,9 @@ if ($_GET['time_range'] != "") {
     $_GET['time'][0] = array(
         null,
         ">=",
-        date("m",$timetz) ,
-        date("d",$timetz) ,
-        date("Y",$timetz) ,
+        gmdate("m",$timetz) ,
+        gmdate("d",$timetz) ,
+        gmdate("Y",$timetz) ,
         null,
         null,
         null,

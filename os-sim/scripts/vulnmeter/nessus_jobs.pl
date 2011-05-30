@@ -186,6 +186,8 @@ $dbhost = "localhost" if ($dbhost eq "");
 my $dbuser = `grep user /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbuser);
 my $dbpass = `grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbpass);
 
+my $uuid = `dmidecode -s system-uuid`; chomp($uuid);
+
 $CONFIG{'DATABASENAME'} = "ossim";
 $CONFIG{'DATABASEHOST'} = $dbhost;
 $CONFIG{'UPDATEPLUGINS'} = 0;
@@ -197,11 +199,11 @@ $CONFIG{'nameservers'} = "";
 my ( $dbh, $sth_sel, $sql );   #DATABASE HANDLE TO BE USED THROUGHOUT PROGRAM
 my %nessus_vars = ();
 $dbh = conn_db();
-$sql = qq{ select * from config where conf like 'nessus%' or conf = 'vulnerability_incident_threshold' or conf = 'nmap_path'};
+$sql = qq{ select *,AES_DECRYPT(value,'$uuid') as dvalue from config where conf like 'nessus%' or conf = 'vulnerability_incident_threshold' or conf = 'nmap_path'};
 $sth_sel=$dbh->prepare( $sql );
 $sth_sel->execute;
-while ( my ($conf, $value) = $sth_sel->fetchrow_array ) {
-   $nessus_vars{$conf} = $value;
+while ( my ($conf, $value, $dvalue) = $sth_sel->fetchrow_array ) {
+   $nessus_vars{$conf} = ($dvalue ne "") ? $dvalue : $value;
 }
 disconn_db($dbh);
 
@@ -1091,6 +1093,7 @@ sub run_nessus {
     	$nessusport = $data[0] if ($data[0] ne "");
     	$nessususer = $data[1] if ($data[1] ne "");
     	$nessuspassword = $data[2] if ($data[2] ne "");
+    	$nessuspassword = $data[3] if ($data[3] ne ""); # decrypted value has preference
    	}
     logwriter( "NESSUS CLIENT: server=$nessushostip\tport=$nessusport\ntargets=$targets\n", 5 );
 
@@ -3825,11 +3828,13 @@ sub get_server_credentials {
         if ( is_number($tmp_serverid) && $tmp_max >= $weight ) {
             $remaining = $tmp_max - $tmp_current;        #REQUIRE $server_slot SLOTS FOR CRON SCAN
             if ( $remaining >= $server_slot ) {
-                $sql = qq{ SELECT hostname, port, user, password FROM vuln_nessus_servers WHERE id=$tmp_serverid };
+                $sql = qq{ SELECT hostname, port, user, password,AES_DECRYPT(password,'$uuid') FROM vuln_nessus_servers WHERE id=$tmp_serverid };
                 logwriter( $sql, 5 );
                 $sth_sel = $dbh->prepare( $sql );
                 $sth_sel->execute;
-                ($nessushost, $nessusport, $nessususer, $nessuspassword)=$sth_sel->fetchrow_array;
+                my $dnessuspassword = "";
+                ($nessushost, $nessusport, $nessususer, $nessuspassword, $dnessuspassword)=$sth_sel->fetchrow_array;
+                $nessuspassword = $dnessuspassword if ($dnessuspassword ne "");
                 $sth_sel->finish;
                 # overlay credentials with ossim conf file 
                 #$nessusport = $CONFIG{'NESSUSPORT'}; 
@@ -4929,11 +4934,11 @@ sub update_ossim_incidents {
 
 sub get_server_data {
 	my $ipss = shift;
-    my $sql = qq{ SELECT port, user, PASSWORD FROM vuln_nessus_servers WHERE enabled='1' AND hostname='$ipss' };
+    my $sql = qq{ SELECT port, user, password,AES_DECRYPT(password,'$uuid') FROM vuln_nessus_servers WHERE enabled='1' AND hostname='$ipss' };
     my $sthss=$dbh->prepare( $sql );
     $sthss->execute;
     my @datass=$sthss->fetchrow_array;
-    if (scalar(@datass) == 0) { @datass = ('','',''); }
+    if (scalar(@datass) == 0) { @datass = ('','','',''); }
     $sthss->finish;
     return @datass;
 }

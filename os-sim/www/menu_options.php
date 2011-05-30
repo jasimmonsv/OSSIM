@@ -258,9 +258,11 @@ if ( Session::menu_perms("MenuEvents", "EventsForensics") )
 { 
 	$events = 1;
 	
-	$tmp_month = date("m");
-	$tmp_day   = date("d");
-	$tmp_year  = date("Y");
+	$tz = (isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+	$timetz = gmdate("U")+(3600*$tz);
+	$tmp_month = gmdate("m",$timetz);
+	$tmp_day   = gmdate("d",$timetz);
+	$tmp_year  = gmdate("Y",$timetz);
 	$today = '&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=' . $tmp_month . '&time%5B0%5D%5B3%5D=' . $tmp_day . '&time%5B0%5D%5B4%5D=' . $tmp_year . '&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&time_range=today';
     
 	$menu["Analysis"][] = array(

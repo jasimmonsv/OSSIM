@@ -94,6 +94,7 @@ INSERT INTO config (conf, value) VALUES ('report_graph_type', 'images');
 INSERT INTO config (conf, value) VALUES ('use_resolv', '0');
 INSERT INTO config (conf, value) VALUES ('recovery', '1');
 INSERT INTO config (conf, value) VALUES ('threshold', '30');
+INSERT INTO config (conf, value) VALUES ('def_asset', '2');
 INSERT INTO config (conf, value) VALUES ('have_scanmap3d', '0');
 INSERT INTO config (conf, value) VALUES ('use_svg_graphics', '0');
 INSERT INTO config (conf, value) VALUES ('event_viewer', 'base');
