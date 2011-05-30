@@ -230,7 +230,7 @@ class Agent:
             Request each server connection for its framework data and try to connect it.
         '''
         conn_counter = 0
-        logger.info("----------------------------------- FRAMEWORK CONNECITONS ----------------------------")
+        logger.info("----------------------------------- FRAMEWORK CONNECTIONS ----------------------------")
         for server_conn in self.__outputServerConnecitonList:
             if server_conn.get_priority() <= self.__currentPriority \
             and server_conn.get_is_alive() and server_conn.get_has_valid_frmkdata():
@@ -243,14 +243,14 @@ class Agent:
                     self.__frameworkConnecitonList.append(tmpFrameworkConn)
         if conn_counter == 0:
             logger.warning("No Framework connections available")
-        logger.info("----------------------------------- FRAMEWORK CONNECITONS ENDS------------------------")
+        logger.info("----------------------------------- FRAMEWORK CONNECTIONS ENDS------------------------")
 
 
     def connect_server(self):
         '''
             Try to connect to configured servers.
         '''
-        logger.debug("----------------------------------- SERVER CONNECITONS -------------------------------")
+        logger.debug("----------------------------------- SERVER CONNECTIONS -------------------------------")
         #If our output server list is not empty we have to connect to the server into the list.
         tmpPrioConnectedServer = -1
         if len(self.__outputServerList) > 0:
@@ -270,7 +270,7 @@ class Agent:
                         self.__connect_to_server_end = True
                     self.__outputServerConnecitonList.append(tmpConnection)
 
-        logger.debug("----------------------------------- SERVER CONNECITONS ENDS---------------------------")
+        logger.debug("----------------------------------- SERVER CONNECTIONS ENDS---------------------------")
 
 
     def check_pid(self):
