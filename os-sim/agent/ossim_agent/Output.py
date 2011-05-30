@@ -154,7 +154,7 @@ class storedEventSenderThread(threading.Thread):
         '''
             Main thread function
         '''
-        logger.info("Running stored thread....")
+        logger.info("Storing events locally....")
         storedEvents = 0
         while self.__keep_working:
             while not self.__storeQueue.empty():
