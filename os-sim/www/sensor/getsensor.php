@@ -65,7 +65,7 @@ if (ossim_error()) {
     die(ossim_error());
 }
 if ($order == "ip") $order = "INET_ATON(ip)"; // Numeric ORDER for IP
-if (empty($order)) $order = "name";
+if (empty($order) || $order=="version" || $order=="status") $order = "name";
 $onlyactive = 0;
 if ($order=="active") {
 	$order = "name";

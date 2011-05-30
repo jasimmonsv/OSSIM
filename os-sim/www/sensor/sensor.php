@@ -295,14 +295,14 @@ $default = array(
     "version" => array(
         _('Version'),
         180,
-        'true',
+        'false',
         'center',
         false
     ) ,
     "status" => array(
         _('Status'),
         50,
-        'true',
+        'false',
         'center',
         false
     ) ,

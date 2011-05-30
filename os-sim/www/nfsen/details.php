@@ -1650,7 +1650,7 @@ function DisplayProcessing() {
                 # parse command line
                 #2009-12-09 17:08:17.596    40.262 TCP        192.168.1.9:80    ->   217.126.167.80:51694 .AP.SF   0       70   180978        1    35960   2585     1
                 $list = (preg_match("/ \-a  \-A /",$cmd_out['arg'])) ? 1 : 0;
-                $regex = ($list) ? "/(\d\d\d\d\-.*?\s.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+->\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?\s*[KMGT]?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*)/" : "/(\d\d\d\d\-.*?\s.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?\s*[KMGT]?)\s+(.*?)\s+(.*?)\s+(.*)/";
+                $regex = ($list) ? "/(\d\d\d\d\-.*?\s.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+->\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?\s*[KMG]?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*)/" : "/(\d\d\d\d\-.*?\s.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?\s*[KMGT]?)\s+(.*?)\s+(.*?)\s+(.*)/";
                 echo "<table style='width:100%;margin-bottom:5px''>";
                 echo ($list) ? "<tr>
                     <th>"._("Date flow start")."</th>
@@ -1681,6 +1681,7 @@ function DisplayProcessing() {
                 	".($solera ? "<th></th>" : "")."
                     </tr>";
                 $status = $errors = array();
+                //print_r($cmd_out['nfdump']);
                 foreach ( $cmd_out['nfdump'] as $k => $line ) {
                     echo "<tr>\n";
                     #capture status
@@ -1689,7 +1690,7 @@ function DisplayProcessing() {
                     if (preg_match("/ error /i",$line,$found)) $errors[] = $line;                   
                     # print results
                     $line = preg_replace("/\(\s(\d)/","(\\1",$line); // Patch for ( 0.3)
-                    $line = preg_replace("/(\d)\s([KMGT])/","\\1\\2",$line); // Patch for 1.2 M(99.6) 
+                    $line = preg_replace("/(\d)\s([KMG])/","\\1\\2",$line); // Patch for 1.2 M(99.6) 
                     $start = $end = $proto = "";
                     $ips = $ports = array();
                     if (preg_match($regex,preg_replace('/\s*/', ' ', $line),$found)) {
