@@ -96,7 +96,7 @@ if ( isset($_POST['title']) || isset($_POST['doctext']) )
 		$(document).ready(function() {
 			$(document).ready(function() {
 				$("#textarea").cleditor({
-					height:  250, // height not including margins, borders or padding
+					height:  200, // height not including margins, borders or padding
 					
 					controls:     // controls to add to the toolbar
 					"bold italic underline strikethrough style | color highlight removeformat | bullets numbering | outdent " +

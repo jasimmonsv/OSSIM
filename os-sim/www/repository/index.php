@@ -106,13 +106,13 @@ $total_pages = floor(($total - 1) / $maxrows) + 1;
 		function deletesubmit(txt,id) {
 			if (confirm(txt+"\nAre you sure?")) {
 				//document.getElementById('repository_frame').src="repository_delete.php?id_document="+id;
-				GB_show("<?php echo _("New Document")?>","repository_delete.php?id_document="+id,"60%","550");
+				GB_show("<?php echo _("New Document")?>","repository_delete.php?id_document="+id,"400","550");
 			}	
 		}
 		
 		function newdoc(url) {
 			GB_TYPE = 'w';
-			GB_show("<?php echo _("New Document")?>","repository_newdocument.php","635","600");
+			GB_show("<?php echo _("New Document")?>","repository_newdocument.php","590","600");
 		}
 	
 	<?php if ($id_document == "") { ?>
@@ -124,7 +124,7 @@ $total_pages = floor(($total - 1) / $maxrows) + 1;
 		GB_TYPE = 'w';
 		$("a.greybox").click(function(){
 			var t = this.title || $(this).text() || this.href;
-			GB_show(t,this.href,"635","600");
+			GB_show(t,this.href,"590","600");
 			return false;
 		});
 		
