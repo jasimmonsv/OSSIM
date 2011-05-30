@@ -2381,51 +2381,92 @@ sim_container_get_plugin_by_id(SimContainer *container, gint id)
 }
 
 /*
- *
- *
- *
- *
+ * Load plugin sids into a hash table, and write sids 20000000 (demo event)
+ * and 2000000000 (generic event) into db.
  */
 void
 sim_container_db_load_plugin_sids_ul(SimContainer *container,
     SimDatabase *database)
 {
-  SimPluginSid *plugin_sid;
-  GdaDataModel *dm;
-  gint row;
-  gchar *query =
-      "SELECT plugin_id, sid, reliability, priority, name FROM plugin_sid";
+  SimPluginSid  * plugin_sid=NULL;
+  GdaDataModel  * dm_grp = NULL;
+	GdaDataModel	* dm_sids = NULL;
+	GdaValue      * value = NULL;
+  gint            row_grp, row_sids, count_grp, count_sids, plugin_ini, plugin_end;
+	gint            plugin_id, sid, nsids;
+	gchar					* ins_generic_events = "INSERT IGNORE INTO plugin_sid (SELECT id, 2000000000, NULL, NULL, 2, 2, CONCAT(name, ': Generic event'), 0, NULL FROM plugin)";
+	gchar					* ins_demo_events = "INSERT IGNORE INTO plugin_sid (SELECT id, 20000000, NULL, NULL, 2, 2, 'Demo event (limit reached)', 0, NULL FROM plugin)";
+	gchar					* select_grp = "select plugin_id, count(*) from plugin_sid group by 1 order by 1";
+	gchar					* select_sids = "select plugin_id, sid, reliability, priority, name FROM plugin_sid where plugin_id BETWEEN %d AND %d";
+	gboolean				flag_first;
 
   g_return_if_fail(container);
   g_return_if_fail(SIM_IS_CONTAINER (container));
   g_return_if_fail(database);
   g_return_if_fail(SIM_IS_DATABASE (database));
 
-  dm = sim_database_execute_single_command(database, query);
-  if (dm)
+	dm_grp = sim_database_execute_single_command (database, select_grp);
+  if (dm_grp)
+  {
+		g_return_if_fail (GDA_IS_DATA_MODEL (dm_grp));
+		g_message("Please be patient; This will take a while. Depending on your plugin_sid list and your system, may be some minutes...");
+		count_grp = gda_data_model_get_n_rows (dm_grp);
+
+		nsids = 0;
+		flag_first = TRUE;
+    for (row_grp = 0; row_grp < count_grp; row_grp++)
     {
-      g_message(
-          "Please be patient; This will take a while. Depending on your plugin_sid list and your system, may be some minutes...");
-      //this is done outside im_plugin_sid_new_from_dm() rying to accelerate the loop
-      g_return_if_fail(GDA_IS_DATA_MODEL(dm));
+			value = (GdaValue *) gda_data_model_get_value_at (dm_grp, 0, row_grp);
+			if(flag_first)
+			{
+				plugin_ini = gda_value_get_integer (value);
+				plugin_end = plugin_ini;
+				flag_first = FALSE;
+      }
+			else
+				plugin_end = gda_value_get_integer (value);
 
-      gint count = gda_data_model_get_n_rows(dm);
+  		value = (GdaValue *) gda_data_model_get_value_at (dm_grp, 1, row_grp);
+			nsids += gda_value_get_bigint (value);
 
-      for (row = 0; row < count; row++)
-        {
-          plugin_sid = sim_plugin_sid_new_from_dm(dm, row);
-          container->_priv->plugin_sids = g_list_prepend(
-              container->_priv->plugin_sids, plugin_sid);
-        }
+			if(nsids > 10000 || row_grp == count_grp - 1)
+			{
+				nsids = 0;
+				flag_first = TRUE;
+				gchar *query = g_strdup_printf(select_sids, plugin_ini, plugin_end);
+				
+				dm_sids = sim_database_execute_single_command (database, query);
+				if (dm_sids)
+				{
+					g_return_if_fail (GDA_IS_DATA_MODEL (dm_sids));
 
-      g_object_unref(dm);
+					count_sids = gda_data_model_get_n_rows (dm_sids);
+					for (row_sids = 0; row_sids < count_sids; row_sids++)
+					{
+						plugin_sid  = sim_plugin_sid_new_from_dm (dm_sids, row_sids);
+						if (plugin_sid)
+							container->_priv->plugin_sids = g_list_prepend (container->_priv->plugin_sids, plugin_sid);
+          }
+					g_object_unref(dm_sids);
+				}
+        else
+					g_message("PLUGIN SIDS DATA MODEL ERROR");
+				g_free(query);
+      }
     }
+		g_object_unref(dm_grp);
+		g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"Plugin sids loaded");
+	}
   else
-    {
-      g_message("PLUGINS DATA MODEL ERROR");
-    }
-  g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-      "sim_container_db_load_plugin_sids_ul: ended loading");
+    g_message ("PLUGIN SIDS GROUPS DATA MODEL ERROR");
+
+	// Insert generic events.
+	if (sim_database_execute_no_query (database, ins_generic_events) < 0)
+		g_message ("%s: could not insert generic events plugin sids", __func__);
+
+	// Insert demo events.
+	if (sim_database_execute_no_query (database, ins_demo_events) < 0)
+		g_message ("%s: could not insert demo events plugin sids", __func__);
 }
 
 /*
