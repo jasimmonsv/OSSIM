@@ -1,4 +1,4 @@
-html, body { height:auto; margin:0px; padding: 0px;}
+html, body { height:auto;}
 #GB_overlay {
   background-image: url(../pixmaps/theme/overlay.png); 
   position: absolute;
