@@ -10,6 +10,7 @@ ob_implicit_flush();
 ini_set('include_path', '/usr/share/ossim/include');
 
 require_once("classes/Util.inc");
+require_once("classes/Session.inc");
 require_once("ossim_db.inc");
 
 // Get user uuid
@@ -230,7 +231,7 @@ foreach ( $report_list as $value)
 	
 	$r_data   = base64_decode($value['id_report']);
     $r_data   = explode('###',$r_data);
-	$user     = $r_data[1];
+	$user     = $value['user'];
 	
 	$run      = checkTimeExecute($value['next_launch']);
 		
