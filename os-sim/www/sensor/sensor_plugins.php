@@ -35,6 +35,7 @@
 * Classes list:
 */
 ob_implicit_flush();
+
 require_once ('classes/Session.inc');
 require_once 'ossim_conf.inc';
 require_once 'ossim_db.inc';
@@ -58,38 +59,6 @@ ossim_valid($id, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("
 if (ossim_error()) {
     die(ossim_error());
 }
-
-/* connect to db */
-$db             = new ossim_db();
-$conn           = $db->connect();
-$conn_snort     = $db->snort_connect();
-$conf           = $GLOBALS["CONF"];
-$acid_link      = $conf->get_conf("acid_link");
-$acid_prefix    = $conf->get_conf("event_viewer");
-$acid_main_link = str_replace("//", "/", $conf->get_conf("acid_link") . "/" . $acid_prefix . "_qry_main.php?clear_allcriteria=1&search=1&bsf=Query+DB&ossim_risk_a=+");
-#
-$db_sensor_list = array();
-$list_no_active = array();
-$tmp_list = Sensor::get_all($conn);
-if (is_array($tmp_list)) 
-{
-    foreach($tmp_list as $tmp)
-	{
-        $db_sensor_list[]                = $tmp->get_ip();
-        $db_sensor_rel[$tmp->get_ip() ]  = $tmp->get_name();
-        $list_no_active[$tmp->get_ip() ] = $tmp->get_name();
-    }
-}
-list($sensor_list, $err) = server_get_sensors($conn);
-
-if ($err != "") 
-	$info_error[] = $err;
-	
-if (!$sensor_list && empty($ip_get)) 
-	$info_error[] = _("There aren't any sensors connected to OSSIM server");
-
-$ossim_conf = $GLOBALS["CONF"];
-$use_munin  = $ossim_conf->get_conf("use_munin");
 
 Session::logcheck("MenuConfiguration", "MonitorsSensors");
 ?>
@@ -170,8 +139,9 @@ Session::logcheck("MenuConfiguration", "MonitorsSensors");
 		}
 		
 		$(document).ready(function() {
-			<?php
-			if( $ip_get!="" && Session::sensorAllowed($ip_get) ) {?>
+			
+			
+			<?php if( $ip_get!="" && Session::sensorAllowed($ip_get) ) {?>
 				var loading = '<img width="16" align="absmiddle" src="../vulnmeter/images/loading.gif">';
 				var id = '<?php echo $ip_get;?>'; 
 				id = id.replace(/\./g, "_");
@@ -180,21 +150,27 @@ Session::logcheck("MenuConfiguration", "MonitorsSensors");
 				$("#"+id).html(loading+' <?php echo _("Loading data..."); ?>');
 				$("#"+id).css({ padding: "5px 0px 5px 0px" }); 
 				$.ajax({
-						type: "GET",
-						url: "get_sensor_info.php",
-						data: { sensor_ip: '<?php echo $ip_get; ?>' },
-						success: function(msg) {
-							$("#"+id).css({ padding: "0px 0px 0px 0px" });
-							$('#'+id).html(msg);
-							$('#'+id).show();
-						}
+					type: "GET",
+					url: "get_sensor_info.php",
+					data: { sensor_ip: '<?php echo $ip_get; ?>' },
+					success: function(msg) {
+						$("#"+id).css({ padding: "0px 0px 0px 0px" });
+						$('#'+id).html(msg);
+						$('#'+id).show();
+					}
+					$('#loading').hide();
 				});
 			<?php
 			}
-		?>
+			else
+			{
+				?>$('#loading').hide();<?php
+			}
+			?>
 		});
-</script>
- <style type="text/css"> 
+	</script>
+
+<style type="text/css"> 
 	html,body { 
 		height : auto !important; 
 		height:100%; 
@@ -214,13 +190,35 @@ Session::logcheck("MenuConfiguration", "MonitorsSensors");
 		font-size:11px;
 		font-weight:normal;
 	}
+	
+	#loading {
+			position: absolute; 
+			width: 99%; 
+			height: 99%; 
+			margin: auto; 
+			text-align: center;
+			background: #FFFFFF;
+			z-index: 10000;
+		}
+		
+	#loading div{
+		position: relative;
+		top: 40%;
+		margin:auto;
+	}
+		
+	#loading div span{
+		margin-left: 5px;
+		font-weight: bold;	
+	}
 		
 </style>
-
 	<?php include ("../host_report_menu.php") ?>
 </head>
+
 <body>                             
 <?php
+
 include ("../hmenu.php");
 
 // Sensors perm check
@@ -229,6 +227,15 @@ if ( !Session::menu_perms("MenuConfiguration", "PolicySensors") )
 	echo ossim_error(_("You need permissions of section '")."<b>"._("Configuration -> SIEM Components -> Sensors")."</b>"._("' to see this page. Contact with the administrator."), 'NOTICE');
 	exit;
 }
+
+?>
+
+<div id='loading'>
+	<div><img src='../pixmaps/loading3.gif' alt='<?php echo _("Loading")?>'/><span><?php echo _("Loading sensors information, please wait a few seconds,")?> ...</span></div>
+</div>
+
+<?php
+ob_flush();
 
 if ( !empty($info_error) )
 {
@@ -246,6 +253,41 @@ if ( !empty($info_error) )
 <table class="noborder" border='0' cellpadding='0' cellspacing='0' width='100%' align='center'>
 
 	<?php
+	
+	/* connect to db */
+	
+	$db             = new ossim_db();
+	$conn           = $db->connect();
+	$conn_snort     = $db->snort_connect();
+	$conf           = $GLOBALS["CONF"];
+	$acid_link      = $conf->get_conf("acid_link");
+	$acid_prefix    = $conf->get_conf("event_viewer");
+	$acid_main_link = str_replace("//", "/", $conf->get_conf("acid_link") . "/" . $acid_prefix . "_qry_main.php?clear_allcriteria=1&search=1&bsf=Query+DB&ossim_risk_a=+");
+	#
+	$db_sensor_list = array();
+	$list_no_active = array();
+	$tmp_list = Sensor::get_all($conn);
+	if (is_array($tmp_list)) 
+	{
+		foreach($tmp_list as $tmp)
+		{
+			$db_sensor_list[]                = $tmp->get_ip();
+			$db_sensor_rel[$tmp->get_ip() ]  = $tmp->get_name();
+			$list_no_active[$tmp->get_ip() ] = $tmp->get_name();
+		}
+	}
+	list($sensor_list, $err) = server_get_sensors($conn);
+
+	if ($err != "") 
+		$info_error[] = $err;
+		
+	if (!$sensor_list && empty($ip_get)) 
+		$info_error[] = _("There aren't any sensors connected to OSSIM server");
+
+	$ossim_conf = $GLOBALS["CONF"];
+	$use_munin  = $ossim_conf->get_conf("use_munin");
+	
+	
 	foreach($sensor_list as $sensor) 
 	{
 		$ip = $sensor["sensor"];
@@ -276,7 +318,7 @@ if ( !empty($info_error) )
 			}
 			
 			/* connect */
-			socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 5, 'usec' => 0));
+			socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 15, 'usec' => 0));
 			socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 5, 'usec' => 0));
 			
 			$result = socket_connect($socket, $address, $port);
