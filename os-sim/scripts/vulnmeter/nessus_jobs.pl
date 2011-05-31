@@ -899,15 +899,18 @@ sub create_profile {
 
     my ($autoenable)=$sth_sel->fetchrow_array;
 
-    $sql = qq{ SELECT nessus_id, value FROM vuln_nessus_settings_preferences
+    $sql = qq{ SELECT nessus_id, value, AES_DECRYPT(value,'$uuid') as dvalue FROM vuln_nessus_settings_preferences
         WHERE category IS NULL AND sid=$sid };
     $sth_sel=$dbh->prepare( $sql );
     $sth_sel->execute;
 
-    while (my ($nessus_id, $nessus_value)=$sth_sel->fetchrow_array ) {
+    while (my ($nessus_id, $nessus_value, $nessus_dvalue)=$sth_sel->fetchrow_array ) {
         # Exclude null nessus_value records
-        if ($nessus_value) {
-            print PROFILE "$nessus_id = $nessus_value\n";
+        if ($nessus_dvalue) {
+            print PROFILE "$nessus_id = $nessus_dvalue\n";
+        }
+        elsif ($nessus_value) { 
+        	print PROFILE "$nessus_id = $nessus_value\n";
         }
         else {
             print PROFILE "$nessus_id\n";
@@ -3505,29 +3508,32 @@ sub get_plugins {
 # get the prefs, both server and plugin
 sub get_prefs {
     my ( $sid, $job_id ) = @_;
-    my ($sth_sel, $sql, $nessus_id, $nessus_value);
+    my ($sth_sel, $sql, $nessus_id, $nessus_value, $nessus_dvalue);
     my $prefs = {};
 
-    $sql = qq{ SELECT nessus_id, value FROM vuln_nessus_settings_preferences
+    $sql = qq{ SELECT nessus_id, value, AES_DECRYPT(value,'$uuid') as dvalue FROM vuln_nessus_settings_preferences
         WHERE category IS NULL AND sid=$sid };
     $sth_sel=$dbh->prepare( $sql );
     $sth_sel->execute;
 
-    while (($nessus_id, $nessus_value)=$sth_sel->fetchrow_array ) {
+    while (($nessus_id, $nessus_value, $nessus_dvalue)=$sth_sel->fetchrow_array ) {
         # Exclude null nessus_value records
-        if ($nessus_value) {
+        if ($nessus_dvalue) {
+            $prefs->{$nessus_id} = $nessus_dvalue;
+        }
+        elsif ($nessus_value) {
             $prefs->{$nessus_id} = $nessus_value;
         }
     }
 
    # get SERVER_PREFS
-    $sql = qq{ SELECT nessus_id, value FROM vuln_nessus_settings_preferences
+    $sql = qq{ SELECT nessus_id, value, AES_DECRYPT(value,'$uuid') as dvalue FROM vuln_nessus_settings_preferences
         WHERE category='SERVER_PREFS' AND sid=$sid };
     $sth_sel=$dbh->prepare( $sql );
     $sth_sel->execute;
 
-    while (($nessus_id, $nessus_value)=$sth_sel->fetchrow_array ) {
-      $prefs->{$nessus_id} = $nessus_value;
+    while (($nessus_id, $nessus_value, $nessus_dvalue)=$sth_sel->fetchrow_array ) {
+      $prefs->{$nessus_id} = ($nessus_dvalue ne "") ? $nessus_dvalue : $nessus_value;
     }
 
    #now get the plugin preferences
@@ -3543,12 +3549,12 @@ sub get_prefs {
         'padding'        => 'null',
         'prepend_iv'    => 0 });
 
-    $sql = qq{ SELECT nessus_id, value FROM vuln_nessus_settings_preferences
+    $sql = qq{ SELECT nessus_id, value, AES_DECRYPT(value,'$uuid') as dvalue FROM vuln_nessus_settings_preferences
         WHERE category='PLUGINS_PREFS' AND sid=$sid };
     $sth_sel=$dbh->prepare( $sql );
     $sth_sel->execute;
 
-    while (($nessus_id, $nessus_value)=$sth_sel->fetchrow_array ) {
+    while (($nessus_id, $nessus_value, $nessus_dvalue)=$sth_sel->fetchrow_array ) {
       ## check for encrypted values and decrypt accordingly
       if($nessus_value =~ /^ENC\{(.*)\}/) {
          $nessus_value =~ s/^ENC\{//;
@@ -3556,7 +3562,7 @@ sub get_prefs {
          my $ciphertext = decode_base64($nessus_value);
          $nessus_value = $cipher->decrypt($ciphertext);
       }
-      $prefs->{$nessus_id} = $nessus_value;
+      $prefs->{$nessus_id} = ($nessus_dvalue ne "") ? $nessus_dvalue : $nessus_value;
    }
 
     # **** no leemos datos de vulncredentials ****
