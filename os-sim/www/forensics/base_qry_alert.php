@@ -407,7 +407,7 @@ echo '
                         <TD CLASS="plfield">' . $plugin_name . '</TD>
                         <TD CLASS="plfield">' . $plugin_id . '</TD>
                         <TD CLASS="plfield">' . $plugin_sid . '</TD>
-						'.(($_GET['minimal_view'] == "") ? '<TD CLASS="plfield"><a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$plugin_id.'&sid='.$plugin_sid.'\',200,400)" class="greybox"><img src="../pixmaps/pencil.png" border="0" alt="'._("Modify Rel/Prio").'" title="'._("Modify Rel/Prio").'"></a></td>' : '');
+						'.(($_GET['minimal_view'] == "") ? '<TD CLASS="plfield"><a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$plugin_id.'&sid='.$plugin_sid.'\',280,450)" class="greybox"><img src="../vulnmeter/images/pencil.png" border="0" alt="'._("Modify Rel/Prio").'" title="'._("Modify Rel/Prio").'"></a></td>' : '');
 '<a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-0033" target="_blank"><img src="manage_references_icon.php?id=5" alt="cve" title="cve" border="0"></a> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2007-5976" target="_blank"><img src="manage_references_icon.php?id=5" alt="cve" title="cve" border="0"></a> pads: New service detectedArray
 ';
 	
