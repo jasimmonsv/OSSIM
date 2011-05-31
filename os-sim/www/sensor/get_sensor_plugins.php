@@ -57,14 +57,17 @@ function server_get_sensor_plugins($sensor_ip="") {
     $timeout = array('sec' => 2, 'usec' => 0);
     /* connect */
     socket_set_block($socket);
-    socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$timeout);
-    $result = @socket_connect($socket, $address, $port);
+    socket_set_option( $socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 5, 'usec' => 0) );
+	socket_set_option( $socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 5, 'usec' => 0) );
+    
+	$result = @socket_connect($socket, $address, $port);
     if (!$result) {
         echo "<p><b>"._("socket error")."</b>: " . gettext("Is OSSIM server running at") . " $address:$port?</p>";
         return $list;
     }
-    /* first send a connect message to server */
-    $in = 'connect id="1" type="web"' . "\n";
+    
+	/* first send a connect message to server */
+    $in  = 'connect id="1" type="web"' . "\n";
     $out = '';
     socket_write($socket, $in, strlen($in));
     $out = @socket_read($socket, 2048, PHP_BINARY_READ);
@@ -74,18 +77,20 @@ function server_get_sensor_plugins($sensor_ip="") {
         return $list;
     }
     /* get sensor plugins from server */
-    $in = 'server-get-sensor-plugins id="2"' . "\n";
+    $in  = 'server-get-sensor-plugins id="2"' . "\n";
     $out = '';
     socket_write($socket, $in, strlen($in));
     $pattern = '/sensor="([^"]*)" plugin_id="([^"]*)" ' . 'state="([^"]*)" enabled="([^"]*)"/';
-    while ($out = socket_read($socket, 2048, PHP_BINARY_READ)) {
+    while ($out = socket_read($socket, 2048, PHP_BINARY_READ)) 
+	{
         if (preg_match($pattern, $out, $regs)) {
-            $s["sensor"] = $regs[1];
+            $s["sensor"]    = $regs[1];
             $s["plugin_id"] = $regs[2];
-            $s["state"] = $regs[3];
-            $s["enabled"] = $regs[4];
+            $s["state"]     = $regs[3];
+            $s["enabled"]   = $regs[4];
             if (!in_array($s, $list)) $list[] = $s;
-        } elseif (!strncmp($out, "ok id=", 4)) {
+        } 
+		elseif (!strncmp($out, "ok id=", 4)) {
             break;
         }
     }

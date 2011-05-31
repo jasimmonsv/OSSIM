@@ -77,13 +77,13 @@ class Incident_ticket {
     function Incident_ticket($id, $incident_id, $date, $status, $priority, $user, $description, $action, $in_charge, $transferred) {
         $this->id = $id;
         $this->incident_id = $incident_id;
-        $this->date = $date;
-        $this->status = $status;
-        $this->priority = $priority;
-        $this->user = $user;
+        $this->date        = $date;
+        $this->status      = $status;
+        $this->priority    = $priority;
+        $this->user        = $user;
         $this->description = $description;
-        $this->action = $action;
-        $this->in_charge = $in_charge;
+        $this->action      = $action;
+        $this->in_charge   = $in_charge;
         $this->transferred = $transferred;
     }
     function get_id() {

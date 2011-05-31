@@ -99,7 +99,7 @@ class ActiveDirectory {
             while (!$rs->EOF) 
 			{
 				
-                $list[] = new ActiveDirectory($rs->fields["id"], 
+				$list[] = new ActiveDirectory($rs->fields["id"], 
 											  $rs->fields["ip"], 
 											  $rs->fields["binddn"], 
 											  ( empty($rs->fields['pass_decrypt']) ) ? $rs->fields['password'] : $rs->fields['pass_decrypt'], 
@@ -111,8 +111,9 @@ class ActiveDirectory {
         return $list;
     }
     function insert($conn, $server, $binddn, $password, $scope) {
-        $uuid   = Util::get_system_uuid();
-		$sql    = "INSERT INTO ldap (ip,binddn,password,scope) VALUES (inet_aton(?), ?, AES_ENCRYPT(?,'$uuid'), ?)";
+        $uuid     = Util::get_system_uuid();
+		$sql_pass = ( !empty($password) ) ? "AES_ENCRYPT(?,'$uuid')" : "?";
+		$sql      = "INSERT INTO ldap (ip,binddn,password,scope) VALUES (inet_aton(?), ?, ".$sql_pass.", ?)";
         
 		$params = array(
             $server,
@@ -140,14 +141,16 @@ class ActiveDirectory {
 		}
 		else
 		{
-			$uuid   = Util::get_system_uuid();
-			$sql = "UPDATE ldap SET ip=inet_aton(?), binddn=?, password = AES_ENCRYPT(?,'$uuid'), scope=? WHERE id=?";
-			$params = array(
-				$server,
-				$binddn,
-				$password,
-				$scope,
-				$id
+			$uuid     = Util::get_system_uuid();
+			$sql_pass = ( !empty($password) ) ? "AES_ENCRYPT(?,'$uuid')" : "?";
+			$sql      = "UPDATE ldap SET ip=inet_aton(?), binddn=?, password = ".$sql_pass.", scope=? WHERE id=?";
+			
+			$params   = array(
+					$server,
+					$binddn,
+					$password,
+					$scope,
+					$id
 			);   
 		}
 		

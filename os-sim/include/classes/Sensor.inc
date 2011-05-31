@@ -186,8 +186,9 @@ class Sensor {
 	        $query = "UPDATE vuln_nessus_servers SET name='$name', user='$user', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'";
 	    else
 		{
-	        $uuid   = Util::get_system_uuid();
-			$query  = "UPDATE vuln_nessus_servers SET name='$name', user='$user', PASSWORD=AES_ENCRYPT('$password','$uuid'), port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'"; 
+	        $uuid     = Util::get_system_uuid();
+			$sql_pass = ( !empty($password) ) ? "AES_ENCRYPT('$password','$uuid')" : "'".$password."'";
+			$query    = "UPDATE vuln_nessus_servers SET name='$name', user='$user', PASSWORD = ".$sql_pass.", port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'"; 
 		}
 		
 		if (!$rs = & $conn->Execute($query)) {
@@ -205,14 +206,15 @@ class Sensor {
         } 
         else {
             if ($rs->fields["id"]=="") {
-	            $conf  = $GLOBALS["CONF"];
-				$port  = intval($conf->get_conf("nessus_port", FALSE));
-				$query = OssimQuery("INSERT INTO vuln_nessus_servers (name , description, hostname ,
+	            $conf     = $GLOBALS["CONF"];
+				$port     = intval($conf->get_conf("nessus_port", FALSE));
+				$query    = OssimQuery("INSERT INTO vuln_nessus_servers (name , description, hostname ,
                                         port, user, PASSWORD, server_nversion, server_feedtype, server_feedversion,
                                         max_scans, current_scans, TYPE, site_code, owner, checkin_time, status , enabled)
                                         VALUES (
                                         '$name', 'RemoteHost', '$sensor', '$port', '', '', '2.2.10', 'GPL only', '200704181215', '5', '0', 'R', '', 'admin', NULL , 'A', '$enabled')");
-	            if (!$rs = & $conn->Execute($query)) {
+	            
+				if (!$rs = & $conn->Execute($query)) {
 	                print $conn->ErrorMsg();
 	            }
             }

@@ -256,8 +256,11 @@ class Agentless {
 	
 	public function add_host_data($conn, $ip, $hostname, $user, $pass, $ppass, $descr, $status=1)
 	{
-		$uuid  = Util::get_system_uuid();
-		$sql   = "INSERT INTO host_agentless (ip, hostname, user, pass, ppass, descr, status) VALUES (?, ?, ?, AES_ENCRYPT(?,'$uuid'), AES_ENCRYPT(?,'$uuid'), ?, ?)";
+		$uuid       = Util::get_system_uuid();
+		$sql_pass_1 = ( !empty($pass) )  ? "AES_ENCRYPT(?,'$uuid')" : "?";
+		$sql_pass_2 = ( !empty($ppass) ) ? "AES_ENCRYPT(?,'$uuid')" : "?";
+		
+		$sql        = "INSERT INTO host_agentless (ip, hostname, user, pass, ppass, descr, status) VALUES (?, ?, ?, ".$sql_pass_1.", ".$sql_pass_2.", ?, ?)";
         
 		$params = array(
             $ip,
@@ -284,11 +287,35 @@ class Agentless {
 	
 	public function modify_host_data ($conn, $ip, $hostname, $user, $pass, $ppass, $descr, $status)
 	{
-		$uuid        = Util::get_system_uuid();
-		$field_pass  = ( Util::is_fake_pass($pass) )  ? "" : "pass = AES_ENCRYPT(?,'$uuid'),";
-		$field_ppass = ( Util::is_fake_pass($ppass) ) ? "" : "ppass= AES_ENCRYPT(?,'$uuid'),";
 		
-		$sql   = "UPDATE host_agentless SET hostname=?, user=?, ".$field_pass." ".$field_ppass." descr=?, status=? WHERE ip=?;";
+		if ( Util::is_fake_pass($pass) )
+			$sql_pass_1  = "";
+		else
+		{
+			if ( !empty($pass) )
+			{
+				$uuid        = Util::get_system_uuid();
+				$sql_pass_1  = "pass = AES_ENCRYPT(?,'$uuid'),";
+			}
+			else
+				$sql_pass_1  = "pass = ?,";
+		}
+		
+		if ( Util::is_fake_pass($ppass) )
+			$sql_pass_2  = "";
+		else
+		{
+			if ( !empty($ppass) )
+			{
+				$uuid        = Util::get_system_uuid();
+				$sql_pass_2  = "ppass = AES_ENCRYPT(?,'$uuid'),";
+			}
+			else
+				$sql_pass_2  = "ppass = ?,";
+		}
+		
+				
+		$sql   = "UPDATE host_agentless SET hostname=?, user=?, ".$sql_pass_1." ".$sql_pass_2." descr=?, status=? WHERE ip=?;";
 			
 		
 		$params[] = $hostname;

@@ -168,17 +168,11 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 				document.location = 'manageincident.php?action=delincident&incident_id='+id;
 		}
 		
-		<?php 
-		if ( Incident::user_incident_perms($conn, $id, 'delticket') ) 
-		{ 
-		?>
 		function delete_comment(ticket_id, incident_id)
 		{
 			document.location = 'manageincident.php?action=delticket&ticket_id='+ticket_id+'&incident_id='+incident_id;
 		}
-		<?php 
-		} 
-		?>
+		
 		
 		function chg_prio_str()
 		{
