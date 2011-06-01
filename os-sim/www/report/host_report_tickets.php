@@ -55,7 +55,7 @@ if( $host != 'any' )
 else
 {
 	$where          = "AND status='open' ORDER BY date DESC";
-	$incident_list2 = Incident::search($conn, array(), "priority", "DESC", 1, 6);
+	$incident_list2 = Incident::search($conn, array("status"=>"Open"), "priority", "DESC", 1, 6);
 	$tick_num       = count($incident_list2);
 }
 
