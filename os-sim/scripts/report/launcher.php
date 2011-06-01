@@ -128,12 +128,13 @@ function searchString($output,$info_text)
 function newFolder($name)
 {
     if ( file_exists($name) )
+	    return false;
+    else
 	{
-        return false;
-    }
-	else{
-        mkdir($name,0755,true);
-        return true;
+        @mkdir($name, 0755, true);
+		system("chown www-data:www-data ".dirname($name));
+		system("chown www-data:www-data $name");
+		return true;
     }
 }
 
@@ -149,7 +150,7 @@ function lastDayOfMonth($month = '', $year = ''){
 }
 
 
-function updateNextLaunch($conn, $schedule,$id){
+function updateNextLaunch($conn, $schedule, $id){
 
     switch($schedule['type'])
 	{
@@ -204,7 +205,7 @@ $cookieName = date('YmdHis').rand().'.txt';
 
 
 system("clear");
-$to_text .= "\n\n"._('Date').': '.date("Y-m-d H:i:s")."\n\n";
+$to_text .= "\n\n"._('Date (UTC)').': '.gmdate("Y-m-d H:i:s")."\n\n";
 $to_text .= _('Starting Report Scheduler')."...\n\n";
 
 
