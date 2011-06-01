@@ -145,7 +145,7 @@ if ($addr_type == DEST_IP) {
     $qro->AddTitle(gettext("Dest.&nbsp;Addr."), "daddr_a", "  ", " ORDER BY num_dip ASC", "daddr_d", " ", " ORDER BY num_dip DESC");
 }
 if (file_exists("../kml/GoogleEarth.php")) {
-	$qro->AddTitle(gettext("Geo Tools"), "geotools");
+	$qro->AddTitle(gettext("Geo Tools")." <a href='' onclick='window.open(\"../kml/TourConfig.php?type=$addr_type_name&ip=$currentIP\",\"IP $currentIP ".(($addr_type == 2) ? _("sources") : _("destinations"))." - Goggle Earth API\",\"width=1024,height=700,scrollbars=NO,toolbar=1\");return false'><img align='absmiddle' src='../pixmaps/google_earth_icon.png' border='0'></a>&nbsp;&nbsp;<a href='' onclick='window.open(\"../kml/IPGoogleMap.php?type=$addr_type_name&ip=$currentIP\",\"IP $currentIP ".(($addr_type == 2) ? _("sources") : _("destinations"))." - Goggle Maps API\",\"width=1024,height=700,scrollbars=NO,toolbar=1\");return false'><img align='absmiddle' src='../pixmaps/google_maps_icon.png' border='0'></a>", "geotools");
 }
 if (!Session::am_i_admin()) $displaytitle = preg_replace("/\. <b>.*/",".",$displaytitle);
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
@@ -188,7 +188,6 @@ if ($use_ac) {
             FROM ac_dstaddr_ipdst $where GROUP BY ip_dst HAVING num_events>0 $orderby";
     }
 }
-//echo $sql;
 //print_r($_SESSION);
 /* Run the Query again for the actual data (with the LIMIT) */
 $result = $qs->ExecuteOutputQuery($sql, $db);
