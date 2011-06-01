@@ -49,6 +49,9 @@ $full_scan       = GET('full_scan');
 $timing_template = GET('timing_template');
 $only_stop       = GET('only_stop');
 $only_status     = GET('only_status');
+$info_error      = null;
+$error           = false;
+
 
 ossim_valid($full_scan,       OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("Full scan"));
 ossim_valid($timing_template, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Timing_template"));
@@ -57,55 +60,67 @@ ossim_valid($only_status,     OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Only stat
 
 if (ossim_error()) 
 {
-    echo ossim_error();
-	?>
-		<script type="text/javascript">
-			parent.$('#scan_button').attr('disabled', '');
-			parent.$('#scan_button').removeClass();
-			parent.$('#scan_button').addClass('button');
-		</script>
-	<?php
+    $info_error[] = ossim_get_error();
+	$error        = true;
+}
+
+
+ossim_clean_error();
+
+$assets_string = array();
+$assets_aux    = ( !empty($assets) ) ? explode(" ", $assets) : array();
+
+foreach ($assets_aux as $k => $v)
+{
+	ossim_valid($v, OSS_IP_CIDR, 'illegal:' . _("Assets"));
+	
+	if ( ossim_error() )
+	{
+		ossim_valid($v, OSS_IP_ADDR, 'illegal:' . _("Assets"));
+		
+		if ( ossim_error() )
+		{
+			$info_error[] = ossim_get_error();
+			$error        = true;
+			break;
+		}
+		else
+			$v.="/32";
+	}
+	
+	$assets_string[] = trim($v);
+	
+}
+
+
+if ( GET('validate_all') == true )
+{
+	if ( empty($info_error) )
+		echo "1";
+	else
+		echo "<div style='text-align: left; padding: 0px 0px 10px 40px'>"._("We found the following errors").":</div><div class='error_item'>".implode("</div><div class='error_item'>", $info_error)."</div>";
 		
 	exit();
 }
 else
 {
-	$assets_string = array();
-	$assets_aux    = ( !empty($assets) ) ? explode(" ", $assets) : array();
-
-	foreach ($assets_aux as $k => $v)
+	if ($error == true)
 	{
-		ossim_valid($v, OSS_IP_CIDR, 'illegal:' . _("Assets"));
-		
-		if ( ossim_error() )
-		{
-			ossim_clean_error();
-			ossim_valid($v, OSS_IP_ADDR, 'illegal:' . _("Assets"));
-			
-			if ( ossim_error() )
-			{
-				echo ossim_error();
-				?>
-					<script type="text/javascript">
-						parent.$('#scan_button').attr('disabled', '');
-						parent.$('#scan_button').removeClass();
-						parent.$('#scan_button').addClass('button');
-					</script>
-				<?php
-				exit();
-			}
-			else
-				$v.="/32";
-		}
-		
-		$assets_string[] = trim($v);
-		
+		?>
+		<script type="text/javascript">
+			parent.$('#scan_button').attr('disabled', '');
+			parent.$('#scan_button').removeClass();
+			parent.$('#scan_button').addClass('button');
+		</script>
+		<?php
+		exit();
 	}
 }
 
-$assets   = implode(" ", $assets_string);
 
 
+
+$assets        = implode(" ", $assets_string);
 $scan_path_log = "/tmp/nmap_scanning_".md5(Session::get_secure_id()).".log";
 
 require_once ('classes/Scan.inc');
@@ -199,6 +214,8 @@ if (!$only_status && !$only_stop)
 		.loading_nmap img { margin-right: 5px;}
 		
 		.ossim_error { width: auto;}
+		
+		.error_item { padding-left: 30px}
 				
 	</style>
 	

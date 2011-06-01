@@ -39,6 +39,7 @@ require_once ("classes/Session.inc");
 require_once ("ossim_db.inc");
 require_once ("classes/Net.inc");
 require_once ("classes/Scan.inc");
+require_once ("classes/Sensor.inc");
 
 Session::logcheck("MenuPolicy", "ToolsScan");
 
@@ -49,15 +50,45 @@ $net_list = Net::get_list($conn);
 $assets   = array();
 
 foreach ($net_list as $_net) {
-	$assets_aux[] = '{ txt:"'.$_net->get_name().' ['.$_net->get_ips().']", id: "'.$_net->get_ips().'" }';
+	$assets_aux[] = '{ txt:"NET:'.$_net->get_name().' ['.$_net->get_ips().']", id: "'.$_net->get_ips().'" }';
 }
 
 $host_list = Host::get_list($conn);
 foreach ($host_list as $_host) {
-	$assets_aux[] = '{ txt:"'.$_host->get_ip().' ['.$_host->get_hostname().']", id: "'.$_host->get_ip().'/32" }';
+	$assets_aux[] = '{ txt:"HOST:'.$_host->get_ip().' ['.$_host->get_hostname().']", id: "'.$_host->get_ip().'/32" }';
 }
 
-$assets = implode(",", $assets_aux );
+$host_group_list = 	Host_group::get_list($conn);
+foreach ($host_group_list as $_host_group)
+{
+	$hosts  = $_host_group->get_hosts($conn, $_host_group->get_name());
+	$ids    = array();
+	foreach ($hosts as $k => $v)
+		$ids[] = $v->get_host_ip()."/32"; 
+	
+	$assets_aux[] = '{ txt:"HOSTGROUP:'.$_host_group->get_name().'", id: "'.implode(" ", $ids).'" }';
+}
+
+
+$net_group_list = Net_group::get_list($conn);
+foreach ($net_group_list as $_net_group)
+{
+	$networks     = $_net_group->get_networks($conn, $_net_group->get_name());
+	$ids          = array();
+	foreach ($networks as $k => $v)
+		$ids[] = trim(Net::get_ips_by_name($conn,$v->get_net_name()));
+	
+	$assets_aux[] = '{ txt:"NETGROUP:'.$_net_group->get_name().'", id :"'.implode(" ", $ids).'" }';
+}
+
+$sensor_list = Sensor::get_list($conn, "ORDER BY name");
+foreach ($sensor_list as $_sensor) {
+	$assets_aux[] = '{ txt:"SENSOR:'.$_sensor->get_name().' ['.$_sensor->get_ip().']", id: "'.$_sensor->get_ip().'/32" }';
+}
+
+
+
+$assets = implode(",\n", $assets_aux );
 
 $db->close($conn);
 
@@ -82,7 +113,11 @@ $nmap_running = Scan::scanning_now();
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<link type="text/css" rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
 	<link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
+	<link rel="stylesheet" type="text/css" href="../style/tree.css" />
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.cookie.js"></script>
+	<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
 	<script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
 	<script type="text/javascript" src="../js/utils.js"></script>
@@ -101,11 +136,40 @@ $nmap_running = Scan::scanning_now();
 			{
 				$("#process").contents().find("#res_container").remove();
 				$('#process').css('height', '200px');
-				$('#process_div').show()
-				$('#scan_button').removeClass();
-				$('#scan_button').attr('disabled', 'disabled');
-				$('#scan_button').addClass('buttonoff');
-				$('#assets_form').submit();
+				
+				var data = $('#assets_form').serialize();
+				
+				$.ajax({
+					type: "GET",
+					url: 'do_scan.php',
+					data: data + "&validate_all=true",
+					success: function(html){
+
+						var status = parseInt(html);
+											
+						if ( status == 1 )
+						{
+							$("#error_messages").html('');
+							$("#error_messages").css('display', 'none');
+							
+							$('#process_div').show()
+							$('#scan_button').removeClass();
+							$('#scan_button').attr('disabled', 'disabled');
+							$('#scan_button').addClass('buttonoff');
+							$('#assets_form').submit();
+						}
+						else
+						{
+							$("#error_messages").html(html);
+							$("#error_messages").css('display', 'block');
+						}
+																
+					}
+				});
+				
+				
+				
+				
 			}
 		}
 		
@@ -114,6 +178,54 @@ $nmap_running = Scan::scanning_now();
 			//$('#process_div').show();
 			document.location.href='remote_scans.php';
 		}
+		
+		
+		var layer = null;
+		var nodetree = null;
+		var suf = "c";
+		var i=1;
+		
+		function load_tree(filter) {
+			if (nodetree!=null) {
+				nodetree.removeChildren();
+				$(layer).remove();
+			}
+			layer = '#srctree'+i;
+			$('#tree').append('<div id="srctree'+i+'" class="tree_container"></div>');
+			$(layer).dynatree({
+				initAjax: { url: "draw_tree.php", data: {filter: filter} },
+				clickFolderMode: 2,
+				onActivate: function(dtnode) {
+					var asset = dtnode.data.key.split(":");
+					
+					if ( asset[0].match(/^(HOST|NET|SENSOR|NETGROUP|HOSTGROUP)/) ) 
+					{
+						var assets = $('#assets').val();
+						if ( assets != '' )
+						{
+							var value = $('#assets').val() + " " + dtnode.data.asset_data;
+							$('#assets').val(value);
+						}
+						else
+						
+						$('#assets').val(dtnode.data.asset_data);
+					}
+						
+				},
+				
+				onDeactivate: function(dtnode) {},
+				onLazyRead: function(dtnode){
+					dtnode.appendAjax({
+						url: "draw_tree.php",
+						data: {key: dtnode.data.key, filter: filter, page: dtnode.data.page}
+					});
+				}
+			});
+			nodetree = $(layer).dynatree("getRoot");
+			i=i+1
+		}
+		
+		
 						
 		$(document).ready(function(){
 			
@@ -132,15 +244,23 @@ $nmap_running = Scan::scanning_now();
 			
 			$("#assets").autocomplete(assets, {
 				minChars: 0,
-				width: 225,
+				width: 400,
 				matchContains: "word",
-				autoFill: true,
+				multiple: true,
+				multipleSeparator: " ",
+				autoFill: false,
 				formatItem: function(row, i, max) {
 					return row.txt;
+				},
+				formatResult: function(data, value) {
+					return data.id;
 				}
-				}).result(function(event, item) {
-					$("#assets").val(item.id);
 			});
+			
+			load_tree("");
+			
+							
+			$('#clear_all').bind('click', function()  { $('#assets').val('') });	
 								
 		});
 	</script>
@@ -166,8 +286,9 @@ $nmap_running = Scan::scanning_now();
 		}
 		
 		#assets { 
-			width: 200px; 
-			height: 16px;
+			width: 400px; 
+			height: 40px;
+			text-align: left;
 		}
 		
 		small { color: grey; }
@@ -184,6 +305,17 @@ $nmap_running = Scan::scanning_now();
 			text-decoration: none;
 			outline: none;
 		}
+		
+		#tree {margin: 15px auto 5px auto;}
+		
+		#error_messages {
+			display: none;
+			width: 700px;
+		}
+		
+		.ossim_error { width: auto;}
+		
+		.error_item { padding-left: 50px;}
 		
 	</style>
   
@@ -204,6 +336,8 @@ if (!$nmap_exists)
 ?>
 <!-- Asset form -->
 
+<div id='error_messages' class='ossim_error'></div>
+
 <form name="assets_form" id="assets_form" method="GET" action="do_scan.php" target="process">
 	<table align="center" style='width: 550px;'>
 		<tr>
@@ -211,21 +345,32 @@ if (!$nmap_exists)
 		</tr>
 		<tr>
 			<td colspan="2" class='container'>
-				<input type="text" value="" name="assets" id="assets"/>
-				<?php
-					$info_cidr = "<div style='font-weight:normal; width: 170px;'>
+				<table width='100%' class='transparent'>
+					<tr>
+						<td class='noborder'>
+							<?php
+							$info_cidr = "<div style='font-weight:normal; width: 170px;'>
 									<div><span class='bold'>Format:</span> CIDR[,CIDR,...] CIDR</div>
 									<div><span class='bold'>CIDR:</span> xxx.xxx.xxx.xxx/xx</div>
 								</div>";
-				?>
-				<span style='margin-left: 5px;'>
-					<a class="cidr_info" txt="<?php echo $info_cidr?>">
-						<img src="../pixmaps/help.png" width="16" border="0" align='absmiddle'/>
-					</a>
-				</span>
+							?>
+							<textarea name="assets" id="assets"></textarea>
+							<div style='width: 20px; float:right;'>
+								<a class="cidr_info" txt="<?php echo $info_cidr?>">
+									<img src="../pixmaps/help.png" width="16" border="0" align='absmiddle'/>
+								</a>
+							</div>
+						</td>
+						
+						<td class='noborder left' valign='bottom' style='text-align: right;'>
+							<input type='button' id='clear_all' class='lbutton' value='[X]'/>
+						</td>
+					</tr>
+					<tr><td class='noborder' colspan='2'><div id='tree'></div></td></tr>
+				</table>
 			</td>
 		</tr>
-
+		
 		<tr>
 			<th colspan="2"><?php echo _("Assets discover options")?></th>
 		</tr>
