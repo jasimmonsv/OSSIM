@@ -50,5 +50,8 @@
 	.fs7 {font-size: 7pt;}
 	.fs8 {font-size: 8pt;}
 	.fs9 {font-size: 9pt;}
+	
+	.pad0 {padding: 0px;}
+	.pad3 {padding: 3px;}
 		
 }

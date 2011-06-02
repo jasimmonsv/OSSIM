@@ -185,7 +185,6 @@ function updateNextLaunch($conn, $schedule, $id){
 }
 // end functions
 
-
 // get database connection
 $db = new ossim_db();
 $conn = $db->connect();
@@ -209,9 +208,11 @@ $to_text .= "\n\n"._('Date (UTC)').': '.gmdate("Y-m-d H:i:s")."\n\n";
 $to_text .= _('Starting Report Scheduler')."...\n\n";
 
 
+$uuid = get_report_uuid($conn, $user);
+
 // Run reports
 $report_list = getScheduler($conn);
-
+$db->close($conn);
 
 foreach ( $report_list as $value)
 {
@@ -256,11 +257,6 @@ foreach ( $report_list as $value)
     if( $run )
 	{
 		// Path to save PDF
-       
-		$uuid = get_report_uuid($conn, $user);
-		
-		if ($uuid === false)
-			continue;
 				
 	    $dirUser    = $uuid.'/'.$value['id'].'/';
         $dirUserPdf = $urlPdf.'/'.$dirUser;
@@ -278,12 +274,14 @@ foreach ( $report_list as $value)
 		
 		if ( preg_match("/ENTITY\:(\d+)/", $value["assets"], $fnd)) 
 		{
+			$conn = $db->connect();
 			$entity  = Acl::get_entity($conn,$fnd[1]);
 			$assets  = "ENTITY: ".$entity['name'];
+			$db->close($conn);
 		}
-		else
+		else {
 			$assets  = $value['assets'];
-		
+		}
 		
 		$pdfNameEmail  = str_replace($str_to_replace, "_", $value['name_report'])."_".str_replace($str_to_replace, "_", $assets);
 		$subject_email = $value['name_report']." [".$assets."]";
@@ -356,7 +354,9 @@ foreach ( $report_list as $value)
                 'data'        => unserialize($value['schedule'])
         );
        
+		$conn = $db->connect();
 	    updateNextLaunch($conn,$schedule,$value['id']);
+	    $db->close($conn);
 		
 		$text     = _('Updating next launch').'...';
 		$to_text .= sprintf("\n\t%s", $text);
@@ -369,19 +369,19 @@ foreach ( $report_list as $value)
 		$to_text .= sprintf("\n\t%s", $text);
 		
     }
+
+	// Logout
+	exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/session/login.php?action=logout" -O /dev/null');
 	
 	$to_text .= "\n";
 }
 
-// Logout
-exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/session/login.php?action=logout" -O /dev/null');
 
 $to_text .= "\n"._('Report Scheduler completed')."\n\n";
 
 echo $to_text;
 
 // End
-$db->close($conn);
 clean($cookieName);
 
 ?>

@@ -3394,13 +3394,6 @@ if (!defined('__CLASS_HTML2PDF__'))
 			return true;
 		}
 
-		/**
-		* balise : BIG
-		* mode : FERMETURE
-		* 
-		* @param	array	paramètres de l'élément de parsing
-		* @return	null
-		*/	
 		protected function c_BIG($param)
 		{
 			$this->style->load();
@@ -3408,7 +3401,40 @@ if (!defined('__CLASS_HTML2PDF__'))
 			
 			return true;
 		}
+		
+		/**
+		* balise : STRIKE
+		* mode : FERMETURE
+		* 
+		* @param	array	paramètres de l'élément de parsing
+		* @return	null
+		*/	
+		
+		protected function o_STRIKE($param)
+		{
+			$this->style->save();
+			$this->style->value['font-linethrough'] = true;
+			$this->style->analyse('strike', $param);
+			$this->style->setPosition();
+			$this->style->FontSet();
+			return true;
+		}
 
+		/**
+		* balise : BIG
+		* mode : FERMETURE
+		* 
+		* @param	array	paramètres de l'élément de parsing
+		* @return	null
+		*/	
+		protected function c_STRIKE($param)
+		{
+			$this->style->load();
+			$this->style->FontSet();
+			
+			return true;
+		}
+		
 		/**
 		* balise : SMALL
 		* mode : OUVERTURE
