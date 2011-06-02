@@ -2,6 +2,7 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
+UPDATE custom_report_types SET inputs=CONCAT(inputs,";Group by:groupby:select:OSS_ALPHA.OSS_SCORE.OSS_PUNC.OSS_NULLABLE:TRENDGROUPBY:") WHERE file='Logger/EventsTrend.php' AND inputs not like '%TRENDGROUPBY%';
 
 -- ATENCION! Keep this at the end of this file
 use ossim;
