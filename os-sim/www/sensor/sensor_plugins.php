@@ -318,7 +318,7 @@ if ( !empty($info_error) )
 			}
 			
 			/* connect */
-			socket_set_block($socket)
+			socket_set_block($socket);
 			socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 10, 'usec' => 0));
 			socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 5, 'usec' => 0));
 			
