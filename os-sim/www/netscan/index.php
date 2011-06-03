@@ -64,33 +64,18 @@ $host_group_list = 	Host_group::get_list($conn);
 foreach ($host_group_list as $_host_group)
 {
 	$hosts  = $_host_group->get_hosts($conn, $_host_group->get_name());
-	$ids    = array();
+	$ids    = null;
 	foreach ($hosts as $k => $v)
 		$ids .= $v->get_host_ip()."/32 "; 
 	
 	$assets_aux[] = '{ txt:"HOSTGROUP:'.$_host_group->get_name().'", id: "'.rtrim($ids).'" }';
 }
 
-/*********************************************************************************/
-
-/*$net_group_list = Net_group::get_list($conn);
-foreach ($net_group_list as $_net_group)
-{
-	$networks     = $_net_group->get_networks($conn, $_net_group->get_name());
-	$ids          = array();
-	foreach ($networks as $k => $v)
-		$ids  .= trim(Net::get_ips_by_name($conn,$v->get_net_name()))." ";
-	
-	$assets_aux[] = '{ txt:"NETGROUP:'.$_net_group->get_name().'", id :"'.rtrim($ids).'" }';
-}*/
-
-/*********************************************************************************/
 
 $sensor_list = Sensor::get_list($conn, "ORDER BY name");
 foreach ($sensor_list as $_sensor) {
 	$assets_aux[] = '{ txt:"SENSOR:'.$_sensor->get_name().' ['.$_sensor->get_ip().']", id: "'.$_sensor->get_ip().'/32" }';
 }
-
 
 
 $assets = implode(",\n", $assets_aux );
@@ -171,10 +156,7 @@ $nmap_running = Scan::scanning_now();
 																
 					}
 				});
-				
-				
-				
-				
+						
 			}
 		}
 		
@@ -203,7 +185,7 @@ $nmap_running = Scan::scanning_now();
 				onActivate: function(dtnode) {
 					var asset = dtnode.data.key.split(":");
 					
-					if ( asset[0].match(/^(HOST|NET|SENSOR|NETGROUP|HOSTGROUP)/) ) 
+					if ( asset[0].match(/^(HOST|NET|SENSOR|HOSTGROUP)/) ) 
 					{
 						var assets = $('#assets').val();
 						if ( assets != '' )
