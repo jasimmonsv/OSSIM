@@ -386,8 +386,8 @@ function get_logger_servers($conn_aux) {
 	$logger_servers = array();
 	$logger_error = array();
 	$ip_list = "";
-	if (count($database_servers) > 1) {
-		$num_servers = count($database_servers);
+	if (count($database_servers) > 0) {
+		//$num_servers = count($database_servers);
 		foreach ($database_servers as $db) {
 			$name = $db->get_name();		
 			$ip = $db->get_ip();
@@ -408,7 +408,7 @@ function get_logger_servers($conn_aux) {
 		if (count($logger_servers) == 1 && reset($logger_servers) == "127.0.0.1") $ip_list = "";
 	}
 	if (count($logger_servers) == 0) {
-		$num_servers = 1;
+		//$num_servers = 1;
 		$framework_ip = $conf->get_conf("frameworkd_address", FALSE);
 		if (!$ip_to_name[$framework_ip]) $ip_to_name[$framework_ip] = $framework_ip;
 		$logger_servers[$ip_to_name[$framework_ip]] = "127.0.0.1";
