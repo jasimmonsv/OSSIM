@@ -1290,26 +1290,25 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session:
 	}
     
 	if (Session::menu_perms("MenuConfiguration", "PluginGroups")) {
-		$hmenu["Plugins"][] = array(
+		$rmenu["Data Sources"][] = array(
 			"name" => gettext("DS Groups") ,
-			"id" => "Plugin Groups",
-			"url" => "policy/plugingroups.php",
+			"target" => "main",
+			"url" => "../policy/plugingroups.php",
 			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugin_groups','Help');"
 		);
 	}
+	$rmenu["Data Sources"][] = array(
+		"name" => gettext("Taxonomy"),
+		"target" => "main",
+		"url" => "../conf/category.php",
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:manage_taxonomy','Help');"
+	);
 	
 	$hmenu["Plugins"][] = array(
 	"name" => gettext("Custom Collectors") ,
 	"id" => "Custom Collectors",
 	"url" => "policy/collectors.php",
 	"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:custom_collectors','Help');"
-	);
-	
-	$hmenu["Plugins"][] = array(
-	   "name" => gettext("Taxonomy"),
-	   "id" => "Taxonomy",
-	   "url" => "conf/category.php",
-	   "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:manage_taxonomy','Help');"
 	);
 	
 	$hmenu["Plugins"][] = array(
