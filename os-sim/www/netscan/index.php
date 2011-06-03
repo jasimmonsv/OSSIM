@@ -46,6 +46,8 @@ Session::logcheck("MenuPolicy", "ToolsScan");
 $db   = new ossim_db();
 $conn = $db->connect();
 
+$net_group_list = Net_group::get_list($conn);
+
 $net_list = Net::get_list($conn);
 $assets   = array();
 
@@ -64,22 +66,25 @@ foreach ($host_group_list as $_host_group)
 	$hosts  = $_host_group->get_hosts($conn, $_host_group->get_name());
 	$ids    = array();
 	foreach ($hosts as $k => $v)
-		$ids[] = $v->get_host_ip()."/32"; 
+		$ids .= $v->get_host_ip()."/32 "; 
 	
-	$assets_aux[] = '{ txt:"HOSTGROUP:'.$_host_group->get_name().'", id: "'.implode(" ", $ids).'" }';
+	$assets_aux[] = '{ txt:"HOSTGROUP:'.$_host_group->get_name().'", id: "'.rtrim($ids).'" }';
 }
 
+/*********************************************************************************/
 
-$net_group_list = Net_group::get_list($conn);
+/*$net_group_list = Net_group::get_list($conn);
 foreach ($net_group_list as $_net_group)
 {
 	$networks     = $_net_group->get_networks($conn, $_net_group->get_name());
 	$ids          = array();
 	foreach ($networks as $k => $v)
-		$ids[] = trim(Net::get_ips_by_name($conn,$v->get_net_name()));
+		$ids  .= trim(Net::get_ips_by_name($conn,$v->get_net_name()))." ";
 	
-	$assets_aux[] = '{ txt:"NETGROUP:'.$_net_group->get_name().'", id :"'.implode(" ", $ids).'" }';
-}
+	$assets_aux[] = '{ txt:"NETGROUP:'.$_net_group->get_name().'", id :"'.rtrim($ids).'" }';
+}*/
+
+/*********************************************************************************/
 
 $sensor_list = Sensor::get_list($conn, "ORDER BY name");
 foreach ($sensor_list as $_sensor) {
