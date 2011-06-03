@@ -54,7 +54,8 @@ if (empty($order))  $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 $search = GET('query');
 if (empty($search)) $search = POST('query');
-$field = POST('qtype');
+$field = GET('qtype');
+if (empty($field)) $field = POST('qtype');
 
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
@@ -67,7 +68,14 @@ if (ossim_error()) {
 
 if (empty($order)) $order = "id";
 $where = "WHERE id<>1505";
-if (!empty($search) && !empty($field)) $where.= " AND $field like '%" . $search . "%'";
+if (!empty($search) && !empty($field)) {
+	if ($field == "taxonomy") {
+		// UNDER CONSTRUCTION
+		$where .= "$plugin_list";
+	} else {
+		$where .= " AND $field like '%" . $search . "%'";
+	}
+}
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
 $db    = new ossim_db();

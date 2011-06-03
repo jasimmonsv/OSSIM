@@ -42,6 +42,13 @@ $category = "conf";
 $name_layout = "plugin_layout";
 $layout = load_layout($name_layout, $category);
 $gheight = 200;
+$category_id = GET('category_id');
+$subcategory_id = GET('subcategory_id');
+ossim_valid($category_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Category ID"));
+ossim_valid($subcategory_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("SubCategory ID"));
+if (ossim_error()) {
+	die(ossim_error());
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -56,7 +63,7 @@ $gheight = 200;
 </head>
 <body>
 
-	<?php include ("../hmenu.php"); ?>
+	<?php if (GET('nohmenu') == "") include ("../hmenu.php"); ?>
 	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
 
 	<style>
@@ -125,7 +132,7 @@ $gheight = 200;
 	}
 	$(document).ready(function() {
 		$("#flextable").flexigrid({
-			url: 'getplugin.php',
+			url: 'getplugin.php<?php if ($category_id != "") echo "?query=$category_id-$subcategory_id&qtype=taxonomy"; ?>',
 			dataType: 'xml',
 			colModel : [
 			<?php
