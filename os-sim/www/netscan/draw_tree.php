@@ -78,7 +78,7 @@ $total_hosts      = 0;
 $all_cclass_hosts = array();
 $buffer = "";
 
-if ($key == "" || preg_match("/^(hosts|host_group)/",$key)) 
+if ($key == "" || preg_match("/^(hosts)/",$key)) 
 {
 	if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) 
 	{
@@ -96,7 +96,7 @@ if ($key == "" || preg_match("/^(hosts|host_group)/",$key))
 	}
 }
 
-if ( $key== "hosts" )
+if ( $key == "hosts" )
 {
     $buffer .= "[";
     $j = 0;
@@ -104,18 +104,19 @@ if ( $key== "hosts" )
     foreach($all_cclass_hosts as $cclass => $hg) 
 	{
         if ($j>=$from && $j<$to) {
-            $li = "key:'hosts_$cclass', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>'";
+            $li = "key:'hosts_$cclass', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>'\n";
             $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
         }
         $j++;
     }
-	
-    if ($j>$to) {
+    
+	if ($j>$to) {
         $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("c-class")."'";
         $buffer .= ",{ $li }\n";
     }
     
 	$buffer .= "]";
+
 }
 else if ( preg_match("/hosts_(.*)/",$key,$found) ) 
 {
@@ -124,34 +125,28 @@ else if ( preg_match("/hosts_(.*)/",$key,$found) )
     $j = 1;
     $i = 0;
     
-    foreach($all_cclass_hosts as $cclass => $hg) 
+    foreach($all_cclass_hosts as $cclass => $hg) if ($found[1]==$cclass) 
 	{
-		if ($found[1]==$cclass) 
+        foreach($hg as $ip) 
 		{
-			foreach($hg as $ip) 
-			{
-					if ($i>=$from && $i<$to) {
-						$hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
-						
-						$hname = utf8_encode($hname);
-						$html .= "{ key:'HOST:".$ossim_hosts[$ip]."', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
-					}
-				$i++;
-			}
-			
-			$j++;
-		}
-	}
-    
-	if ($i>$to) {
+                if ($i>=$from && $i<$to) {
+                    $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
+                    
+					$hname = utf8_encode($hname);
+				    $html .= "{ key:'HOST:".$ip."', asset_data:'$ip/32', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
+                }
+            $i++;
+        }
+		
+        $j++;
+    }
+    if ($i>$to) {
         $html .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("next")." $maxresults "._("hosts")."' },";
     }
-    
-	if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
-    
-	$buffer .= "]";
+    if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
+    $buffer .= "]";
 }
-if ( $key == "host_group" ) 
+elseif ( $key == "host_group" ) 
 {
 	$hg_list = Host_group::get_list($conn, "", "ORDER BY name");
 	
@@ -269,34 +264,6 @@ else if ( $key=="sensor" )
         }
         $buffer .= "]";
     }
-}
-else if ( preg_match("/all_(.*)/",$key,$found) ) 
-{
-    $html="";
-    $buffer .= "[";
-    $j = 1;
-    $i = 0;
-    
-    foreach($all_cclass_hosts as $cclass => $hg) if ($found[1]==$cclass) 
-	{
-        foreach($hg as $ip) 
-		{
-                if ($i>=$from && $i<$to) {
-                    $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
-                    
-					$hname = utf8_encode($hname);
-				    $html .= "{ key:'HOST:".$ip."', asset_data:'$ip/32', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
-                }
-            $i++;
-        }
-		
-        $j++;
-    }
-    if ($i>$to) {
-        $html .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("next")." $maxresults "._("hosts")."' },";
-    }
-    if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
-    $buffer .= "]";
 }
 else if ( $key !="hosts" ) 
 {
