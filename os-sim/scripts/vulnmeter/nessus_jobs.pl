@@ -177,7 +177,12 @@ my %loginfo;                                                             #LOGWRI
 #&load_configs("/etc/inprotect.cfg");                                     #Load Inprotect Settings from File
 
 # vuln_jobs table:
+
 # meth_CPLUGINS -> $task_id in OpenVAS Manager
+# meth_CRED     -> host alive
+# meth_Ucheck   -> scan localy
+# scan_ASSIGNED -> server id
+# meth_Wfile    -> to send email
 
 my %CONFIG = ();
 
@@ -199,7 +204,7 @@ $CONFIG{'nameservers'} = "";
 my ( $dbh, $sth_sel, $sql );   #DATABASE HANDLE TO BE USED THROUGHOUT PROGRAM
 my %nessus_vars = ();
 $dbh = conn_db();
-$sql = qq{ select *,AES_DECRYPT(value,'$uuid') as dvalue from config where conf like 'nessus%' or conf = 'vulnerability_incident_threshold' or conf = 'nmap_path'};
+$sql = qq{ select conf, value, AES_DECRYPT(value,'$uuid') as dvalue from config where conf like 'nessus%' or conf = 'vulnerability_incident_threshold' or conf = 'nmap_path'};
 $sth_sel=$dbh->prepare( $sql );
 $sth_sel->execute;
 while ( my ($conf, $value, $dvalue) = $sth_sel->fetchrow_array ) {
@@ -634,13 +639,13 @@ sub run_job {
     my $startdate = getCurrentDateTime();
 
     #$sql = qq{ SELECT name, username, fk_name, job_TYPE, meth_TARGET, meth_VSET, meth_TIMEOUT
-    $sql = qq{ SELECT name, username, notify, job_TYPE, meth_TARGET, meth_VSET, meth_TIMEOUT, meth_CRED, authorized 
+    $sql = qq{ SELECT name, username, notify, job_TYPE, meth_TARGET, meth_VSET, meth_TIMEOUT, meth_CRED, authorized, resolve_names
         FROM vuln_jobs WHERE id='$job_id' LIMIT 1 };
     logwriter( $sql, 5 );
     $sth_sel = $dbh->prepare( $sql );
     $sth_sel->execute(  );
 
-    my ( $Jname, $juser, $jbfk_name, $Jtype, $host_list, $Jvset, $jtimout, $meth_CRED, $scan_locally) = $sth_sel->fetchrow_array(  );
+    my ( $Jname, $juser, $jbfk_name, $Jtype, $host_list, $Jvset, $jtimout, $meth_CRED, $scan_locally, $resolve_names) = $sth_sel->fetchrow_array(  );
     $sth_sel->finish;
 
     # CHECK SID
@@ -686,7 +691,7 @@ sub run_job {
         #generate_email ( $job_id, "start" );	    #ie MANUAL/REQUESTS
     }
 
-    my $enddate = setup_scan( $job_id, $Jname, $juser, $Jtype, $host_list, $Jvset, $jtimout, $jbfk_name, $meth_CRED, $scan_locally);
+    my $enddate = setup_scan( $job_id, $Jname, $juser, $Jtype, $host_list, $Jvset, $jtimout, $jbfk_name, $meth_CRED, $scan_locally, $resolve_names);
 
     if ( $notify_by_email ) {
         #generate_email ( $job_id, "finish" );	    #ie MANUAL/REQUESTS
@@ -695,10 +700,10 @@ sub run_job {
 
 }
 
-#build hostlist, remove exceptions, call scanlite, load results, 
+#build hostlist, remove exceptions, call scanlite, load results,  
 sub setup_scan {
     # VER: 1.0 MODIFIED: 3/29/07 13:03
-    my ( $job_id, $Jname, $juser, $Jtype, $target, $Jvset, $timeout, $fk_name, $meth_CRED, $scan_locally) = @_;
+    my ( $job_id, $Jname, $juser, $Jtype, $target, $Jvset, $timeout, $fk_name, $meth_CRED, $scan_locally, $resolve_names) = @_;
 
     my ( $sql, $sth_sel, $sth_upd, $sth_ins );
     my ( $targetinfo, @results, $job_title, $nessusok, $scantime );
@@ -733,7 +738,10 @@ sub setup_scan {
         #ATTEMPT TO GET IP'S INCASE USERS SUPPLIED HOSTNAMES
         my @tmp_hostarr = split /\r/, $target;
         foreach my $line (@tmp_hostarr ) {
-            if($line !~ m/^\!/) {
+            if($resolve_names eq "0") { # do not resolve names
+                $targetinfo .= "$line\r";
+            }
+            elsif($line !~ m/^\!/) {    # 
                 my $isIP = FALSE;
                 my $hostip = "";
                 #VALID IP OR ATTEMPT REVERSE NAME TO IP
@@ -786,7 +794,7 @@ sub setup_scan {
     #if ( $use_scanlite ) {
     #    @results = run_scanlite_nessus($nessus_pref, \@vuln_nessus_plugins, $timeout, $Jname, $juser, \@hostarr, $Jvset, $job_id);
     #} else {
-    @results = run_nessus($nessus_pref, \@vuln_nessus_plugins, $timeout, $Jname, $juser, \@hostarr, $Jvset, $job_id, $Jtype, $fk_name, $meth_CRED, $scan_locally);
+    @results = run_nessus($nessus_pref, \@vuln_nessus_plugins, $timeout, $Jname, $juser, \@hostarr, $Jvset, $job_id, $Jtype, $fk_name, $meth_CRED, $scan_locally, $resolve_names);
     #}
 
     $scantime = getCurrentDateTime();
@@ -1010,7 +1018,19 @@ sub filter_assets {
     my @sexceptions = split(/\n/, $ftargets);
    
     foreach $target (@sexceptions){
-        if($target =~ m/^\!/) {
+        if($target =~ m/^\!\d+\.\d+\.\d+\.\d+\/\d+/) {
+            $target =~ s/^\!//;
+            my $cmd = qq{/usr/bin/php /usr/share/ossim/scripts/vulnmeter/expand_cidr.php '$target'};
+            open(GIPS,"$cmd 2>&1 |") or die "failed to fork :$!\n";
+            while(<GIPS>){
+                chomp;
+                if(/(\d+\.\d+\.\d+\.\d+)/i){
+                    push @filters,$1;
+                }
+            }
+            close GIPS;
+        }
+        elsif($target =~ m/^\!\d+\.\d+\.\d+\.\d+/) {
             $target =~ s/^\!//;
             push(@filters, $target); # in filters all exceptions
         }
@@ -1034,18 +1054,19 @@ sub filter_assets {
 
 #run scan return issues to setup scan
 sub run_nessus {
-    my (%nes_prefs) = %{$_[0]};
-    my (@nes_plugins) = @{$_[1]};
-    my ($timeout) = $_[2];
-    my ($jobname) = $_[3];
-    my ($username) = $_[4];
-    my (@hosts) = @{$_[5]};
-    my ($sid) = $_[6];
-    my ($job_id) = $_[7];
-    my ($Jtype) = $_[8];
-    my ($fk_name) = $_[9];
-    my ($meth_CRED) = $_[10];
-    my ($scan_locally) = $_[11];
+    my (%nes_prefs)     = %{$_[0]};
+    my (@nes_plugins)   = @{$_[1]};
+    my ($timeout)       = $_[2];
+    my ($jobname)       = $_[3];
+    my ($username)      = $_[4];
+    my (@hosts)         = @{$_[5]};
+    my ($sid)           = $_[6];
+    my ($job_id)        = $_[7];
+    my ($Jtype)         = $_[8];
+    my ($fk_name)       = $_[9];
+    my ($meth_CRED)     = $_[10];
+    my ($scan_locally)  = $_[11];
+    my ($resolve_names) = $_[12];
     
     logwriter("Run Job Id=$job_id",4);
 
@@ -1112,15 +1133,17 @@ sub run_nessus {
 
     open(TARGET,">>$targetfile") or die "Failed to create $targetfile: $!\n";
 
-    if ($meth_CRED=="1") {
-        if ($scan_locally=="1") {
-            $targets = scan_discover($targets,"");
-        } elsif ($fk_name ne "") {
-            $targets = scan_discover($targets,$fk_name);
+    if($resolve_names eq "1") {
+        if ($meth_CRED eq "1") {
+            if ($scan_locally eq "1") {
+                $targets = scan_discover($targets,"");
+            } elsif ($fk_name ne "") {
+                $targets = scan_discover($targets,$fk_name);
+            }
         }
-    }
     
-    $targets = filter_assets($targets, $job_id);
+        $targets = filter_assets($targets, $job_id);
+    }
     
     print TARGET "$targets"; 
     close TARGET;
@@ -1128,7 +1151,7 @@ sub run_nessus {
     
     if($nessushostip =~ m/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) {
         $sql = qq{ UPDATE vuln_jobs SET meth_Wcheck=CONCAT(meth_Wcheck, 'Scan Server Selected: $nessushostip<br />') WHERE id='$job_id' };
-        safe_db_write ( $sql, 1 );
+        safe_db_write ( $sql, 4 );
     }
     
     if($targets ne "") {
@@ -3231,14 +3254,14 @@ sub check_schedule {
     $now = getCurrentDateTime();
 
     $sql = qq{ SELECT id, name, username, fk_name, job_TYPE, schedule_type, day_of_week, day_of_month, time, email,
-        meth_TARGET, meth_CRED, meth_VSET, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, meth_Ucheck
+        meth_TARGET, meth_CRED, meth_VSET, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, meth_Ucheck, resolve_names
         FROM vuln_job_schedule WHERE enabled != '0' and next_check <= '$now' };
     logwriter( $sql, 5 );
     $sth_sel=$dbh->prepare( $sql );
     $sth_sel->execute;
 
     while ( my ($jid, $name, $username, $fk_name, $jobTYPE, $schedule_type, $day_of_week, $day_of_month, $time_run, $email,
-        $meth_TARGET, $meth_CRED, $meth_VSET, $meth_TIMEOUT, $scan_server, $next_check, $scan_locally ) = $sth_sel->fetchrow_array ) {
+        $meth_TARGET, $meth_CRED, $meth_VSET, $meth_TIMEOUT, $scan_server, $next_check, $scan_locally, $resolve_names ) = $sth_sel->fetchrow_array ) {
         
         $scan_locally=0 if ($scan_locally eq "" || !$scan_locally);
 
@@ -3259,9 +3282,9 @@ sub check_schedule {
         if ( $scan_server eq "" ) { $scan_server = "NULL"; }
 
         $sql = qq{ INSERT INTO vuln_jobs ( name, username, fk_name, job_TYPE, meth_TARGET, meth_CRED, meth_VSET,
-            meth_TIMEOUT, scan_ASSIGNED, scan_SUBMIT, scan_NEXT,  notify, tracker_id, authorized, author_uname ) VALUES (
+            meth_TIMEOUT, scan_ASSIGNED, scan_SUBMIT, scan_NEXT,  notify, tracker_id, authorized, author_uname, resolve_names ) VALUES (
             'SCHEDULED - $name', '$username', $fk_name, '$jobTYPE', '$meth_TARGET', '$meth_CRED', '$meth_VSET', 
-            '$meth_TIMEOUT', $scan_server, '$now', '$next_check', '$email', '$jid', '$scan_locally', 'SCHEDULER' )  };
+            '$meth_TIMEOUT', $scan_server, '$now', '$next_check', '$email', '$jid', '$scan_locally', 'SCHEDULER', $resolve_names )  };
         safe_db_write ( $sql, 4 );            #use insert/update routine
     }
 }
@@ -3562,6 +3585,7 @@ sub get_prefs {
          my $ciphertext = decode_base64($nessus_value);
          $nessus_value = $cipher->decrypt($ciphertext);
       }
+
       $prefs->{$nessus_id} = ($nessus_dvalue ne "") ? $nessus_dvalue : $nessus_value;
    }
 

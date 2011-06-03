@@ -781,13 +781,28 @@ CREATE TABLE rrd_anomalies_global (
 DROP TABLE IF EXISTS category;
 CREATE TABLE category (
     id        INTEGER NOT NULL,
-    name        VARCHAR (100) NOT NULL,
+    name      VARCHAR (100) NOT NULL,
     PRIMARY KEY (id)
 );
 
 DROP TABLE IF EXISTS subcategory;
 CREATE TABLE `subcategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cat_id` int(11) NOT NULL,
+  `name` text,
+  PRIMARY KEY (`id`)
+);
+
+DROP TABLE IF EXISTS category_changes;
+CREATE TABLE category_changes (
+    id        INTEGER NOT NULL,
+    name      VARCHAR (100) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+DROP TABLE IF EXISTS subcategory_changes;
+CREATE TABLE `subcategory_changes` (
+  `id` int(11) NOT NULL,
   `cat_id` int(11) NOT NULL,
   `name` text,
   PRIMARY KEY (`id`)
@@ -2090,6 +2105,7 @@ CREATE TABLE IF NOT EXISTS `vuln_jobs` (
   `failed_attempts` tinyint(1) NOT NULL default '0',
   `authorized` tinyint(1) NOT NULL default '0',
   `author_uname` varchar(25) default NULL,
+  `resolve_names` TINYINT( 1 ) NOT NULL DEFAULT '1',
   PRIMARY KEY  (`id`,`name`),
   KEY `name` (`name`),
   KEY `scan_END` (`scan_END`),
@@ -2123,6 +2139,7 @@ CREATE TABLE IF NOT EXISTS `vuln_job_schedule` (
   `next_CHECK` varchar(14) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `createdate` datetime default NULL,
   `enabled` enum('0','1') character set utf8 collate utf8_unicode_ci NOT NULL default '1',
+  `resolve_names` TINYINT( 1 ) NOT NULL DEFAULT '1',
   PRIMARY KEY  (`id`),
   KEY `name` (`name`)
 );

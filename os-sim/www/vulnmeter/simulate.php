@@ -46,6 +46,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 $hosts_alive = intval(GET('hosts_alive'));
 $scan_locally = intval(GET('scan_locally'));
 $scan_server = intval(GET('scan_server'));
+$not_resolve = intval(GET('not_resolve'));
 $targets = array();
 $ip_targets = explode("\n", str_replace("\r","",GET('targets')));
 foreach($ip_targets as $ip_target) if (trim($ip_target)!="") {
@@ -91,6 +92,13 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
             $all_sensors[$hostname] = $name;
             $result->MoveNext(); 
         }
+    } elseif ($not_resolve) {
+        $result = $conn->Execute("SELECT name,hostname FROM vuln_nessus_servers WHERE enabled=1");
+        while ( !$result->EOF ) {
+            list($name, $hostname) = $result->fields;
+            if (Session::sensorAllowed($hostname)) $all_sensors[$hostname] = $name;
+            $result->MoveNext(); 
+        }
     }
     // remote nmap
     $rscan = new RemoteScan("","");
@@ -108,23 +116,30 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
     // targets
     foreach($targets as $target) {
         if (preg_match("/^!/",$target)) continue;
+        
+        $unresolved = (!preg_match("/\d+\.\d+\.\d+\.\d+/",$target) && $not_resolve) ? true : false;
+        
         if (preg_match("/\//",$target)) { // Net
             $name = Net::get_name_by_ip($conn,$target);
             $perm = Session::netAllowed($conn, $name);
             $sensors = Net::get_related_sensors($conn,$name); 
         } else { // Host
-            $name = Host::ip2hostname($conn,$target);
-            $perm = Session::hostAllowed($conn, $name);
+            $name = ($unresolved) ? $target : Host::ip2hostname($conn,$target);
+            $perm = ($unresolved) ? true : Session::hostAllowed($conn, $name);
             $sensors = Host::get_related_sensors($conn,$target);
         }
         
-        if(Session::am_i_admin() && count($sensors)==0 && $scan_server=="0") {
-            $local_ip = `grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`;
-            $local_ip = trim($local_ip);
-            $result = $conn->Execute("SELECT name FROM vuln_nessus_servers WHERE hostname like '$local_ip'");
-            if($result->fields["name"]!="") {  
-                $sensors[] = $local_ip;  
-            }
+        if($unresolved || (Session::am_i_admin() && count($sensors)==0 && $scan_server=="0")) {
+        	if ($unresolved) {
+        		foreach ($all_sensors as $ip => $unused) $sensors[] = $ip; 
+        	} else {
+	            $local_ip = `grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`;
+	            $local_ip = trim($local_ip);
+	            $result = $conn->Execute("SELECT name FROM vuln_nessus_servers WHERE hostname like '$local_ip'");
+	            if($result->fields["name"]!="") {  
+	                $sensors[] = $local_ip;  
+	            }
+	        }
         }
         if ($scan_server>0 && $hostname!="") $sensors = array_unique(array_merge(array($hostname),$sensors));
         $sname = $vs = $sperm = $snmap = $load = array();
@@ -135,7 +150,7 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
         foreach ($sensors as $sensor) {
             $properties = Sensor::get_properties($conn, $sensor);
             $load[] = Sensor::get_load($conn, $sensor);
-            $withnmap = in_array($all_sensors[$sensor],$ids);
+            $withnmap = in_array($all_sensors[$sensor],$ids) || $unresolved;
             $sensor_name = ($sensor=="Local") ? $sensor : $sensor." [".$all_sensors[$sensor]."]";
             if (!$selected && (Session::sensorAllowed($sensor) || $scan_server>0) && ($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $scan_server>0)) {
                 $selected = true;

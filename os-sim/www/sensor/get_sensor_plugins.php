@@ -54,10 +54,9 @@ function server_get_sensor_plugins($sensor_ip="") {
         echo _("socket_create() failed: reason: ") . socket_strerror($socket) . "\n";
     }
     $list = array();
-    $timeout = array('sec' => 2, 'usec' => 0);
     /* connect */
     socket_set_block($socket);
-    socket_set_option( $socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 5, 'usec' => 0) );
+    socket_set_option( $socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 10, 'usec' => 0) );
 	socket_set_option( $socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 5, 'usec' => 0) );
     
 	$result = @socket_connect($socket, $address, $port);

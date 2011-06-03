@@ -318,7 +318,8 @@ if ( !empty($info_error) )
 			}
 			
 			/* connect */
-			socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 15, 'usec' => 0));
+			socket_set_block($socket)
+			socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 10, 'usec' => 0));
 			socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 5, 'usec' => 0));
 			
 			$result = socket_connect($socket, $address, $port);
@@ -330,7 +331,7 @@ if ( !empty($info_error) )
 			$in = 'connect id="1" type="web"' . "\n";
 			$out = '';
 			socket_write($socket, $in, strlen($in));
-			$out = socket_read($socket, 2048, PHP_NORMAL_READ);
+			$out = socket_read($socket, 2048, PHP_BINARY_READ);
 			if (strncmp($out, "ok id=", 4)) 
 			{
 				echo "<p><b>" . gettext("Bad response from server") . "</b></p>";
