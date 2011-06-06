@@ -34,7 +34,14 @@
 #
 import os, sys, time, signal
 from optparse import OptionParser
+import subprocess as sub
+import re
 
+import uuid
+import stat
+import pwd
+import ConfigParser
+from datetime import datetime
 #
 # LOCAL IMPORTS
 #
@@ -42,8 +49,6 @@ import Const
 
 from Logger import Logger
 logger = Logger.logger
-
-
 
 class Framework:
 
@@ -63,6 +68,7 @@ class Framework:
 #                "AlarmIncidentGeneration",
 		"NtopDiscovery",
             ]
+        self.__encryptionKey = ''
 
 
     def __parse_options(self):
@@ -165,10 +171,43 @@ class Framework:
             Logger.set_verbose(verbose)
 
 
+    def checkEncryptionKey(self):
+        # 1 -check if file exist!
+        if not os.path.isfile(Const.ENCRYPTION_KEY_FILE):
+            logger.info("Encryption key file doesn't exist... making it at .. %s" % Const.ENCRYPTION_KEY_FILE)
+            p = sub.Popen('dmidecode', stdout=sub.PIPE, stderr=sub.PIPE)
+            output, errors = p.communicate()
+            reg_str = "UUID:\s+(?P<uuid>[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12})"
+            pt = re.compile(reg_str, re.M)
+            data = pt.search(output)
+            key = ""
+            extra_data = ""
+            d =datetime.today()
+            if data is not None:
+                key = data.group('uuid')
+                logger.info("UUID: %s" % key)               
+                extra_data = "#Generated using dmidecode on %s\n" % d.isoformat(' ')                
+            else:
+                logger.error("I can't obtain system uuid. Generating a random uuid. Please do backup your encrytion key file: %s" % Const.ENCRYPTION_KEY_FILE)
+                extra_data = "#Generated using random uuid on %s\n" % d.isoformat(' ')
+                key = uuid.uuid4()
+            newfile = open(Const.ENCRYPTION_KEY_FILE,'w')
+            key = "key=%s\n" % key
+            newfile.write("#This file is generated automatically by ossim. Please don't modify it!\n")            
+            newfile.write(extra_data)
+            newfile.write("[key-value]\n")
+            newfile.write(key)
+            newfile.close()
+            pw = pwd.getpwnam('www-data')
+            os.chown(Const.ENCRYPTION_KEY_FILE, pw.pw_uid, pw.pw_gid)
+            os.chmod(Const.ENCRYPTION_KEY_FILE, stat.S_IRUSR)
+            # chown www-data.www-data /etc/ossim/framework/db_encryption_key
+            # chmod 400 /etc/ossim/framework/db_encryption_key
+
     def main(self):
 
         logger.info("Frameworkd is starting up...")
-
+        self.checkEncryptionKey()
         from OssimConf import OssimConf
         conf = OssimConf (Const.CONFIG_FILE)
 

@@ -7,6 +7,9 @@ import Const
 from OssimDB import OssimDB
 from OssimConf import OssimConf
 
+from Logger import Logger
+logger = Logger.logger
+
 _CONF  = OssimConf(Const.CONFIG_FILE)
 _DB    = OssimDB()
 _DB.connect(_CONF['ossim_host'],
@@ -92,11 +95,25 @@ class Status:
                 self.info['attack_level'] = int(levels[0]['a'])
 
     def _get_threshold(self):
-        
-        query = "SELECT value FROM config WHERE conf = 'threshold'"
+        query = ''
+        usekey = False
+        if not _CONF['encryptionKey']:
+            query = "SELECT value FROM config WHERE conf = 'threshold'"
+        else:
+            logger.debug("THRESHOLD---- using key: %s" % _CONF['encryptionKey'])
+            query = "SELECT *,AES_DECRYPT(value,'%s') as dvalue FROM config WHERE conf = 'threshold'" % _CONF['encryptionKey']
+            usekey = True
+            
         result = _DB.exec_query(query)
         if result != []:
             self.info['threshold'] = int(result[0]['value'])
+        elif usekey:
+            #test for no decrypt.
+            query = "SELECT value FROM config WHERE conf = 'threshold'"
+            result = _DB.exec_query(query)
+            if result != []:
+                self.info['threshold'] = int(result[0]['value'])
+
 
     def _get_last_incident(self):
 

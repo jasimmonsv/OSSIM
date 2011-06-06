@@ -45,4 +45,6 @@ LISTENER_ADDRESS = "0.0.0.0"
 # access to ossim-framework through http:// or https://
 HTTP_SSL = False
 
+#AES encryption/decrypt file
+ENCRYPTION_KEY_FILE = "/etc/ossim/framework/db_encryption_key"
 # vim:ts=4 sts=4 tw=79 expandtab:
