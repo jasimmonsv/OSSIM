@@ -42,6 +42,7 @@
 * - inUse()
 * - delete()
 * - edit()
+* - clone_data()
 * Classes list:
 * - Category
 */
@@ -162,6 +163,12 @@ class Category {
         }
         
     	return true;
+    }
+	function clone_data($conn) {
+    	$sql = "TRUNCATE TABLE category_changes";
+    	$conn->Execute($sql);
+    	$sql = "REPLACE INTO category_changes SELECT * FROM category";
+    	$conn->Execute($sql);
     }
 }
 ?>

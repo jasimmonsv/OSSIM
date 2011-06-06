@@ -41,6 +41,7 @@
 * - inUse()
 * - delete()
 * - edit()
+* - clone_data()
 * Classes list:
 * - Subcategory
 */
@@ -140,6 +141,12 @@ class Subcategory {
         }
         
     	return true;
+    }
+    function clone_data($conn) {
+    	$sql = "TRUNCATE TABLE subcategory_changes";
+    	$conn->Execute($sql);
+    	$sql = "REPLACE INTO subcategory_changes SELECT * FROM subcategory";
+    	$conn->Execute($sql);
     }
 }
 ?>
