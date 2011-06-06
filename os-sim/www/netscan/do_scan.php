@@ -69,7 +69,7 @@ $assets_string = null;
 $info_error    = null;
 $error         = false;
 
-$assets_aux    = ( !empty($assets) ) ? explode(" ", $assets) : array();
+$assets_aux    = ( !empty($assets) ) ? explode(" ", trim($assets)) : array();
 $assets        = null;
 
 $db   = new ossim_db();
@@ -214,7 +214,7 @@ if (!$only_status && !$only_stop)
 			if (height > 200)
 				parent.$('#'+id).css('height', height+'px');
 		}
-		
+						
 	</script>
 	
 	<style type='text/css'>
