@@ -44,8 +44,10 @@ $layout = load_layout($name_layout, $category);
 $gheight = 200;
 $category_id = GET('category_id');
 $subcategory_id = GET('subcategory_id');
+$sourcetype = GET('sourcetype');
 ossim_valid($category_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Category ID"));
 ossim_valid($subcategory_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("SubCategory ID"));
+ossim_valid($sourcetype, OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Source Type"));
 if (ossim_error()) {
 	die(ossim_error());
 }
@@ -88,7 +90,9 @@ if (ossim_error()) {
 	<?php if ($cloud_instance) {  $gheight=250; ?>
 	<p style="text-align:center"><a href="../session/detect.php" style="text-decoration:none"><span class="buttonlink"><img src="../pixmaps/wand--plus.png" border="0" align="absmiddle" style="padding-bottom:2px;padding-right:8px"><?=_("Auto-detect Data Sources")?></span></a></p>
 	<?php } ?>
-	
+	<?php if ($sourcetype != "") { ?>
+	<p style="text-align:center"><a href="plugin.php" style="text-decoration:none"><span class="buttonlink"><img src="../pixmaps/cross-circle-frame.png" border="0" align="absmiddle" style="padding-bottom:2px;padding-right:8px"><?=_("Remove Source Type filter").": ".$sourcetype ?> </span></a></p>
+	<?php } ?>
 	<table id="flextable" style="display:none"></table>
 	<script>
 	function get_width(id) {
@@ -132,7 +136,7 @@ if (ossim_error()) {
 	}
 	$(document).ready(function() {
 		$("#flextable").flexigrid({
-			url: 'getplugin.php<?php if ($category_id != "") echo "?query=$category_id-$subcategory_id&qtype=taxonomy"; ?>',
+			url: 'getplugin.php<?php if ($sourcetype != "") echo "?query=$sourcetype&qtype=sourcetype"; elseif ($category_id != "") echo "?query=$category_id&qtype=category_id&subcategory_id=".$subcategory_id; ?>',
 			dataType: 'xml',
 			colModel : [
 			<?php

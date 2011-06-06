@@ -45,6 +45,9 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 Session::logcheck("MenuConfiguration", "ConfigurationPlugins");
 require_once 'ossim_db.inc';
 require_once 'classes/Plugin.inc';
+require_once 'classes/Plugin_sid.inc';
+$db    = new ossim_db();
+$conn  = $db->connect();
 
 $page = ( !empty($_POST['page']) ) ? POST('page') : 1;
 $rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 50;
@@ -56,12 +59,14 @@ $search = GET('query');
 if (empty($search)) $search = POST('query');
 $field = GET('qtype');
 if (empty($field)) $field = POST('qtype');
+$subcategory_id = GET('subcategory_id');
 
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
 ossim_valid($search, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("search"));
 ossim_valid($field, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("field"));
+ossim_valid($subcategory_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("subcategory_id"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -69,17 +74,20 @@ if (ossim_error()) {
 if (empty($order)) $order = "id";
 $where = "WHERE id<>1505";
 if (!empty($search) && !empty($field)) {
-	if ($field == "taxonomy") {
-		// UNDER CONSTRUCTION
-		$where .= "$plugin_list";
+	if ($field == "sourcetype") {
+		$pids = Plugin_sid::GetPluginsBySourceType($conn,$search);
+		$plugin_list = implode(",",$pids);
+		$where .= " AND id in ($plugin_list)";
+	} elseif ($field == "category_id") {
+		$pids = Plugin_sid::GetPluginsByCategory($conn,$search,$subcategory_id);
+		$plugin_list = implode(",",$pids);
+		$where .= " AND id in ($plugin_list)";
 	} else {
 		$where .= " AND $field like '%" . $search . "%'";
 	}
 }
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db    = new ossim_db();
-$conn  = $db->connect();
 $xml   = "<rows>\n";
 
 if ($plugin_list = Plugin::get_list($conn, "$where ORDER BY $order $limit")) {
@@ -105,7 +113,7 @@ if ($plugin_list = Plugin::get_list($conn, "$where ORDER BY $order $limit")) {
         $xml.= "<cell><![CDATA[" . $tipo . "]]></cell>";
 		// Source Type
 		$sourceType=$plugin->get_sourceType();
-		$xml.= "<cell><![CDATA[" . $sourceType . "]]></cell>";
+		$xml.= "<cell><![CDATA[<a href='plugin.php?sourcetype=$sourceType'>" . $sourceType . "</a>]]></cell>";
         $desc = $plugin->get_description();
         if ($desc == "") $desc = "&nbsp;";
         $xml.= "<cell><![CDATA[" . $desc . "]]></cell>";

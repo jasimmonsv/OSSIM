@@ -43,6 +43,8 @@
 * - get_foundrows()
 * - get_list()
 * - update()
+* - GetPluginBySourceType()
+* - GetPluginsByCategory()
 * Classes list:
 * - Plugin_sid
 */
@@ -239,5 +241,40 @@ class Plugin_sid {
 
 
     }
+	function GetPluginsBySourceType($conn, $sourcetype) {
+		$ids = array();
+	    $sql = "select id from plugin where source_type = ?";
+	    $params = array(
+        	$sourcetype
+        );
+	    if (!$rs = & $conn->Execute($sql,$params)) {
+            print $conn->ErrorMsg();
+        } else {
+		    while (!$rs->EOF) {
+		        $ids[] = $rs->fields["id"];
+		        $rs->MoveNext();
+		    }
+        }
+	    return $ids;
+	}
+	function GetPluginsByCategory($conn, $idcat, $idsubcat = "") {
+	    $ids = array();
+	    $sql = "SELECT DISTINCT plugin_id FROM plugin_sid WHERE category_id = ?";
+	    $params = array(
+        	$idcat
+        );
+        if ($idsubcat != "") {
+        	$sql .= " AND subcategory_id = $idsubcat";
+        }
+	    if (!$rs = & $conn->Execute($sql,$params)) {
+            print $conn->ErrorMsg();
+        } else {
+		    while (!$rs->EOF) {
+		        $ids[] = $rs->fields["plugin_id"];
+		        $rs->MoveNext();
+		    }
+        }
+	    return $ids;
+	}
 }
 ?>
