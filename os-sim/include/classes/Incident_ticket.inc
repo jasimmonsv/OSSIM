@@ -77,13 +77,13 @@ class Incident_ticket {
     function Incident_ticket($id, $incident_id, $date, $status, $priority, $user, $description, $action, $in_charge, $transferred) {
         $this->id = $id;
         $this->incident_id = $incident_id;
-        $this->date = $date;
-        $this->status = $status;
-        $this->priority = $priority;
-        $this->user = $user;
+        $this->date        = $date;
+        $this->status      = $status;
+        $this->priority    = $priority;
+        $this->user        = $user;
         $this->description = $description;
-        $this->action = $action;
-        $this->in_charge = $in_charge;
+        $this->action      = $action;
+        $this->in_charge   = $in_charge;
         $this->transferred = $transferred;
     }
     function get_id() {
@@ -196,9 +196,9 @@ class Incident_ticket {
             ) ,
         );
 		
-        $description = strip_tags($description,'<big><span><div><p><ol><ul><li><hr><br>');
-        $action       = strip_tags($action,'<big><span><div><p><ol><ul><li><br>');
-		
+        $description = strip_tags($description,'<div><span><ul><li><ol><b><i><u><strike><p><h1><h2><h3><h4><h5><h6><font><br><blockquote>');
+        $action      = strip_tags($action,'<div><span><ul><li><ol><b><i><u><strike><p><h1><h2><h3><h4><h5><h6><font><br><blockquote>');
+				
 		ossim_valid($incident_id, $vals['incident_id']);
         ossim_valid($status, $vals['status']);
         ossim_valid($priority, $vals['priority']);

@@ -85,7 +85,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
 <table align="center">
   <tr>
     <th> <?php echo gettext("Name"); ?> </th>
-    <td class="left"><input type="text" name="name" size="70" value="<?php echo $plugin_sid[0]->get_name() ?>"></td>
+    <td class="left"><input type="text" name="name" size="70" value='<?php echo Util::htmlentities($plugin_sid[0]->get_name(),ENT_QUOTES) ?>'></td>
   </tr>
   <tr>
     <th> <?php echo gettext("Category"); ?> </th>

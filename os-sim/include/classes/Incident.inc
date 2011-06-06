@@ -361,12 +361,12 @@ class Incident {
         
 		$event = array(
             'src_ips' => array(
-                OSS_IP_ADDRCIDR,
+                OSS_IP_ADDRCIDR_0,
                 OSS_NULLABLE,
                 'illegal:' . _("Source Ips")
             ) ,
             'dst_ips' => array(
-                OSS_IP_ADDRCIDR,
+                OSS_IP_ADDRCIDR_0,
                 OSS_NULLABLE,
                 'illegal:' . _("Dest Ips")
             ) ,
@@ -390,7 +390,7 @@ class Incident {
 		
         $metric = array(
             'target' => array(
-                OSS_IP_ADDRCIDR,
+                OSS_IP_ADDRCIDR_0,
                 OSS_NULLABLE,
                 'illegal:' . _("Target")
             ) ,
@@ -411,7 +411,7 @@ class Incident {
         
 		$vulnerability = array(
             'ip' => array(
-                OSS_IP_ADDRCIDR,
+                OSS_IP_ADDRCIDR_0,
                 OSS_NULLABLE,
                 'illegal:' . _("Ip")
             ) ,

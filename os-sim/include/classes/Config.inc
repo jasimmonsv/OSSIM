@@ -103,8 +103,9 @@ class Config {
       
 		if ( preg_match('/_pass$/', $key) ) 
 		{
-			$uuid  = Util::get_system_uuid();
-			$sql   = "INSERT INTO config (conf, value) VALUES (?, AES_ENCRYPT(?,'$uuid'))";
+			$uuid     = Util::get_system_uuid();
+			$sql_pass = ( !empty($value) ) ? "AES_ENCRYPT(?,'$uuid')" : "?";
+			$sql      = "INSERT INTO config (conf, value) VALUES (?, ".$sql_pass.")";
 			
 		}
 		else

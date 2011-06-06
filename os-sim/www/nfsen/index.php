@@ -28,9 +28,9 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  * 
- *  $Author: vargasp $
+ *  $Author: pablovargas $
  *
- *  $Id: index.php,v 1.7 2010/04/26 11:17:34 vargasp Exp $
+ *  $Id: index.php,v 1.7 2010/04/26 11:17:34 pablovargas Exp $
  *
  *  $LastChangedRevision: 22 $
  *

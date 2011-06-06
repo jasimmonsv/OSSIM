@@ -55,6 +55,10 @@ function server_get_sensors($conn) {
     }
     $list = array();
     /* connect */
+    socket_set_block($socket);
+    socket_set_option( $socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 10, 'usec' => 0) );
+	socket_set_option( $socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 5, 'usec' => 0) );
+	    
     $result = @socket_connect($socket, $address, $port);
     if (!$result) {
         $err = "<p><b>"._("socket error")."</b>: " . gettext("Is OSSIM server running at") . " $address:$port?</p>";
@@ -67,7 +71,7 @@ function server_get_sensors($conn) {
     $in = 'connect id="1" type="web"' . "\n";
     $out = '';
     socket_write($socket, $in, strlen($in));
-    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
+    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
     if (strncmp($out, "ok id=", 4)) {
         $err = "<p><b>" . gettext("Bad response from server") . "</b></p>";
         $err .= "<p><b>"._("socket error")."</b>: " . gettext("Is OSSIM server running at") . " $address:$port?</p>";
@@ -81,7 +85,7 @@ function server_get_sensors($conn) {
     $out = '';
     socket_write($socket, $in, strlen($in));
     $pattern = '/sensor host="([^"]*)" state="([^"]*)"/ ';
-    while ($out = socket_read($socket, 2048, PHP_NORMAL_READ)) {
+    while ($out = socket_read($socket, 2048, PHP_BINARY_READ)) {
         if (preg_match($pattern, $out, $regs)) {
             //if (Session::hostAllowed($conn, $regs[1])) {
 			if (in_array($regs[1],$allowed_sensors) || Session::allowedSensors() == "") {

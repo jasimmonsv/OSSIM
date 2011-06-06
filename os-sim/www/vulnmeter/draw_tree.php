@@ -222,8 +222,12 @@ else if (preg_match("/net_(.*)/",$key,$found)){
 			*/
 		}
 	}
+
     $k = 0;
     $buffer .= "[";
+
+    $buffer .= "{url:'!".$net_list1[0]->get_ips()."', icon:'../../pixmaps/theme/net.png', title:'<span style=\"color: #B3B5DD;\">!".$net_list1[0]->get_ips()." <font style=\"font-weight:normal;font-size:80%\">(" . base64_decode($found[1]) .")</font></span>'\n},";
+    
     $html = "";
     foreach($hostin as $ip => $host_name) {
     	$host_name = utf8_encode($host_name);
@@ -358,7 +362,7 @@ else if (preg_match("/all_(.*)/",$key,$found)){
                 $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
                 $hname = utf8_encode($hname);
                 
-                if($hname!=$ip) {
+                /*if($hname!=$ip) {
                     $fqdns[] = $hname;
                 }
 
@@ -377,7 +381,10 @@ else if (preg_match("/all_(.*)/",$key,$found)){
                 }
                 else {
                     $html.= "{ key:'$key.$j', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
-                }
+                }*/
+                
+                $html.= "{ key:'host_$ip', url:'$ip', isLazy:true, icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
+                
             }
             $i++;
         }
@@ -445,11 +452,18 @@ else if (preg_match("/host_(.*)/",$key,$found)){
     }
     
     $buffer = "[";
-
-    $j = 1; 
-    foreach ($fqdns as $fqdn) {
-        $buffer .= "{key:'$key$j', url:'$fqdn', icon:'../../pixmaps/theme/host.png', title:'$fqdn <font style=\"font-weight:normal;font-size:80%\">(" . $found[1] .")</font>'\n},";
-        $j++;
+    
+    $name = "";
+    
+    if ($found[1]!=$hname) {  $name = "<font style=\"font-weight:normal;font-size:80%\">(" . $hname .")</font>";   }
+    
+    $buffer .= "{url:'!".$found[1]."', icon:'../../pixmaps/theme/host.png', title:'<span style=\"color: #B3B5DD;\">!".$found[1]." $name</span>'\n},";
+    if(count($fqdns)>0) {
+        $j = 1; 
+        foreach ($fqdns as $fqdn) {
+            $buffer .= "{key:'$key$j', url:'$fqdn', icon:'../../pixmaps/theme/host.png', title:'$fqdn <font style=\"font-weight:normal;font-size:80%\">(" . $found[1] .")</font>'\n},";
+            $j++;
+        }
     }
     $buffer = preg_replace("/,$/", "", $buffer);
     $buffer .= "]";

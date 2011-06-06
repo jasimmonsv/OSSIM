@@ -59,7 +59,7 @@ ossim_valid($id, OSS_ALPHA, 'illegal:' . _("id"));
 ossim_valid($sid, OSS_ALPHA, 'illegal:' . _("sid"));
 ossim_valid($priority, OSS_ALPHA, 'illegal:' . _("priority"));
 ossim_valid($reliability, OSS_ALPHA, 'illegal:' . _("reliability"));
-ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("name"));
+ossim_valid($name, OSS_ALPHA, OSS_PUNC_EXT, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("name"));
 ossim_valid($category, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("category"));
 ossim_valid($subCategory, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("subCategory"));
 //

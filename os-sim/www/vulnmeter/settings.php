@@ -1543,6 +1543,8 @@ function saveprefs( $sid ) {
 //      die();
 //   }
 
+	$uuid = Util::get_system_uuid();
+
 	while(!$result->EOF) 
 	{
 		$counter++;
@@ -1578,7 +1580,7 @@ function saveprefs( $sid ) {
 		
 		
 		
-		updatedb($nessus_id, $$vname, $dbconn, $type, $category, $sid);
+		updatedb($nessus_id, $$vname, $dbconn, $type, $category, $sid, $uuid);
 		$result->MoveNext();
 	} // end while loop
 
@@ -2107,7 +2109,7 @@ function updatedbold($fieldname, $fieldvalue, $dbconn, $type, $sid) {
     $result=$dbconn->execute($query);
 }
 
-function updatedb($nessus_id, $fieldvalue, $dbconn, $type, $category, $sid) {
+function updatedb($nessus_id, $fieldvalue, $dbconn, $type, $category, $sid, $uuid) {
     
 	if ($type=="C" and $fieldvalue=="") {
         $fieldvalue="no";
@@ -2121,8 +2123,7 @@ function updatedb($nessus_id, $fieldvalue, $dbconn, $type, $category, $sid) {
 	if ($existing == 0) 
 	{
 		# Do an insert statement
-		$uuid            = Util::get_system_uuid();
-		$sql_field_value = ( $type == "P" ) ? "AES_ENCRYPT('$fieldvalue','$uuid')" : "'$fieldvalue'";
+		$sql_field_value = ( $type == "P" && !empty($fieldvalue)) ? "AES_ENCRYPT('$fieldvalue','$uuid')" : "'$fieldvalue'";
         
 		$sql = "INSERT vuln_nessus_settings_preferences SET nessus_id = '$nessus_id', value=$sql_field_value, type='$type', category='$category', sid=$sid";
     } 
@@ -2132,8 +2133,7 @@ function updatedb($nessus_id, $fieldvalue, $dbconn, $type, $category, $sid) {
 			$sql = "UPDATE vuln_nessus_settings_preferences SET type='$type', category='$category'  WHERE nessus_id = '$nessus_id' AND sid = $sid";
 		else
 		{
-			$uuid            = Util::get_system_uuid();
-			$sql_field_value = ( $type == "P" ) ? "AES_ENCRYPT('$fieldvalue','$uuid')" : "'$fieldvalue'";
+			$sql_field_value = ( $type == "P" && !empty($fieldvalue) ) ? "AES_ENCRYPT('$fieldvalue','$uuid')" : "'$fieldvalue'";
 			$sql  = "UPDATE vuln_nessus_settings_preferences SET value=$sql_field_value, type='$type', category='$category' WHERE nessus_id = '$nessus_id' AND sid = $sid";
 		}
     }

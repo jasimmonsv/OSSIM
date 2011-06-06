@@ -142,7 +142,23 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 						});
 					}
 				} else {
-					if (dtnode.data.url != '') $('#ip_list').val($('#ip_list').val() + ln + dtnode.data.url)
+					if (dtnode.data.url != '') {
+                        if(dtnode.data.url.match(/.*,.*/)) {
+                            var cidrs=new Array();
+                            cidrs = dtnode.data.url.split(",");
+                            var fc = '';
+                            if(dtnode.data.url.match(/^!/)) { fc = '!'; }
+
+                            for(var i=0; i< cidrs.length; i++) {
+                                var ln = ($('#ip_list').val()!='') ? '\n' : '';
+                                if(i==0)     $('#ip_list').val($('#ip_list').val() + ln + cidrs[i])
+                                else        $('#ip_list').val($('#ip_list').val() + ln + fc + cidrs[i])
+                            }
+                            
+                        }
+                        else
+                            $('#ip_list').val($('#ip_list').val() + ln + dtnode.data.url)
+                    }
 				}
 			},
 			onDeactivate: function(dtnode) {},
@@ -174,6 +190,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
                 data: { 
                     hosts_alive: $('input[name=hosts_alive]').is(':checked') ? 1 : 0,
                     scan_locally: $('input[name=scan_locally]').is(':checked') ? 1 : 0,
+                    not_resolve: $('input[name=not_resolve]').is(':checked') ? 1 : 0,
                     scan_server: $('select[name=SVRid]').val(),
                     targets: targets
                 },
@@ -334,8 +351,8 @@ foreach($ip_targets as $ip_target) {
     if (ossim_error()) {
         $error_message .= _("Invalid target").": $ip_target<br/>";
     }
-    if (preg_match("/^\!(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/",$ip_target,$found))
-        $ip_exceptions_list[] = "!".$found[1];
+    if (preg_match("/^\!\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d+)?$/",$ip_target))
+        $ip_exceptions_list[] = $ip_target;
     else
         $tip_target[] = str_replace("!","",$ip_target);
 }
@@ -347,6 +364,7 @@ if (count($tip_target)==0)
 
 $hosts_alive  = intval($hosts_alive);
 $scan_locally = intval($scan_locally);
+$not_resolve  = intval($not_resolve);
 
 
 //echo "<pre>";
@@ -926,7 +944,7 @@ function tab_discovery () {
      global $component, $uroles, $editdata, $scheduler, $username, $useremail, $dbconn, $disp,
           $enScanRequestImmediate, $enScanRequestRecur, $timeout, $smethod,$SVRid, $sid, $ip_list, $ip_exceptions_list,
           $schedule_type, $ROYEAR, $ROday, $ROMONTH, $time_hour, $time_min, $dayofweek, $dayofmonth,
-          $sname,$user,$entity,$hosts_alive,$scan_locally,$version,$nthweekday,$semail;
+          $sname,$user,$entity,$hosts_alive,$scan_locally,$version,$nthweekday,$semail,$not_resolve;
           
      global $pluginOptions, $enComplianceChecks, $profileid;
      
@@ -1426,14 +1444,15 @@ EOT;
 
 	$targets_message = _("Targets")."<br>"._("(Hosts/Networks)")."<br>";
 
-	$discovery .= "<tr><td valign=\"top\" align=\"Right\" width=\"20%\" class=\"noborder\"><br>";
+	$discovery .= "<tr><td valign=\"top\" style=\"text-align:left;padding-left:50px;\" width=\"20%\" class=\"noborder\"><br>";
 	$discovery .= "<input type=\"checkbox\" name=\"hosts_alive\" value=\"1\"".(((count($editdata)<=1 && intval($hosts_alive)==1) || intval($editdata['meth_CRED'])==1)? " checked":"").">"._("Only scan hosts that are alive")."<br>("._("greatly speeds up the scanning process").")<br><br>";
 	//if (Session::am_i_admin())
 	$discovery .= "<input type=\"checkbox\" name=\"scan_locally\" value=\"1\"".
 	  (($pre_scan_locally_status==0) ? " disabled=\"disabled\"":"").
 	  (($pre_scan_locally_status==1 && ((count($editdata)<=1 && intval($scan_locally)==1) || intval($editdata['authorized'])==1))? " checked":"").">"._("Pre-Scan locally").
-	  "<br>("._("do not pre-scan from scanning sensor").")";
-      //else
+	  "<br>("._("do not pre-scan from scanning sensor").")<br><br>";
+    $discovery .="<input type=\"checkbox\" name=\"not_resolve\" value=\"1\" ".(($editdata['resolve_names']==="0" || $not_resolve=="1") ? "checked=\"checked\"":"")."/>"._("Do not resolve names");
+    //else
       // $discovery .= "<input type=\"hidden\" name=\"scan_locally\" value=\"0\">";
 	
 	$discovery .= <<<EOT
@@ -1585,7 +1604,7 @@ function edit_schedule ( $sched_id ) {
     $query = "SELECT id, name, username, fk_name, job_TYPE, schedule_type, day_of_week, 
                      day_of_month, time, email, meth_TARGET, meth_CRED, 
                      meth_VSET, meth_Wcheck, meth_Wfile, meth_Ucheck, 
-		     meth_TIMEOUT, scan_ASSIGNED
+		     meth_TIMEOUT, scan_ASSIGNED, resolve_names
               FROM vuln_job_schedule 
 	      WHERE id = '$sched_id' $sql_access";
     $result = $dbconn->execute($query);
@@ -1682,12 +1701,13 @@ function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $RO
      $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list, $ip_exceptions_list,
      $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
      $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
-     $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail) {
+     $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail, $not_resolve) {
      
      global $wdaysMap, $daysMap, $allowscan, $uroles, $username, $schedOptions, $adminmail, $mailfrom, $dbk, $dbconn;
      
+     if($not_resolve=="1")  $resolve_names = 0;
+     else                   $resolve_names = 1;
      
-
      $notify_email = str_replace( ";", ",", $notify_email );
      $requested_run = "";
      $jobType="M";
@@ -2067,10 +2087,11 @@ EOT;*/
     $ftargets = explode("\\r\\n", $target_list);
     foreach ($ftargets as $ftarget) {
         $ftarget = preg_replace("/\r|\n|\t|\s|\'/", "", $ftarget);
+        $unresolved = (!preg_match("/\d+\.\d+\.\d+\.\d+/",$ftarget) && $not_resolve) ? true : false;
         if (preg_match("/\//", $ftarget) && Session::netAllowed($dbconn, Net::get_name_by_ip($dbconn,$ftarget))){ //, $username
             $allowed[] = $ftarget;
         }
-        else if( Session::hostAllowed($dbconn, $ftarget) ) { // , $username
+        else if( Session::hostAllowed($dbconn, $ftarget) || $unresolved ) { // , $username
             $allowed[] = $ftarget;
         }
         else {
@@ -2079,14 +2100,22 @@ EOT;*/
     }
     if(count($allowed)>0) {
         $forced_server="";
+        $all_sensors = array();
+        $sensor_list = Sensor::get_all($dbconn,"",false);
+        foreach ($sensor_list as $s) $all_sensors[$s->get_ip()] = $s->get_name();
+		// force scanner
         if ($SVRid!="Null") {
             $query = "SELECT hostname FROM vuln_nessus_servers WHERE id=$SVRid";
             $result = $dbconn->execute($query);
             list($forced_server) = $result->fields;
-        }
-        $all_sensors = array();
-        $sensor_list = Sensor::get_all($dbconn,"",false);
-        foreach ($sensor_list as $s) $all_sensors[$s->get_ip()] = $s->get_name();
+        } elseif ($not_resolve) {
+	        $result = $dbconn->Execute("SELECT name,hostname FROM vuln_nessus_servers WHERE enabled=1");
+	        while ( !$result->EOF ) {
+	            list($name, $hostname) = $result->fields;
+	            if (Session::sensorAllowed($hostname)) $all_sensors[$hostname] = $name;
+	            $result->MoveNext(); 
+	        }
+	    }
         // remote nmap
         $rscan = new RemoteScan("","");
         if ($rscan->available_scan()) {
@@ -2103,6 +2132,9 @@ EOT;*/
 
         foreach( $tsjobs as $tjobs ){
             $tjobs = preg_replace("/\r|\n|\t|\s|\'/", "", $tjobs);
+            
+            $unresolved = (!preg_match("/\d+\.\d+\.\d+\.\d+/",$tjobs) && $not_resolve) ? true : false;
+            
             if (preg_match("/\//",$tjobs)) {
                 $sensor = Net_sensor_reference::get_list_array($dbconn,$tjobs); 
             } else {
@@ -2110,13 +2142,17 @@ EOT;*/
             }
             if ($forced_server!="") $sensor = array_merge(array($forced_server),$sensor);
             
-            if(Session::am_i_admin() && count($sensor)==0 && $forced_server=="") {
-                $local_ip = `grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; 
-                $local_ip = trim($local_ip);
-                $results = $dbconn->Execute("SELECT name FROM vuln_nessus_servers WHERE hostname like '$local_ip'");
-                if($results->fields["name"]!="") { 
-                    $sensor[] = $local_ip;  
-                }
+            if( $unresolved || (Session::am_i_admin() && count($sensor)==0 && $forced_server=="") ) {
+	        	if ($unresolved) {
+	        		foreach ($all_sensors as $sip => $unused) $sensor[] = $sip; 
+	        	} else {          
+	                $local_ip = `grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; 
+	                $local_ip = trim($local_ip);
+	                $results = $dbconn->Execute("SELECT name FROM vuln_nessus_servers WHERE hostname like '$local_ip'");
+	                if($results->fields["name"]!="") { 
+	                    $sensor[] = $local_ip;  
+	                }
+	            }
             }
             
             // reorder sensors with load
@@ -2126,7 +2162,7 @@ EOT;*/
 
             foreach ($sensor as $sen) {
                 $properties = Sensor::get_properties($dbconn, $sen);
-                $withnmap = in_array($all_sensors[$sen],$ids) || !$hosts_alive;
+                $withnmap = in_array($all_sensors[$sen],$ids) || !$hosts_alive || $unresolved;
                 //echo "$sen:".$all_sensors[$sen].":$withnmap || $scan_locally:".$properties["has_vuln_scanner"]." || $SVRid:$forced_server<br>\n";
                 if ((Session::sensorAllowed($sen) || $forced_server!="") && ($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $forced_server!="")) {
                     //$selected = ($SVRid!="Null" && $all_sensors[$sen]!="") ? $all_sensors[$sen] : $sen;
@@ -2154,10 +2190,10 @@ EOT;*/
                 $target_list .= "\n".implode("\n",$ip_exceptions_list);
                 $query[] = "INSERT INTO vuln_job_schedule ( name, username, fk_name, job_TYPE, schedule_type, day_of_week, day_of_month, 
                             time, email, meth_TARGET, meth_CRED, meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, 
-                            meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled  ) VALUES ( '$sname', '$username', '".Session::get_session_user()."', '$jobType',
+                            meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled, resolve_names ) VALUES ( '$sname', '$username', '".Session::get_session_user()."', '$jobType',
                             '$schedule_type', '$dayofweek', '$dayofmonth', '$time_value', '$notify_sensor', '$target_list',
                             $I3crID, '$sid', '$custadd_type', $plugs_list, $arrAudits[w], $semail, '$scan_locally',
-                            '$timeout', $SVRid, '$requested_run', '$insert_time', '1' ) ";
+                            '$timeout', $SVRid, '$requested_run', '$insert_time', '1', '$resolve_names' ) ";
                 $sjobs_names [] = $sname.$i;
                 $i++;
             }
@@ -2169,10 +2205,10 @@ EOT;*/
                     $target_list .= "\n".implode("\n",$ip_exceptions_list);
                     $query[] = "INSERT INTO vuln_job_schedule ( name, username, fk_name, job_TYPE, schedule_type, day_of_week, day_of_month, 
                                 time, email, meth_TARGET, meth_CRED, meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, 
-                                meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled  ) VALUES ( '$sname', '$username', '".Session::get_session_user()."', '$jobType',
+                                meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled, resolve_names ) VALUES ( '$sname', '$username', '".Session::get_session_user()."', '$jobType',
                                 '$schedule_type', '$dayofweek', '$dayofmonth', '$time_value', '$notify_sensor', '$target_list',
                                 $I3crID, '$sid', '$custadd_type', $plugs_list, $arrAudits[w], $semail, '$scan_locally',
-                                '$timeout', $SVRid, '$requested_run', '$insert_time', '1' ) ";
+                                '$timeout', $SVRid, '$requested_run', '$insert_time', '1', '$resolve_names' ) ";
                     $sjobs_names [] = $sname.$i;
                     $i++;
                 }
@@ -2184,37 +2220,29 @@ EOT;*/
                     $target_list .= "\n".implode("\n",$ip_exceptions_list);
                     $query[] = "INSERT INTO vuln_jobs ( name, username, fk_name, job_TYPE, meth_SCHED, meth_TARGET,  meth_CRED,
                         meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED,
-                        scan_SUBMIT, scan_next, scan_PRIORITY, status, notify, authorized, author_uname ) VALUES ( '$sname',
+                        scan_SUBMIT, scan_next, scan_PRIORITY, status, notify, authorized, author_uname, resolve_names ) VALUES ( '$sname',
                         '$username', '".Session::get_session_user()."', '$jobType', '$schedule_type', '$target_list', $I3crID, '$sid', '$custadd_type', $plugs_list,
                         $arrAudits[w], $semail, $arrAudits[u], '$timeout', $SVRid, '$insert_time', '$requested_run', '3',
-                        'S', '$notify_sensor', '$scan_locally', 'ACL' ) "; 
+                        'S', '$notify_sensor', '$scan_locally', 'ACL', '$resolve_names' ) "; 
                     $jobs_names [] = $sname.$i;
                     $i++;
                 }
         }
-  
+
         $query_insert_time = gen_strtotime( $insert_time, "" );
         foreach ($query as $sql) {
+            $error_updating = false;
+            $error_inserting = false;
             $sql = str_replace(", ',",", '',",str_replace("''","'",$sql));
             if ($dbconn->execute($sql) === false) {
                 echo _("Error creating scan job").": " .$dbconn->ErrorMsg();
-                $error = 1;
+                if($op == "editrecurring")
+                    $error_updating = true;
+                else
+                    $error_creating = true;
             }
             else {
-                if ( $op == "editrecurring" && $sched_id > 0 ) {
-                    $query2 = "SELECT id FROM vuln_job_schedule WHERE id='$sched_id' AND username='$username'";
-                }
-                elseif ( $recurring ) {
-                    $query2 = "SELECT id FROM vuln_job_schedule WHERE createdate='$query_insert_time' AND username='$username'";
-                }
-                else {
-                    $query2 = "SELECT id FROM vuln_jobs WHERE scan_SUBMIT='$query_insert_time' AND username='$username'";
-                    $query2 = "SELECT id FROM vuln_jobs WHERE scan_SUBMIT='$query_insert_time' AND username='$username'";
-                }
-                $result2 = $dbconn->execute($query2);
-                list( $jid ) = $result2->fields;
-
-                if ( $op == "editrecurring" && $jid > 0 ) {
+                if ( $op == "editrecurring" && !$error_updating ) {
                     echo "<br><center>"._("Successfully Updated Recurring Job")."</center>";
                     if(count($notallowed)==0 && count($unables)==0){
                         ?><script type="text/javascript">
@@ -2225,7 +2253,7 @@ EOT;*/
                     }
                     //logAccess( "Updated Recurring Job [ $jid ]" );
                 }
-                elseif ( $jid ) {
+                elseif ( !$error_creating ) {
                     echo "<br><center>"._("Successfully Submitted Job")." $request</center>";
                     //logAccess( "Submitted Job [ $jid ] $request" );
                     
@@ -2316,6 +2344,7 @@ EOT;*/
               <input type="hidden" name="hosts_alive" value="<?=$hosts_alive?>"/>
               <input type="hidden" name="scan_locally" value="<?=$scan_locally?>"/> 
               <input type="hidden" name="semail" value="<?=$semail?>"/>
+              <input type="hidden" name="not_resolve" value="<?=$not_resolve?>"/>
         <?
         echo "<input type=\"submit\" value=\""._("Back")."\" class=\"button\"/> &nbsp; ";
         echo "<input value=\""._("Continue")."\" class=\"button\" type=\"button\" onclick=\"document.location.href='manage_jobs.php?hmenu=Vulnerabilities&smenu=Jobs'\"></form>";
@@ -2569,12 +2598,12 @@ switch($disp) {
 	{
         if($entity!="" && $entity!="none") $username = $entity;
         if($user!="" && $user!="none")    $username  = $user;
-    
+
         submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $ROYEAR,$ROMONTH, $ROday,
         $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list, $ip_exceptions_list,
         $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
         $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
-        $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail);
+        $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail, $not_resolve);
     }
    break;
 

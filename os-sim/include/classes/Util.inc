@@ -915,7 +915,8 @@ class Util {
 	// FAKE PASSWORD FUNCTIONS
     function fake_pass($pass) {
     	$fakepass="";
-    	for($i=0;$i<strlen($pass);$i++) $fakepass .= "?";
+    	for($i=0;$i<strlen($pass);$i++) 
+			$fakepass .= "?";
     	return $fakepass;
     }
 

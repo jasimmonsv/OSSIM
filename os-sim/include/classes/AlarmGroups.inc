@@ -615,7 +615,7 @@ class AlarmGroups {
             $limit = "LIMIT $nevents OFFSET $inf";
         }
         if ($query != "") {
-            $where[] = "(p.name LIKE \"%$query%\")";
+            $where[] = "(p.name LIKE \"%".str_replace('"','\"',$query)."%\")";
         }
         $sql_where = count($where) ? 'WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND ' . implode(" AND ", $where) : "WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid";
         

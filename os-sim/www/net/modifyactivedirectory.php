@@ -38,15 +38,13 @@ require_once ('classes/Session.inc');
 require_once ('classes/ActiveDirectory.inc');
 require_once ('ossim_db.inc');
 
-
-
 if (!Session::am_i_admin() ) 
 {
 	echo ossim_error(_("You don't have permissions for Asset Discovery"), "NOTICE");
 	exit();
 }
 
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
 ?>
@@ -84,7 +82,7 @@ if(GET('id')!="")
         $ip       = long2ip($ad->get_server());
         $binddn   = $ad->get_binddn();
         $password = $ad->get_password();
-        $scope    = $ad->get_scope();
+		$scope    = $ad->get_scope();
     }
 }
 else 
@@ -97,14 +95,15 @@ else
     ossim_valid($password, OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC_EXT, 'illegal:' . _("Password"));
     $scope = POST('scope');
     ossim_valid($scope, OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, 'illegal:' . _("Scope"));
-    if (ossim_error()) {
+    
+	if (ossim_error()) {
         die(ossim_error());
     }
 }
 
 if ( $ip!="" && $binddn!="" && GET('id')=="" ) // only with POST
 { 
-    ActiveDirectory::update($conn, $id, $ip, $binddn, $password, $scope);
+	ActiveDirectory::update($conn, $id, $ip, $binddn, $password, $scope);
     echo "<p>"._("Active directory succesfully updated")."</p>";
     ?>
 		<script type='text/javascript'>document.location.href="activedirectory.php"</script>
@@ -127,8 +126,10 @@ if ( $ip!="" && $binddn!="" && GET('id')=="" ) // only with POST
 		</tr>
 		<tr>
 			<th> <?php echo gettext("Password"); ?> </th>
-				<?php $password = Util::fake_pass($password); ?>
-			<td style="text-align:left;padding-left:3px;" class="nobborder"><input type="password" name="password" value="<?php echo $password?>" size="32"></td>
+			<td style="text-align:left;padding-left:3px;" class="nobborder">
+				<?php $password = Util::fake_pass($password);?>
+				<input type="password" name="password" value="<?php echo $password?>" size="32"/>
+			</td>
 		</tr>
 		
 		<tr>

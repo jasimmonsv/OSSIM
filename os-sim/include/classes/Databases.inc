@@ -116,16 +116,17 @@ class Databases {
 	
     function insert($conn, $name, $ip, $port, $user, $pass, $icon) {
         
-		$uuid   = Util::get_system_uuid();
-		$sql    = "INSERT INTO `databases` (name, ip, port, user, pass, icon) VALUES (?, ?, ?, ?, AES_ENCRYPT(?,'$uuid'), ?)";
-		$params = array(
-			$name,
-			$ip,
-			$port,
-			$user,
-			$pass,
-			$icon
-		);
+		$uuid     = Util::get_system_uuid();
+		$sql_pass = ( !empty($pass) ) ? "AES_ENCRYPT(?,'$uuid')" : "?";
+		$sql      = "INSERT INTO `databases` (name, ip, port, user, pass, icon) VALUES (?, ?, ?, ?, ".$sql_pass.", ?)";
+		$params   = array(
+						$name,
+						$ip,
+						$port,
+						$user,
+						$pass,
+						$icon
+					);
 		
 		
         if (!$conn->Execute($sql, $params)) {
@@ -153,17 +154,18 @@ class Databases {
 		}
 		else
 		{
-			$uuid   = Util::get_system_uuid();
-			$sql    = "UPDATE `databases` SET name = ?, ip = ?, port = ?, user = ?, pass = AES_ENCRYPT(?,'$uuid'), icon = ? WHERE name = ?";
-			$params = array(
-				$name,
-				$ip,
-				$port,
-				$user,
-				$pass,
-				$icon,
-				$name
-			);
+			$uuid     = Util::get_system_uuid();
+			$sql_pass = ( !empty($pass) ) ? " AES_ENCRYPT(?,'$uuid')" : "?";
+			$sql      = "UPDATE `databases` SET name = ?, ip = ?, port = ?, user = ?, pass = ".$sql_pass.", icon = ? WHERE name = ?";
+			$params   = array(
+							$name,
+							$ip,
+							$port,
+							$user,
+							$pass,
+							$icon,
+							$name
+						);
 		}
         
 		if (!$conn->Execute($sql, $params)) {

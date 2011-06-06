@@ -239,7 +239,7 @@ if ($screen == "status") {
 	    if ($incident_date == 0) $incident_date = "__/__/__ --:--:--";
 	}
 	//$incident_list = Incident::get_list($conn, "ORDER BY priority DESC");
-	$incident_list = Incident::search($conn, array(), "priority", "DESC", 1, 1);
+	$incident_list = Incident::search($conn, array("status"=>"Open"), "priority", "DESC", 1, 1);
 	$incident_max_priority = ($incident_list[0]) ? $incident_list[0]->get_priority() : "-";
 	$incident_max_priority_id = ($incident_list[0]) ? $incident_list[0]->get_id() : "0";
 	// Get unresolved ALARMS

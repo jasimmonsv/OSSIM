@@ -43,6 +43,8 @@
 * - get_foundrows()
 * - get_list()
 * - update()
+* - GetPluginBySourceType()
+* - GetPluginsByCategory()
 * Classes list:
 * - Plugin_sid
 */
@@ -118,16 +120,36 @@ class Plugin_sid {
     function update($conn, $id, $sid, $priority, $reliability, $category_id=NULL, $subcategory_id=NULL, $name='') {
         settype($priority, "int");
         settype($reliability, "int");
+        $sql = $params = array();
+        // All parameters
         if ($name!='') {
-           $sql = "UPDATE plugin_sid SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ?, name = ? WHERE plugin_id = ? AND sid = ?";
-           $params = array( $category_id, $subcategory_id, $priority, $reliability, $name, $id, $sid );
+           $sql[] = "UPDATE plugin_sid SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ?, name = ? WHERE plugin_id = ? AND sid = ?";
+           $params[] = array( $category_id, $subcategory_id, $priority, $reliability, $name, $id, $sid );
+           $sql[] = "REPLACE INTO plugin_sid_changes (plugin_id,sid,name,reliability,priority,category_id,subcategory_id) SELECT plugin_id,sid,name,reliability,priority,category_id,subcategory_id FROM plugin_sid WHERE plugin_id = ? AND sid = ?";
+           $params[] = array( $id, $sid );
+           $sql[] = "UPDATE plugin_sid_changes SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ?, name = ? WHERE plugin_id = ? AND sid = ?";
+           $params[] = array( $category_id, $subcategory_id, $priority, $reliability, $name, $id, $sid );
+        // Without name
+        } elseif ($category_id!=NULL) {
+           $sql[] = "UPDATE plugin_sid SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
+           $params[] = array( $category_id, $subcategory_id, $priority, $reliability, $id, $sid );
+           $sql[] = "REPLACE INTO plugin_sid_changes (plugin_id,sid,name,reliability,priority,category_id,subcategory_id) SELECT plugin_id,sid,name,reliability,priority,category_id,subcategory_id FROM plugin_sid WHERE plugin_id = ? AND sid = ?";
+           $params[] = array( $id, $sid );
+           $sql[] = "UPDATE plugin_sid_changes SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
+           $params[] = array( $category_id, $subcategory_id, $priority, $reliability, $id, $sid );
+        // Without name and taxonomy
         } else {
-           $sql = "UPDATE plugin_sid SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
-           $params = array( $category_id, $subcategory_id, $priority, $reliability, $id, $sid );
+           $sql[] = "UPDATE plugin_sid SET priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
+           $params[] = array( $priority, $reliability, $id, $sid );
+           $sql[] = "REPLACE INTO plugin_sid_changes (plugin_id,sid,name,reliability,priority,category_id,subcategory_id) SELECT plugin_id,sid,name,reliability,priority,category_id,subcategory_id FROM plugin_sid WHERE plugin_id = ? AND sid = ?";
+           $params[] = array( $id, $sid );
+           $sql[] = "UPDATE plugin_sid_changes SET priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
+           $params[] = array( $priority, $reliability, $id, $sid );
         }
-        if (!$rs = & $conn->Execute($sql, $params)) {
-            print $conn->ErrorMsg();
-        }
+        foreach ($sql as $i => $str) {
+	        if ($conn->Execute($sql[$i], $params[$i]) === false)
+	            print $conn->ErrorMsg();
+	    }
     }
     function get_name_by_idsid($conn,$id,$sid) {
         $query = OssimQuery("SELECT name FROM plugin_sid WHERE plugin_id=$id AND sid=$sid");
@@ -186,6 +208,8 @@ class Plugin_sid {
             print 'error inserting sid: ' . $conn->ErrorMsg() . '<BR>';
             exit;
         }
+        // Update to fill plugin_sid_changes table
+        Plugin_sid::update($conn, $plugin, $sid, $priority, $reliability, $category_id, $subcategory_id, $name);
     }
 	function delete($conn, $plugin, $sid) {
         settype($plugin, "int");
@@ -202,6 +226,55 @@ class Plugin_sid {
             print 'error deleting sid: ' . $conn->ErrorMsg() . '<BR>';
             exit;
         }
+
+        $sql = "DELETE FROM plugin_sid_changes WHERE plugin_id=? AND sid=?";
+        
+        $params = array(
+            $plugin,
+            $sid
+        );
+
+        if ($conn->Execute($sql, $params) === false) {
+            print 'error deleting sid: ' . $conn->ErrorMsg() . '<BR>';
+            exit;
+        }
+
+
     }
+	function GetPluginsBySourceType($conn, $sourcetype) {
+		$ids = array();
+	    $sql = "select id from plugin where source_type = ?";
+	    $params = array(
+        	$sourcetype
+        );
+	    if (!$rs = & $conn->Execute($sql,$params)) {
+            print $conn->ErrorMsg();
+        } else {
+		    while (!$rs->EOF) {
+		        $ids[] = $rs->fields["id"];
+		        $rs->MoveNext();
+		    }
+        }
+	    return $ids;
+	}
+	function GetPluginsByCategory($conn, $idcat, $idsubcat = "") {
+	    $ids = array();
+	    $sql = "SELECT DISTINCT plugin_id FROM plugin_sid WHERE category_id = ?";
+	    $params = array(
+        	$idcat
+        );
+        if ($idsubcat != "") {
+        	$sql .= " AND subcategory_id = $idsubcat";
+        }
+	    if (!$rs = & $conn->Execute($sql,$params)) {
+            print $conn->ErrorMsg();
+        } else {
+		    while (!$rs->EOF) {
+		        $ids[] = $rs->fields["plugin_id"];
+		        $rs->MoveNext();
+		    }
+        }
+	    return $ids;
+	}
 }
 ?>

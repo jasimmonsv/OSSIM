@@ -39,8 +39,9 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuConfiguration", "ToolsDownloads");
 
 $ip = $_SERVER["REMOTE_ADDR"];
-$file = "/usr/share/ossim/www/ossec/agents/ossec_installer_".$ip."_001.exe";
-if (!file_exists($file)) {
+$suf = GET('suf'); if ($suf=='') $suf='001';
+$file = "/usr/share/ossim/www/ossec/agents/ossec_installer_".$ip."_".$suf.".exe";
+if (!file_exists($file) || GET('suf')=='') {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -55,10 +56,13 @@ if (!file_exists($file)) {
   echo _("Generating ossec-installer with remote ip: <b>$ip</b><br>\nPlease wait a few seconds...<br>\n");
   ob_flush();
   echo "<pre>";
-  system("cd /usr/share/ossec-generator;perl gen_install_exe.pl ".$ip."_001 2> /tmp/ossec-gen");
+  system("cd /usr/share/ossec-generator;perl gen_install_exe.pl ".$ip." 2> /tmp/ossec-gen");
+  system("sudo /var/ossec/bin/ossec-control restart");
+  $now = explode(".",system("ls -t1 /usr/share/ossim/www/ossec/agents/ossec_installer_".$ip."* | head -1 | awk 'BEGIN { FS = \"_\" } ;{print \$4}'"));
   echo "</pre>";
+  $file = "/usr/share/ossim/www/ossec/agents/ossec_installer_".$ip."_".$now[0].".exe";
   if (file_exists($file)) {
-    echo "<script>document.location.reload()</script>\n";
+    echo "<script>document.location.href='?suf=".$now[0]."'</script>\n";
   } else {
     echo "<b>Error file don't generated!</b>\n";
   }
@@ -69,6 +73,6 @@ if (!file_exists($file)) {
 }
 else
 {
-  header("Location: /ossim/ossec/agents/ossec_installer_".$ip."_001.exe");
+  header("Location: /ossim/ossec/agents/ossec_installer_".$ip."_".$suf.".exe");
 }
 ?>

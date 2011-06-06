@@ -945,9 +945,10 @@ class Host {
 				}
 				else
 				{
-					$uuid   = Util::get_system_uuid();
-					$params = array ($type, $username, $password, $extra, $id);
-					$sql    = "UPDATE credentials SET type = ?, username = ?, password = AES_ENCRYPT(?,'$uuid'), extra = ? WHERE id = ?";
+					$uuid     = Util::get_system_uuid();
+					$params   = array ($type, $username, $password, $extra, $id);
+					$sql_pass = ( !empty($password) ) ? "AES_ENCRYPT(?,'$uuid')" : "?";
+					$sql      = "UPDATE credentials SET type = ?, username = ?, password = ".$sql_pass.", extra = ? WHERE id = ?";
 				}
 				
 				if (!$rs = & $conn->Execute($sql, $params))
@@ -958,9 +959,10 @@ class Host {
 			}
 			else
 			{
-				$uuid   = Util::get_system_uuid();
-				$params = array ($ip, $type, $username, $password, $extra );
-				$sql    = "INSERT INTO credentials(ip, type, username, password, extra) values (?, ?, ?, AES_ENCRYPT(?,'$uuid'), ?)";
+				$uuid     = Util::get_system_uuid();
+				$params   = array ($ip, $type, $username, $password, $extra );
+				$sql_pass = ( !empty($password) ) ? "AES_ENCRYPT(?,'$uuid')" : "?";
+				$sql      = "INSERT INTO credentials(ip, type, username, password, extra) values (?, ?, ?, ".$sql_pass.", ?)";
 								
 				if (!$rs = & $conn->Execute($sql, $params)){ 
 					print $conn->ErrorMsg();

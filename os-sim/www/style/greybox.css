@@ -1,4 +1,4 @@
-html, body { height:auto; }
+html, body { height:auto;}
 #GB_overlay {
   background-image: url(../pixmaps/theme/overlay.png); 
   position: absolute;
@@ -66,17 +66,19 @@ html, body { height:auto; }
 }
 
 #GB_frame {
-  border: 0;
+  border: 0px;
   overflow: auto;
   width: 100%;
   height: 92%;
+  margin: 0px;
+  padding: 0px;
 }
 
 #GB_caption {
   font: 12px bold helvetica, verdana, sans-serif; line-height:28px;
   color: #fff;
   padding: 2px 0 2px 5px;
-  margin: 0;
+  margin: 0px;
   clear:none;
   float:left;
   display:inline;

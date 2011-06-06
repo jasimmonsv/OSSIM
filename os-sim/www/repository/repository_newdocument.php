@@ -66,7 +66,7 @@ if ( isset($_POST['title']) || isset($_POST['doctext']) )
 		$error        = true;
 	}
 	
-	if ( POST('doctext') == "" ) 
+	if ( strip_tags(POST('doctext')) == "" ) 
 	{
 		$info_error[] = _("Error in the 'text' field (missing required field)");
 		$error        = true;
@@ -81,12 +81,12 @@ if ( POST('title') != "" && POST('doctext') != "" && $error == false)
     if($ventity != "") $user = $ventity;
 	
 	$title    = POST('title');
-	$doctext  = strip_tags(POST('doctext'),'<big><span><div><a><p><ol><ul><li><hr><br>');
+	$doctext  = strip_tags(POST('doctext'),'<div><span><ul><li><ol><b><i><u><strike><p><h1><h2><h3><h4><h5><h6><font><br><blockquote>');
 	$keywords = POST('keywords');
-	
-   
+	   
     $id_inserted = Repository::insert($conn, $title , $doctext , $keywords , $user);
 	?>
+	
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 	<html>
 	<head>
@@ -99,9 +99,6 @@ if ( POST('title') != "" && POST('doctext') != "" && $error == false)
 			.ossim_success {width: auto;}
 			table { margin:auto; width: 98%; text-align: center;}
 						
-			#user {width: 160px;}
-			#entity { width: 200px;}
-			
 		</style>
 	</head>
 
@@ -134,15 +131,22 @@ else
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 		<meta http-equiv="Pragma" content="no-cache"/>
 		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
-		<link rel="stylesheet" type="text/css" href="../style/jquery.wysiwyg.css"/>
+		<link rel="stylesheet" type="text/css" href="../js/CLeditor/jquery.cleditor.css"/>
 		<script type="text/javascript" src="../js/jquery-1.4.2.min.js"></script>
-		<script type="text/javascript" src="../js/jquery.wysiwyg.js"></script>
+		<script type="text/javascript" src="../js/CLeditor/jquery.cleditor.min.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
-				$('#textarea').wysiwyg({
-					css : { fontFamily: 'Arial, Tahoma', fontSize : '13px'}
+				$(document).ready(function() {
+					$("#textarea").cleditor({
+						height:  200, // height not including margins, borders or padding
+						
+						controls:     // controls to add to the toolbar
+                        "bold italic underline strikethrough style | color highlight removeformat | bullets numbering | outdent " +
+                        "indent | alignleft center alignright justify | undo redo | " + " cut copy"
+					});
 				});
 			});
+			
 			function switch_user(select) {
 				if(select=='entity' && $('#entity').val()!=''){
 					$('#user').val('');
@@ -153,31 +157,69 @@ else
 			}
 		</script>
 		<style type='text/css'>
-			#update { 
-				padding: 10px 0px 0px 0px;
-				border: none;
-			}
+			
+			html, body { margin: 0px; padding: 0px; }
+			
 			
 			.error_item {
 				padding:2px 0px 0px 20px; 
 				text-align:left;
 			}
 			
-			body { margin:0px;}
+			.ossim_success{
+				width: auto;
+			}	
+				
+			.ossim_error {
+				width: auto;
+				padding: 10px 10px 10px 40px;
+				font-size: 12px;
+			}
 			
-			.pad_title{ padding:3px 0px 0px 5px; }
+			.rep_section{
+				width: 90%;
+				margin:auto;
+				padding: 3px 0px;
+			}
 			
-			.ossim_error {width: auto;}
+			.rep_label {
+				text-align: left;
+				font-weight: bold;
+				padding-bottom: 3px; 
+			}
 			
+			input[type='text']{ 
+				text-align: left; 
+				width: 400px; 
+				height: 18px;
+			}
+			
+			#keywords { 
+				width:98%;
+				height: 40px;
+			}
+						
 			
 			#user {width: 160px;}
-			#entity { width: 230px;}
+			#entity { width: 225px;}
+			
+			table { 
+				margin: auto; 
+				width: 98%;
+				background: transparent;
+				border:none !important;
+			}
+			
+			#update { 
+				padding: 15px 0px 0px 0px;
+				border: none;
+			}
 			
 		</style>
 	</head>
 
 <body>
-	<table cellpadding='0' cellspacing='2' border='0' width="99%" class='transparent'>
+	<table cellpadding='0' cellspacing='2' border='0'>
 		<?php 
 		
 		if ( $error == true ) 
@@ -185,7 +227,7 @@ else
 			$info_error = implode($info_error, "</div><div class='error_item'>");
 			?>
 			<tr>
-				<td>
+				<td class='noborder center'>
 					<div class='ossim_error'>
 						<div class='error_item' style='padding-left: 5px;'><?php echo _("We found the following errors")?>:</div>
 						<div class='error_item'><?php echo $info_error?></div>
@@ -200,95 +242,93 @@ else
 				<!-- repository insert form -->
 				<form name="repository_insert_form" method="POST" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" enctype="multipart/form-data">
 				
-				<table cellpadding='0' cellspacing='2' border='0' class="noborder transparent" width="99%">
+				<table cellpadding='0' cellspacing='2' border='0' class="noborder transparent">
 					<tr>
-						<td class="nobborder pad_title"><strong><?php echo _("Title")?>:</strong></td>
-					</tr>
-					
-					<tr>
-						<td class="nobborder pad_title"><input type="text" name="title" style="width:473px" value="<?php echo POST('title') ?>"></td>
-					</tr>
-					
-					<tr>
-						<td class="nobborder pad_title"><strong><?php echo _("Text") ?>:</strong></td>
-					</tr>
-					
-					<tr>
-						<td class="nobborder" style="padding-left:5px">
-							<textarea id="textarea" name="doctext" rows="4" style="width:460px"><?php echo POST('doctext') ?></textarea>
+						<td class="nobborder">
+							<div class='rep_section'>
+								<div class='rep_label'><?php echo _("Title")?>:</div>
+								<input type="text" name="title" value="<?php echo POST('title') ?>">
+							</div>
 						</td>
 					</tr>
 					
 					<tr>
-						<td class="nobborder pad_title"><strong><?php echo _("Keywords") ?>:</strong></td>
+						<td class="nobborder">
+							<div class='rep_section'>
+								<div class='rep_label'><?php echo _("Text")?>:</div>
+								<textarea id="textarea" name="doctext"><?php echo POST('doctext') ?></textarea>
+							</div>
+						</td>
 					</tr>
 					
 					<tr>
-						<td class="nobborder pad_title">
-							<textarea name="keywords" style="width: 473px"><?php echo POST('keywords') ?></textarea>
+						<td class="nobborder">
+							<div class='rep_section'>
+								<div class='rep_label'><?php echo _("Keywords")?>:</div>
+								<textarea name="keywords" id='keywords'><?php echo POST('keywords') ?></textarea>
+							</div>
 						</td>
 					</tr>
+					
 					<?php
-					
 					$users    = Session::get_users_to_assign($conn);
 					$entities = Session::get_entities_to_assign($conn);
-									
 					?>
-					<tr>
-						<td class="nobborder" style="padding-left:5px"><strong><?php echo _("Make this document visible for:") ?></strong></td>
-					</tr>
 					
 					<tr>
-						<td class='nobborder left'>
-							<table cellspacing="0" cellpadding="0" class="transparent">
-								<tr>
-									<td class='nobborder'><span style='margin-right:3px'><?php echo _("User:");?></span></td>
-									<td class='nobborder'>				
-										<select name="user" id="user" onchange="switch_user('user');return false;">
-											
-											<?php
+						<td class="nobborder">
+							<div class='rep_section'>
+								<div class='rep_label'><?php echo _("Make this document visible for")?>:</div>
+								<div>
+									<table cellspacing="0" cellpadding="0" class="transparent">
+										<tr>
+											<td class='nobborder'><span style='margin-right:3px'><?php echo _("User:");?></span></td>
+											<td class='nobborder'>				
+												<select name="user" id="user" onchange="switch_user('user');return false;">
+												<?php
+												$num_users = 0;
+												foreach( $users as $k => $v )
+												{
+													$login = $v->get_login();
+													$selected = ( $_POST['user'] == $login ) ? "selected='selected'" : "";
+													$options .= "<option value='".$login."' $selected>$login</option>\n";
+													$num_users++;
+												}
+												
+												if ($num_users == 0)
+													echo "<option value='' style='text-align:center !important;'>- "._("No users found")." -</option>";
+												else
+												{
+													echo "<option value='' style='text-align:center !important;'>- "._("Select one user")." -</option>\n";
+													echo $options;
+												}
 																		
-											$num_users = 0;
-											foreach( $users as $k => $v )
-											{
-												$login = $v->get_login();
-												$selected = ( $_POST['user'] == $login ) ? "selected='selected'" : "";
-												$options .= "<option value='".$login."' $selected>$login</option>\n";
-												$num_users++;
-											}
-											
-											if ($num_users == 0)
-												echo "<option value='' style='text-align:center !important;'>- "._("No users found")." -</option>";
-											else
-											{
-												echo "<option value='' style='text-align:center !important;'>- "._("Select one user")." -</option>\n";
-												echo $options;
-											}
-																	
-											?>
-										</select>
-									</td>
+												?>
+												</select>
+											</td>
 														
 													
-								<?php if ( !empty($entities) ) { ?>
-									<td style='text-align:center; border:none; !important'><span style='padding:5px;'><?php echo _("OR")?><span></td>
-						
-									<td class='nobborder'><span style='margin-right:3px'><?php echo _("Entity:");?></span></td>
-									<td class='select_entity'>	
-										<select name="entity" id="entity" onchange="switch_user('entity');return false;">
-											<option value="" style='text-align:center !important;'>- <?php echo _("Select one entity") ?> -</option>
-											<?php
-											foreach ( $entities as $k => $v ) 
-											{
-												$selected = ( $_POST['entity'] == $k ) ? "selected='selected'" : "";
-												echo "<option value='$k' $selected>$v</option>";
-											}
-											?>
-										</select>
-									</td>
-									<?php } ?>
-								</tr>
-							</table>
+											<?php if ( !empty($entities) ) { ?>
+											<td style='text-align:center; border:none; !important'><span style='padding:5px;'><?php echo _("OR")?><span></td>
+								
+											<td class='nobborder'><span style='margin-right:3px'><?php echo _("Entity:");?></span></td>
+											<td class='select_entity noborder'>	
+												<select name="entity" id="entity" onchange="switch_user('entity');return false;">
+													<option value="" style='text-align:center !important;'>- <?php echo _("Select one entity") ?> -</option>
+													<?php
+													foreach ( $entities as $k => $v ) 
+													{
+														$selected = ( $_POST['entity'] == $k ) ? "selected='selected'" : "";
+														echo "<option value='$k' $selected>$v</option>";
+													}
+													?>
+												</select>
+											</td>
+											<?php } ?>
+										</tr>
+									</table>
+								</div>
+							</div>
 						</td>
 					</tr>
 					

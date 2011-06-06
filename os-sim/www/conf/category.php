@@ -136,6 +136,11 @@ if (ossim_error()) {
 	die(ossim_error());
 }
 
+if ($action != "" && $action != "expand") {
+	Category::clone_data($conn);
+	Subcategory::clone_data($conn);
+}
+
 $list_categories=Category::get_list($conn);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -279,7 +284,7 @@ $list_categories=Category::get_list($conn);
 						<a href="javascript:void(0);" onclick="edit('category',<?php echo $category->get_id().",'".$category->get_name()."'";?>)" title="<?php echo _("Edit")?>"><img border="0" align="absmiddle" src="../vulnmeter/images/pencil.png" height="12" /></a>
 						<?php if(!$category->get_inUse()){?><a href="javascript:void(0);" onclick="confirmDelete('category',<?php echo $category->get_id();?>)" title="<?php echo _("Delete")?>"><?php } ?><img border="0" align="absmiddle" src="../vulnmeter/images/delete.gif" height="12" class="<?php if($category->get_inUse()){?>desactive<?php } ?>" /><?php if(!$category->get_inUse()){?></a><?php } ?>
 					</span>
-					<span style='margin-left:5px;padding-right: 5px'><?php echo $category->get_name(); ?></span>
+					<span style='margin-left:5px;padding-right: 5px'><a href="" onclick="GB_show('Data Sources - <?php echo $category->get_name() ?>','plugin.php?nohmenu=1&category_id=<?php echo $category->get_id() ?>',400,800);return false"><?php echo $category->get_name(); ?></a></span>
 				</div>
 				<div id="category_ajax_<?php echo $category->get_id(); ?>" style="margin-left:10px;float:left"></div>
 			</td>
@@ -298,7 +303,7 @@ $list_categories=Category::get_list($conn);
 									<a href="javascript:void(0);" onclick="edit('subcategory',<?php echo $subcategory->get_id().",'".$subcategory->get_name()."'";?>)" title="<?php echo _("Edit")?>"><img border="0" align="absmiddle" src="../vulnmeter/images/pencil.png" height="12" /></a>
 									<?php if(!$subcategory->get_inUse()){?><a href="javascript:void(0);" onclick="confirmDelete('subcategory',<?php echo $subcategory->get_id();?>,<?php echo $category->get_id();?>)" title="<?php echo _("Delete")?>"><?php } ?><img border="0" align="absmiddle" src="../vulnmeter/images/delete.gif" height="12" class="<?php if($subcategory->get_inUse()){?>desactive<?php } ?>" /><?php if(!$subcategory->get_inUse()){?></a><?php } ?>
 								</span>
-								<strong><?php echo $subcategory->get_name();?></strong>
+								<strong><a href="" onclick="GB_show('Data Sources - <?php echo $subcategory->get_name() ?>','plugin.php?nohmenu=1&category_id=<?php echo $category->get_id() ?>&subcategory_id=<?php echo $subcategory->get_id() ?>',400,800);return false"><?php echo $subcategory->get_name();?></a></strong>
 							</div>
 							<div id="subcategory_ajax_<?php echo $subcategory->get_id(); ?>" style="margin-left:10px;float:left"></div>
 						</td>				

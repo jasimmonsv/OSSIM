@@ -143,27 +143,27 @@ if (ossim_error()) {
 $name 		   = str_replace("..","",$name);
 $erase_element = str_replace("..","",$erase_element);
 
-$uploaded_icon = false;
+$uploaded_icon   = false;
+$allowed_formats = array(IMAGETYPE_JPEG => 1, IMAGETYPE_GIF => 1, IMAGETYPE_PNG => 1);
 
 if (is_uploaded_file($_FILES['fichero']['tmp_name'])) 
 {
-	if (exif_imagetype ($_FILES['fichero']['tmp_name']) == IMAGETYPE_JPEG || exif_imagetype ($_FILES['fichero']['tmp_name']) == IMAGETYPE_GIF ) 
+	if ( $allowed_formats[exif_imagetype ($_FILES['fichero']['tmp_name'])] == 1 )
 	{
 		$size = getimagesize($_FILES['fichero']['tmp_name']);
         if ($size[0] < 400 && $size[1] < 400)
 		{
-                $uploaded_icon = true;
-                $filename = "pixmaps/uploaded/" . $name . ".jpg";
-                move_uploaded_file($_FILES['fichero']['tmp_name'], $filename);
-        } 
+			$uploaded_icon = true;
+			$filename      = "pixmaps/uploaded/" . $name . ".jpg";
+			move_uploaded_file($_FILES['fichero']['tmp_name'], $filename);
+		}	 
 		else 
-            echo _("<span style='color:#FF0000;'>The file uploaded is too big (Max image size 400x400 px).</span>");
-        
+			echo "<span style='color:#FF0000;'>"._("The file uploaded is too big (Max image size 400x400 px).")."</span>";
     }
 	else
-        echo _("<span style='color:#FF0000;'>The image format should be .jpg or .gif.</span>");
-    
+        echo  "<span style='color:#FF0000;'>"._("The image format should be JPG, GIF or PNG")."</span>";
 }
+
 
 if (is_uploaded_file($_FILES['ficheromap']['tmp_name'])) 
 {
@@ -480,13 +480,16 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				}
 			}
 			refresh_indicators();
-			// greybox
+			
+			//Greybox
+			
 			$("a.greybox").click(function(){
 			   var t = this.title || $(this).text() || this.href;
 			   var url = this.href + "?dir=" + document.getElementById('category').value;
 			   GB_show(t,url,420,"50%");
 			   return false;
 			});
+			
 			$("a.greybox2").click(function(){
 			   var t = this.title || $(this).text() || this.href;
 			   var url = this.href + "&dir=" + document.getElementById('category').value;

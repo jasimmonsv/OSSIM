@@ -1650,8 +1650,17 @@ function DisplayProcessing() {
                 # parse command line
                 #2009-12-09 17:08:17.596    40.262 TCP        192.168.1.9:80    ->   217.126.167.80:51694 .AP.SF   0       70   180978        1    35960   2585     1
                 $list = (preg_match("/ \-a  \-A /",$cmd_out['arg'])) ? 1 : 0;
-                $regex = ($list) ? "/(\d\d\d\d\-.*?\s.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+->\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?\s*[KMGT]?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*)/" : "/(\d\d\d\d\-.*?\s.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?\s*[KMGT]?)\s+(.*?)\s+(.*?)\s+(.*)/";
+                $regex = ($list) ? "/(\d\d\d\d\-.*?\s.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+->\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?\s*[KMG]?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*)/" : "/(\d\d\d\d\-.*?\s.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?\s*[KMGT]?)\s+(.*?)\s+(.*?)\s+(.*)/";
                 echo "<table style='width:100%;margin-bottom:5px''>";
+                $geotools = false;
+                if ($list && file_exists("../kml/GoogleEarth.php")) {
+                	$geotools = true;
+                	$geoips = array();
+                	echo "<tr><td class='nobborder'></td><td class='nobborder'></td><td class='nobborder'></td>";
+					echo "<td class='center nobborder'>Geo Tools: <a href='' onclick='window.open(\"../kml/TourConfig.php?type=ip_src&ip=&flows=1\",\"Flows sources - Goggle Earth API\",\"width=1024,height=700,scrollbars=NO,toolbar=1\");return false'><img align='absmiddle' src='../pixmaps/google_earth_icon.png' border='0'></a>&nbsp;&nbsp;<a href='' onclick='window.open(\"../kml/IPGoogleMap.php?type=ip_src&ip=&flows=1\",\"Flows sources - Goggle Maps API\",\"width=1024,height=700,scrollbars=NO,toolbar=1\");return false'><img align='absmiddle' src='../pixmaps/google_maps_icon.png' border='0'></a></td>";
+					echo "<td class='center nobborder'>Geo Tools: <a href='' onclick='window.open(\"../kml/TourConfig.php?type=ip_dst&ip=&flows=1\",\"Flows destinations - Goggle Earth API\",\"width=1024,height=700,scrollbars=NO,toolbar=1\");return false'><img align='absmiddle' src='../pixmaps/google_earth_icon.png' border='0'></a>&nbsp;&nbsp;<a href='' onclick='window.open(\"../kml/IPGoogleMap.php?type=ip_dst&ip=&flows=1\",\"Flows destinations - Goggle Maps API\",\"width=1024,height=700,scrollbars=NO,toolbar=1\");return false'><img align='absmiddle' src='../pixmaps/google_maps_icon.png' border='0'></a></td>";
+                	echo "</tr>";
+                }
                 echo ($list) ? "<tr>
                     <th>"._("Date flow start")."</th>
                     <th>"._("Duration")."</th>
@@ -1681,6 +1690,8 @@ function DisplayProcessing() {
                 	".($solera ? "<th></th>" : "")."
                     </tr>";
                 $status = $errors = array();
+                //print_r($cmd_out['nfdump']);
+                
                 foreach ( $cmd_out['nfdump'] as $k => $line ) {
                     echo "<tr>\n";
                     #capture status
@@ -1689,7 +1700,7 @@ function DisplayProcessing() {
                     if (preg_match("/ error /i",$line,$found)) $errors[] = $line;                   
                     # print results
                     $line = preg_replace("/\(\s(\d)/","(\\1",$line); // Patch for ( 0.3)
-                    $line = preg_replace("/(\d)\s([KMGT])/","\\1\\2",$line); // Patch for 1.2 M(99.6) 
+                    $line = preg_replace("/(\d)\s([KMG])/","\\1\\2",$line); // Patch for 1.2 M(99.6) 
                     $start = $end = $proto = "";
                     $ips = $ports = array();
                     if (preg_match($regex,preg_replace('/\s*/', ' ', $line),$found)) {
@@ -1712,6 +1723,13 @@ function DisplayProcessing() {
                                 $field = "<a href='javascript:;' class='HostReportMenu' id='$ip;$name'>$name</a>$port $country_img $homelan";
                                 $wrap = "nowrap";
                                 $ips[] = $ip;
+                                if ($geotools) {
+                                	if ($ki == 4) {
+                                		$geoips['ip_src'][$ip]++;
+                                	} elseif ($ki == 5) {
+                                		$geoips['ip_dst'][$ip]++;
+                                	}
+                                }
                                 $ports[] = str_replace(":","",$port);
                             }
                             if (preg_match("/(\d+-\d+-\d+ \d+:\d+:\d+)(.*)/",$field,$fnd)) {
@@ -1732,6 +1750,15 @@ function DisplayProcessing() {
                     echo "</tr>\n";
                 }
                 echo "</table>";
+                if ($geotools) {
+                	foreach ($geoips as $type=>$list) {
+                		$ipsfile = fopen("/var/tmp/flowips_".Session::get_session_user().".$type","w");
+                		foreach ($list as $ip=>$val) {
+                			fputs($ipsfile,"$ip\n");
+                		}
+                		fclose($ipsfile);
+                	}
+                }
                 #Summary: total flows: 20, total bytes: 7701, total packets: 133, avg bps: 60, avg pps: 0, avg bpp: 57
                 #Time window: 2009-12-10 08:21:30 - 2009-12-10 08:38:26
                 #Total flows processed: 21, Records skipped: 0, Bytes read: 1128

@@ -81,7 +81,7 @@ class ossim_db {
 	//	$this->conn->Close();
 	//}
     function connect() {
-        return $this->nconnect();
+        return $this->pconnect(); //$this->nconnect();
     }
     function pconnect() {
     	ini_set("display_errors", "0");
@@ -102,7 +102,7 @@ class ossim_db {
     function custom_connect($host,$user,$pass) {
     	ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($this->conf->get_conf("ossim_type"));
-        $err = $this->conn->NConnect($host, $user, $pass, $this->conf->get_conf("ossim_base"));
+        $err = $this->conn->PConnect($host, $user, $pass, $this->conf->get_conf("ossim_base"));
         return $this->conn;
     }
     function snort_connect() {
@@ -141,7 +141,7 @@ class ossim_db {
         $type = $conf->get_conf("opennms_type");
         ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($type);
-        $err = $this->conn->NConnect($host, $user, $pass, $base);
+        $err = $this->conn->PConnect($host, $user, $pass, $base);
         if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
         ini_set("display_errors", "1");
         return $this->conn;

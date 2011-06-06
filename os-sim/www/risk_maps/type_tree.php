@@ -177,7 +177,7 @@ else if ( $key=="sensor" )
             $j++;
         }
         if ($j>$to) {
-            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("net group")."'";
+            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("sensors")."'";
             $buffer .= ",{ $li }\n";
         }
         $buffer .= "]";
@@ -200,7 +200,7 @@ else if ( $key=="server" )
             $j++;
         }
         if ($j>$to) {
-            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/server.png', title:'"._("next")." $maxresults "._("net group")."'";
+            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/server.png', title:'"._("next")." $maxresults "._("servers")."'";
             $buffer .= ",{ $li }\n";
         }
         $buffer .= "]";

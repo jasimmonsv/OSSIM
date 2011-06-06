@@ -38,6 +38,7 @@
 class PdfReport{
     private $path='../tmp/';
     private $pathHtml;
+	private $pathHtmlAux;
     private $pathDirResourcesHtml;
     private $namePdf;
     private $nameTemp;
@@ -182,6 +183,7 @@ class PdfReport{
 
     private function setpathHtml($url){
         $this->pathHtml=$url;
+		$this->pathHtmlAux=$url."_";
     }
 
     private function setpathDirResourcesHtml($url){
@@ -223,7 +225,7 @@ class PdfReport{
     		else
     			$file[$i] = mb_convert_encoding($file[$i],'UTF-8','ISO-8859-1');
     	}
-		file_put_contents($this->pathHtml,$file);
+		file_put_contents($this->pathHtmlAux,$file);
 		unset($file);
     }
     
@@ -237,7 +239,7 @@ class PdfReport{
             $html2pdf = new HTML2PDF($this->orientation,$this->paperformat,'en', true, 'UTF-8',array(0,0,0,0));
             $html2pdf->pdf->SetDisplayMode('real');
             $html2pdf->setTestTdInOnePage(false);
-            $html2pdf->WriteHTML(file_get_contents($this->pathHtml));
+            $html2pdf->WriteHTML(file_get_contents($this->pathHtmlAux));
             
 			if( $output=='navigator' )
 			    $html2pdf->Output($this->namePdf,'D');
@@ -609,7 +611,6 @@ class Html{
     }
 
     public function setBookmark($name,$level=0){
-		$name=Util::utf8_encode2($name);
 		if($name!='&nbsp;'){
 			$this->set('<bookmark title="'.$name.'" level="'.$level.'" ></bookmark>');
 		}
@@ -617,7 +618,7 @@ class Html{
 
     public function pageBreak(){
         $this->set('</page>'.$this->getPage());
-        // Ponemos el pie de página
+        // Footer
         $this->set($this->getHeaderFooter());
     }
 
@@ -633,7 +634,7 @@ class Html{
         $html='<page_header>
         <table cellpadding=0 cellspacing=0 class="w100">
             <tr>
-                <td class="right w100 title">'.Util::utf8_encode2($this->title).'</td>
+                <td class="right w100 title">'.$this->title.'</td>
             </tr>
         </table><br>
     </page_header>
