@@ -38,6 +38,7 @@
 ob_implicit_flush();
 
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
 Session::logcheck("MenuPolicy", "ToolsScan");
 ini_set("max_execution_time","1200");
 
@@ -49,9 +50,6 @@ $full_scan       = GET('full_scan');
 $timing_template = GET('timing_template');
 $only_stop       = GET('only_stop');
 $only_status     = GET('only_status');
-$info_error      = null;
-$error           = false;
-
 
 ossim_valid($full_scan,       OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("Full scan"));
 ossim_valid($timing_template, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Timing_template"));
@@ -67,30 +65,58 @@ if (ossim_error())
 
 ossim_clean_error();
 
-$assets_string = array();
+$assets_string = null;
+$info_error    = null;
+$error         = false;
+
 $assets_aux    = ( !empty($assets) ) ? explode(" ", $assets) : array();
+$assets        = null;
+
+$db   = new ossim_db();
+$conn = $db->connect();
 
 foreach ($assets_aux as $k => $v)
 {
-	ossim_valid($v, OSS_IP_CIDR, 'illegal:' . _("Assets"));
+	$aux = null;
 	
-	if ( ossim_error() )
+	if ( !preg_match('/,/', $v) )
+		$aux = array($v);
+	else
+		$aux = explode(",", $v);
+	
+	foreach ($aux as $i => $j)
 	{
-		ossim_valid($v, OSS_IP_ADDR, 'illegal:' . _("Assets"));
+		$j = trim($j);
+		
+		ossim_valid($j, OSS_IP_ADDRCIDR, 'illegal:' . _("Assets"));
 		
 		if ( ossim_error() )
 		{
-			$info_error[] = ossim_get_error();
-			$error        = true;
-			break;
+			$ip_cidr = Host::hostname2ip($conn, $j);
+			$ip_cidr = ( empty($ip_cidr) ) ? Net::get_ips_by_name($conn,$j) : $ip_cidr."/32";
+			
+			if ( empty($ip_cidr) )
+			{
+				$info_error[] = ossim_get_error();
+				$error        = true;
+				break;	
+			}
+			else
+				$aux[$i] = $ip_cidr;
 		}
 		else
-			$v.="/32";
+		{
+			if ( !preg_match('/\//', $j) )
+				$aux[$i] = $j."/32";
+		}
+		
+		ossim_clean_error();
 	}
-	
-	$assets_string[] = trim($v);
-	
+
+	$assets_string .= implode(",", $aux)." ";	
 }
+
+$db->close($conn);
 
 
 if ( GET('validate_all') == true )
@@ -98,7 +124,7 @@ if ( GET('validate_all') == true )
 	if ( empty($info_error) )
 		echo "1";
 	else
-		echo "<div style='text-align: left; padding: 0px 0px 10px 40px'>"._("We found the following errors").":</div><div class='error_item'>".implode("</div><div class='error_item'>", $info_error)."</div>";
+		echo "<div style='text-align: left; padding: 0px 0px 10px 40px'>"._("We found the following errors").":</div><div class='error_item'>".utf8_encode(implode("</div><div class='error_item'>", $info_error))."</div>";
 		
 	exit();
 }
@@ -117,10 +143,7 @@ else
 	}
 }
 
-
-
-
-$assets        = implode(" ", $assets_string);
+$assets        = rtrim($assets_string);
 $scan_path_log = "/tmp/nmap_scanning_".md5(Session::get_secure_id()).".log";
 
 require_once ('classes/Scan.inc');

@@ -39,7 +39,9 @@ require_once ('classes/Sensor.inc');
 require_once ('classes/Session.inc');
 require_once ('classes/Util.inc');
 require_once ('classes/Host_group.inc');
+require_once ('classes/Net.inc');
 require_once ('classes/Net_group.inc');
+require_once ('classes/Net_group_reference.inc');
 
 Session::logcheck("MenuPolicy", "ToolsScan");
 
@@ -210,36 +212,64 @@ elseif ( $key == "nets" )
 }
 else if ( $key=="netgroup" )
 {
-    if ( $net_group_list = Net_group::get_list($conn) ) 
+    $whereng = ( $filter=="" ) ? "" : "name like '%$filter%'";
+   
+    if ($net_group_list = Net_group::get_list($conn, $whereng)) 
 	{
         $buffer .= "[";
         $j = 0;
         foreach($net_group_list as $net_group) 
 		{
-            if ($j>=$from && $j<$to) 
-			{
-               	$ng_key   = utf8_encode("NETGROUP:".$net_group->get_name());
+            if ($j>=$from && $j<$to) {
+               	$ng_key   = base64_encode($net_group->get_name());
 				$ng_title = utf8_encode($net_group->get_name());
-				$networks = $net_group->get_networks($conn, $net_group->get_name());
-				
-				$asset_data = array();
-				foreach ($networks as $k => $v)
-					$asset_data[] = trim(Net::get_ips_by_name($conn,$v->get_net_name()));
-												
-                $li      = "key:'$ng_key', asset_data:'".implode(" ", $asset_data)."', icon:'../../pixmaps/theme/net_group.png', title:'$ng_title'\n";
+                
+                $li = "key:'netgroup_$ng_key', isLazy:true , icon:'../../pixmaps/theme/net_group.png', title:'$ng_title'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
             }
             $j++;
         }
 		
         if ($j>$to) {
-            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("Net group")."'";
+            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("net group")."'";
             $buffer .= ",{ $li }\n";
         }
         
 		$buffer .= "]";
     }
 }
+else if (preg_match("/netgroup_(.*)/",$key,$found)){
+    $buffer .= "[";
+    
+	$html = "";
+    $nets = Net_group::get_networks($conn, base64_decode($found[1]));
+    $k = 1;
+    $j = 0;
+	
+    foreach($nets as $net) 
+	{
+        $net_name = $net->get_net_name();
+        if ($j>=$from && $j<$to) 
+		{
+            $net_key  = utf8_encode("NET:".$net_name);
+			$ips      = Net::get_ips_by_name($conn,$net_name);
+			
+			$html    .= "{ key:'$net_key', asset_data:'".trim($ips)."', icon:'../../pixmaps/theme/net.png', title:'$net_name <font style=\"font-size:80%\">(".trim($ips).")</font>' },\n";
+            $k++;  
+        }
+        $j++;
+    }
+	
+    if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
+    
+	if ($j>$to) {
+        $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("net")."'";
+        $buffer .= ",{ $li }\n";
+    }
+    
+	$buffer .= "]";
+}
+
 else if ( $key=="sensor" ) 
 {
     if ($sensor_list = Sensor::get_list($conn, "ORDER BY name"))
@@ -270,7 +300,7 @@ else if ( $key !="hosts" )
     $buffer .= "[ { key:'hosts',      page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host.png', title:'"._("Hosts")." <font style=\"font-weight:normal;font-size:80%\">(" . $total_hosts . " "._("hosts").")</font>'},\n";
 	$buffer .= "  { key:'host_group', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("Host Group")."'},\n";
     $buffer .= "  { key:'nets',       page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("Networks")."'},\n";
-    //$buffer .= "  { key:'netgroup',   page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("Network Groups")."'},\n";
+    $buffer .= "  { key:'netgroup',   page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("Network Groups")."'},\n";
 	$buffer .= "  { key:'sensor',     page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_os.png', title:'"._("Sensors")."'}\n";
     $buffer .= "]";
 }
