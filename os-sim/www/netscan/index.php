@@ -78,7 +78,7 @@ foreach ($sensor_list as $_sensor) {
 }
 
 
-$assets = implode(",\n", $assets_aux );
+$assets = implode(",\n", $assets_aux);
 
 $db->close($conn);
 
