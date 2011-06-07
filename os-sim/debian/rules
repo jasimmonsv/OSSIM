@@ -105,7 +105,7 @@ install: build
 	install -m755 etc/cron.daily/check-tickets $(TMP)/ossim-framework/etc/cron.daily/check-tickets
 	install -m755 etc/cron.daily/clean-flows $(TMP)/ossim-framework/etc/cron.daily/clean-flows
 	install -m755 etc/cron.d/ossim-scanner-job $(TMP)/ossim-framework/etc/cron.d/ossim-scanner-job
-
+  install -m644 frameworkd/ossimframework/ntop_proxy_apache_template.conf $(TMP)/ossim-framework/etc/ossim/framework/
 	install -m644 etc/logrotate.d/ossim-framework $(TMP)/ossim-framework/etc/logrotate.d/
 
 	# install locales.

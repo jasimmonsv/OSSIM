@@ -88,6 +88,8 @@ class ApacheNtopProxyManager:
         
 
     def refreshConfiguration(self):
+        #remove old configuration
+        status, output = commands.getstatusoutput(' rm /etc/apache2/conf.d/ntop-*.conf')
         if not os.path.isfile(Const.NTOP_APACHE_PROXY_TEMPLATE):
             logger.error("I can't create Ntop proxy configurations. Template file: %s not exist!" % Const.NTOP_APACHE_PROXY_TEMPLATE)
         else:
