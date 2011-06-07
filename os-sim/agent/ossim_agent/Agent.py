@@ -698,7 +698,6 @@ class Agent:
             time.sleep(1)
             self.init_plugins()
             self.init_watchdog()
-
             self.waitforever()
 
         except KeyboardInterrupt:

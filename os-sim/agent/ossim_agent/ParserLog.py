@@ -221,10 +221,11 @@ class ParserLog(Detector):
         Detector.__init__(self, conf, plugin, conn)
 
         self.stop_processing = False
+        self.__locations = []
 
 
     def check_file_path(self, location):
-
+        can_read = True
         if self._plugin.has_option("config", "create_file"):
             create_file = self._plugin.getboolean("config", "create_file")
         else:
@@ -240,16 +241,24 @@ class ParserLog(Detector):
                 (location) + "Creating it..")
             fd = open(location, 'w')
             fd.close()
-
+        
         # open file
+        fd = None
         try:
-            fd = open(location, 'r')
+            #check if file exist.
+            if os.path.isfile(location):
+                fd = open(location, 'r')                
+            else:
+                logger.warning("File: %s does not exist!" % location)
+                can_read = False
 
         except IOError, e:
             logger.error("Can not read from file %s: %s" % (location, e))
-            sys.exit()
-
-        fd.close()
+            can_read = False
+            #sys.exit()
+        if fd is not None:
+            fd.close()
+        return can_read
 
 
     def stop(self):
@@ -274,7 +283,8 @@ class ParserLog(Detector):
 
         # first check if file exists
         for location in locations:
-            self.check_file_path(location)
+            if self.check_file_path(location):
+                self.__locations.append(location)
 
         # compile the list of regexp
         unsorted_rules = self._plugin.rules()
@@ -288,7 +298,7 @@ class ParserLog(Detector):
         # fd.seek(0, 2)
 
         tails = []
-        for location in locations:
+        for location in self.__locations:
             tails.append(TailFollowBookmark(location, 1, bookmark_dir, self._plugin.getboolean("config", "unicode_support")))
 
         while not self.stop_processing:
