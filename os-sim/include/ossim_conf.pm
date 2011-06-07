@@ -40,7 +40,12 @@ BEGIN {
                             $ossim_conf::ossim_data->{"ossim_pass"}) 
         or die "Can't connect to Database\n";
 
-	my $uuid = `dmidecode -s system-uuid`; chomp($uuid);
+	my $uuid = "";
+	if (-e "/etc/ossim/framework/db_encryption_key") {
+		$uuid = `grep "key" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = "=" } ; {print \$2}'`; chomp($uuid);
+	} else {
+		$uuid = `dmidecode -s system-uuid`; chomp($uuid);
+	}
     my $query = "SELECT *,AES_DECRYPT(value,'$uuid') as dvalue FROM config";
     my $stm = $conn->prepare($query);
     $stm->execute();
