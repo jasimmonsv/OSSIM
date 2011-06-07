@@ -111,7 +111,12 @@ if ($category_id != "") {
 	function action(com,grid) {
         var items = $('.trSelected', grid);
         if (com=='<?=_("Insert new event type")?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'newpluginsidform.php?plugin='+urlencode(items[0].id.substr(3));
+			if (typeof(items[0]) != 'undefined')
+				<?php if ($category_id != "") { ?>
+				parent.location.href = 'newpluginsidform.php?plugin='+urlencode(items[0].id.substr(3));
+				<?php } else { ?>
+				document.location.href = 'newpluginsidform.php?plugin='+urlencode(items[0].id.substr(3));
+				<?php } ?>
 			else alert('<?php echo _("You must select a data source")?>');
 		}
         else if (com=='<?php echo _("Edit") ?>') {
