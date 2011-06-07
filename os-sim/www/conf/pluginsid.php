@@ -36,6 +36,8 @@
 */
 require_once ('classes/Session.inc');
 require_once ('classes/Plugin.inc');
+require_once ('classes/Category.inc');
+require_once ('classes/Subcategory.inc');
 
 require_once ('ossim_db.inc');
 
@@ -48,7 +50,11 @@ $layout = load_layout($name_layout, $category);
 //
 require_once 'classes/Security.inc';
 $id = GET('id');
+$category_id = GET('category_id');
+$subcategory_id = GET('subcategory_id');
 ossim_valid($id, OSS_ALPHA, 'illegal:' . _("id"));
+ossim_valid($category_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Category ID"));
+ossim_valid($subcategory_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("SubCategory ID"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -56,6 +62,23 @@ if (ossim_error()) {
 $db = new ossim_db();
 $conn = $db->connect();
 
+// translate category id
+if ($category_id != "") {
+    if ($category_list = Category::get_list($conn, "WHERE id = '$category_id'")) {
+        $category_name = $category_list[0]->get_name();
+    }
+}else{
+	$category_name='';
+}
+// subcategory
+if($subcategory_id != ""){
+	if ($subcategory_list = Subcategory::get_list($conn, "WHERE id = '$subcategory_id'")) {
+              $subcategory_name = $subcategory_list[0]->get_name();
+          }
+}else{
+	$subcategory_name='';
+}
+$category_filter = ($subcategory_name != "") ? "$category_name - $subcategory_name" : $category_name;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -102,6 +125,10 @@ $conn = $db->connect();
 	<input type='hidden' name="pri" value="">
 	<input type='hidden' name="rel" value="">
 	</form>
+	
+	<?php if ($category_id != "") { ?>
+	<p style="text-align:center"><a href="pluginsid.php?id=<?php echo $id ?>" style="text-decoration:none"><span class="buttonlink"><img src="../pixmaps/cross-circle-frame.png" border="0" align="absmiddle" style="padding-bottom:2px;padding-right:8px"><?=_("Remove Category filter").": ".$category_filter ?> </span></a></p>
+	<?php } ?>
 	
 	<form onsubmit="return false" style="margin:0 auto" name="fv">
 		<table id="flextable" style="display:none"></table>
@@ -185,7 +212,7 @@ $conn = $db->connect();
 	
 	$(document).ready(function() {
 		$("#flextable").flexigrid({
-			url: 'getpluginsid.php?id=<?php echo $id ?>',
+			url: 'getpluginsid.php?id=<?php echo $id ?><?php if ($category_id != "") echo "&query=$category_id&qtype=category_id&subcategory_id=".$subcategory_id; ?>',
 			dataType: 'xml',
 			colModel : [
 			<?php

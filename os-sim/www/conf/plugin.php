@@ -51,6 +51,9 @@ ossim_valid($sourcetype, OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Sou
 if (ossim_error()) {
 	die(ossim_error());
 }
+if ($category_id != "") {
+	$gheight = 135;
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">

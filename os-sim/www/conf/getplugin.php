@@ -113,7 +113,7 @@ if ($plugin_list = Plugin::get_list($conn, "$where ORDER BY $order $limit")) {
         $xml.= "<cell><![CDATA[" . $tipo . "]]></cell>";
 		// Source Type
 		$sourceType=$plugin->get_sourceType();
-		$xml.= "<cell><![CDATA[<a href='plugin.php?sourcetype=$sourceType'>" . $sourceType . "</a>]]></cell>";
+		$xml.= "<cell><![CDATA[<a href='plugin.php?sourcetype=$sourceType' target='main'>" . $sourceType . "</a>]]></cell>";
         $desc = $plugin->get_description();
         if ($desc == "") $desc = "&nbsp;";
         $xml.= "<cell><![CDATA[" . $desc . "]]></cell>";

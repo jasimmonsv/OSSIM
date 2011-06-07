@@ -276,5 +276,25 @@ class Plugin_sid {
         }
 	    return $ids;
 	}
+	function GetPluginSidsByCategory($conn, $plugin_id, $idcat, $idsubcat = "") {
+	    $ids = array();
+	    $sql = "SELECT DISTINCT sid FROM plugin_sid WHERE plugin_id=? AND category_id = ?";
+	    $params = array(
+        	$plugin_id,
+	    	$idcat
+        );
+        if ($idsubcat != "") {
+        	$sql .= " AND subcategory_id = $idsubcat";
+        }
+	    if (!$rs = & $conn->Execute($sql,$params)) {
+            print $conn->ErrorMsg();
+        } else {
+		    while (!$rs->EOF) {
+		        $ids[] = $rs->fields["sid"];
+		        $rs->MoveNext();
+		    }
+        }
+	    return $ids;
+	}
 }
 ?>
