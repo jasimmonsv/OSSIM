@@ -591,19 +591,29 @@ class Host {
     	if ($checkperm)
     	{
     		// Return only allowed sensors and hosts
-    		$sensors = explode(",",Session::allowedSensors());
-    		if (empty($sensors)) { // return all sensors
+			$sensors = array();
+    		$allowed_sensors = explode(",",Session::allowedSensors());
+    		if (empty($allowed_sensors)) 
+			{ 
+				// return all sensors
 		        $sql = "SELECT ip,name FROM sensor";
 		        if (!$rs = $conn->Execute($sql)) {
 		            print 'error: ' . $conn->ErrorMsg() . '<BR>';
 		            exit;
 		        }
 		        // get hash with ip-name
-		        while (!$rs->EOF) {
+		        while (!$rs->EOF) 
+				{
 		        	$sensors[$rs->fields["ip"]] = $rs->fields["name"];
 		            $rs->MoveNext();
 		        }
-    		}
+    		} 
+			else 
+			{
+				foreach ($allowed_sensors as $ip) 
+					$sensors[$ip] = Sensor::get_sensor_name($conn,$ip);
+			}
+			
 	        $hosts = $icons = array();
     		$hlist = Host::get_list($conn);
 	        foreach ($hlist as $h) {

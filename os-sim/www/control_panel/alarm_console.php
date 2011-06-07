@@ -382,11 +382,13 @@ if (!$sup) $sup = $ROWS;
 
 //if ($sensor_query != "") $sensor_query_ip = (preg_match("/\d+\.\d+\.\d+\.\d+/",$sensor_query)) ? $sensor_query : Sensor::$sensor_query;
 $sensors_str = "";
-$hosts_str = "";
+$hosts_str   = "";
+
 foreach ($sensors as $s_ip=>$s_name) {
 	if ($s_name!=$s_ip) $sensors_str .= '{ txt:"'.$s_ip.' ['.$s_name.']", id: "'.$s_ip.'" },';
     else $sensors_str .= '{ txt:"'.$s_ip.'", id: "'.$s_ip.'" },';
 }
+
 foreach ($hosts as $h_ip=>$h_name) {
 	if ($h_name!=$h_ip) $hosts_str .= '{ txt:"'.$h_ip.' ['.$h_name.']", id: "'.$h_ip.'" },';
     else $hosts_str .= '{ txt:"'.$h_ip.'", id: "'.$h_ip.'" },';
@@ -766,13 +768,18 @@ echo gettext("Action"); ?> </td>
 $time_start = time();
 if ($count > 0) {
     $datemark = "";
-    foreach($alarm_list as $alarm) {
+		
+		
+	foreach($alarm_list as $alarm) 
+	{
         /* hide closed alarmas */
-        if (($alarm->get_status() == "closed") and ($hide_closed == 1)) continue;
-        $id = $alarm->get_plugin_id();
-        $sid = $alarm->get_plugin_sid();
+        if (($alarm->get_status() == "closed") and ($hide_closed == 1)) 
+			continue;
+        
+		$id         = $alarm->get_plugin_id();
+        $sid        = $alarm->get_plugin_sid();
         $backlog_id = $alarm->get_backlog_id();
-        $id_tag = $alarm->get_id_tag();
+        $id_tag     = $alarm->get_id_tag();
         /* get plugin_id and plugin_sid names */
         /*
         * never used ?
@@ -790,13 +797,17 @@ if ($count > 0) {
         }
         */
         $sid_name = $alarm->get_sid_name(); // Plugin_sid table just joined (Granada 27 mayo 2009)
-        $date = Util::timestamp2date($alarm->get_timestamp());
-        $date = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$date)+(3600*$tz));
-        if ($backlog_id && $id==1505) {
+        $date     = Util::timestamp2date($alarm->get_timestamp());
+        $date     = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$date)+(3600*$tz));
+        
+		if ($backlog_id && $id==1505) 
+		{
             $since = Util::timestamp2date($alarm->get_since());
             $since = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$since)+(3600*$tz));            
-        } else {
-            $since = $date;
+        } 
+		else 
+		{
+             $since = $date;
         }
         /* show alarms by days */
         $date_slices = split(" ", $date);
@@ -872,16 +883,16 @@ if ($count > 0) {
         
         <!-- risk -->
 <?php
-        $src_ip = $alarm->get_src_ip();
-        $dst_ip = $alarm->get_dst_ip();
+        $src_ip   = $alarm->get_src_ip();
+        $dst_ip   = $alarm->get_dst_ip();
         $src_port = $alarm->get_src_port();
         $dst_port = $alarm->get_dst_port();
         //$src_port = Port::port2service($conn, $alarm->get_src_port());
         //$dst_port = Port::port2service($conn, $alarm->get_dst_port());
 		$src_port = Port::port2service($conn, $src_port);
         $dst_port = Port::port2service($conn, $dst_port);
-        $sensors = $alarm->get_sensors();
-        $risk = $alarm->get_risk();
+        $sensors  = $alarm->get_sensors();
+        $risk     = $alarm->get_risk();
         if ($risk > 7) {
             echo "
             <td class='nobborder' style='text-align:center;background-color:red'>
@@ -924,15 +935,14 @@ if ($count > 0) {
         <!-- sensor -->
         <td class="nobborder" style="text-align:center">
 <?php
-        foreach($sensors as $sensor) {
-?>
-          <a href="../sensor/sensor_plugins.php?hmenu=Sensors&smenu=Sensors&sensor=<?php
-            echo $sensor ?>"
-            ><?php
-            echo ($no_resolv) ? $sensor : Host::ip2hostname($conn, $sensor) ?></a>  
-<?php
+		foreach($sensors as $sensor) 
+		{
+			?>
+          <a href="../sensor/sensor_plugins.php?hmenu=Sensors&smenu=Sensors&sensor=<?php echo $sensor ?>"><?php echo ($no_resolv) ? $sensor : Host::ip2hostname($conn, $sensor) ?></a>  
+			<?php
         }
-        if (!count($sensors)) {
+        
+		if (!count($sensors)) {
             echo "&nbsp;";
         }
 ?>
@@ -1092,34 +1102,38 @@ $(document).ready(function(){
 	});
 	
 	var sensors = [<?=preg_replace("/\,$/","",$sensors_str)?>];
+	
 	$("#sensors").autocomplete(sensors, {
 		minChars: 0,
 		width: 225,
 		matchContains: "word",
-		autoFill: true,
+		autoFill: false,
 		formatItem: function(row, i, max) {
 			return row.txt;
 		}
 	}).result(function(event, item) {
 		$("#sensors").val(item.id);
 	});
+	
+	
 	var hosts = [<?=preg_replace("/\,$/","",$hosts_str)?>];
 	$("#src_ip").autocomplete(hosts, {
 		minChars: 0,
 		width: 225,
 		matchContains: "word",
-		autoFill: true,
+		autoFill: false,
 		formatItem: function(row, i, max) {
 			return row.txt;
 		}
 	}).result(function(event, item) {
 		$("#src_ip").val(item.id);
 	});
+	
 	$("#dst_ip").autocomplete(hosts, {
 		minChars: 0,
 		width: 225,
 		matchContains: "word",
-		autoFill: true,
+		autoFill: false,
 		formatItem: function(row, i, max) {
 			return row.txt;
 		}
