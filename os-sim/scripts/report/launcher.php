@@ -191,7 +191,7 @@ $db   = new ossim_db();
 $conn = $db->connect();
 
 //Errors text
-$info_text  = array( _('Wrong User & Password'), _('Invalid address') );
+$info_text  = array( _('Wrong User & Password'), _('Invalid address'), _('No assets found') );
 
 
 $server  	= trim(`grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
@@ -283,7 +283,8 @@ foreach ( $scheduled_reports as $value)
 {
     
 	$id_sched = $value['id'];
-	
+	$output   = null;
+	$to_text  = null;	
 	
 	// Login
 	$step1 = exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --save-cookies='.$cookieName.' --post-data="user='.$user.'&pass='.$pass.'" "'.$server.'/session/login.php" -O -',$output);
@@ -336,9 +337,9 @@ foreach ( $scheduled_reports as $value)
 		$assets  = "ENTITY: ".$entity['name'];
 		$db->close($conn);
 	}
-	else {
+	else
 		$assets  = $value['assets'];
-	}
+	
 	
 	$pdfNameEmail  = str_replace($str_to_replace, "_", $value['name_report'])."_".str_replace($str_to_replace, "_", $assets);
 	$subject_email = $value['name_report']." [".$assets."]";
@@ -354,75 +355,85 @@ foreach ( $scheduled_reports as $value)
 	// Customize parameters
 	$params  ='scheduler=1&assets='.$value['assets'];
 	$params .= ( empty($value['date_range']) ) ? '&date_from='.$value['date_from'].'&date_to='.$value['date_to'].'&date_range=custom' : '&date_range='.$value['date_range'];
-	
-	
-					
-	//$step2 = exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_custom_run.php?run='.$value['id_report'].'&'.$params.'" -O -');
-	
-	
+		
+		
 	// Run Report
-	$step2 = exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?run='.$value['id_report'].'&'.$params.'" -O -');
+	$output  = null;
+	$step2   = exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?run='.$value['id_report'].'&'.$params.'" -O -', $output);
 	
 	
 	// Generate PDF
-	$text = _('Generating PDF').'...';
+	$text    = _('Generating PDF').'...';
 	$to_text = sprintf("\n\t%s", $text);
 	
 	echo $to_text;
 	
-	$step3 = exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?pdf=true&extra_data=true&run='.$value['id_report'].'" -O '.$dirUserPdf.$pdfName.'.pdf', $output);
 	
-	// Send PDF by email
-	
-	$listEmails = ( !empty($value['email']) ) ? explode(';',$value['email']) : null;
-	$email_ko   = array();
-	$email_ok   = array();
-		
-				
-	if ( is_array($listEmails) && !empty($listEmails) )
+	$result = searchString($output,$info_text[2]);
+
+	if ( $result == true )
 	{
-		$text     = _('Sending E-mails').'...';
-		$to_text  = sprintf("\n\t%s\n", $text);
-		
+		$to_text = sprintf("\t%-15s", _('ERROR to generate PDF (Assets not found)'));
 		echo $to_text;
+	}
+	else
+	{
+		$step3 = exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?pdf=true&extra_data=true&run='.$value['id_report'].'" -O '.$dirUserPdf.$pdfName.'.pdf', $output);
 		
-		$output   = null;
+		// Send PDF by email
 		
-		foreach($listEmails as $value2)
+		$listEmails = ( !empty($value['email']) ) ? explode(';',$value['email']) : null;
+		$email_ko   = array();
+		$email_ok   = array();
+						
+		if ( is_array($listEmails) && !empty($listEmails) )
 		{
-			$step4  = exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'&pdfDir='.$dirUser.'&subject='.$subject_email.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$pdfNameEmail.'" -O -',$output);
+			$text     = _('Sending E-mails').'...';
+			$to_text  = sprintf("\n\t%s\n", $text);
 			
-			$result = searchString($output,$info_text[1]);
+			echo $to_text;
 			
-			if ( $result == false ) 
-				$email_ok[] = $value2;
-			else
-				$email_ko[] = $value2; 
+			$output   = null;
 			
-			$output = null;
-		}
+			foreach($listEmails as $value2)
+			{
+				$step4  = exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'&pdfDir='.$dirUser.'&subject='.$subject_email.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$pdfNameEmail.'" -O -',$output);
+				
+				$result = searchString($output,$info_text[1]);
+				
+				if ( $result == false ) 
+					$email_ok[] = $value2;
+				else
+					$email_ko[] = $value2; 
+				
+				$output = null;
+			}
+			
+			if( count($email_ko) > 0 )
+				$to_text = sprintf("\t%s\n", _('Invalid address').': '.implode(",",$email_ko));
+			
+			if( count($email_ok) > 0 )
+				$to_text = sprintf("\t%s\n", _('PDF sent OK by email to').': '.implode(",",$email_ok));
+				
+			echo $to_text;
+		}       
+			
+		// Set appropiate permissions 
+		$step5    = exec('chown -R "www-data" '.$dirUserPdf);
 		
-		if( count($email_ko) > 0 )
-			$to_text = sprintf("\t%s\n", _('Invalid address').': '.implode(",",$email_ko));
-		
-		if( count($email_ok) > 0 )
-			$to_text = sprintf("\t%s\n", _('PDF sent OK by email to').': '.implode(",",$email_ok));
+		$text     = _('Report processed');
+		$to_text  = sprintf("\n%s", $text);
 			
 		echo $to_text;
-	}       
-		
-	// Set appropiate permissions 
-	$step5    = exec('chown -R "www-data" '.$dirUserPdf);
-	
-	$text     = _('Report processed');
-	$to_text  = sprintf("\n%s", $text);
-		
-	echo $to_text;
   
-	// Logout
-	exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/session/login.php?action=logout" -O /dev/null');
+		// Logout
+		exec('wget -U "AV Report Scheduler ['.$id_sched.']" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/session/login.php?action=logout" -O /dev/null');
+		
+		
+		echo  "\n\n";
 	
-	echo  "\n\n";
+	}
+	
 }
 
 

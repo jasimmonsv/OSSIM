@@ -100,7 +100,7 @@ if ($plugin_list = Plugin::get_list($conn, "$where ORDER BY $order $limit")) {
         $name = $plugin->get_name();
         $type = $plugin->get_type();
         $xml.= "<row id='$id'>";
-        $lnk = "<a href='pluginsid.php?id=$id'>$id</a>";
+        $lnk = "<a href='pluginsid.php?id=$id' target='main'>$id</a>";
         $xml.= "<cell><![CDATA[" . $lnk . "]]></cell>";
         $xml.= "<cell><![CDATA[" . $name . "]]></cell>";
         if ($type == '1') {
@@ -113,7 +113,7 @@ if ($plugin_list = Plugin::get_list($conn, "$where ORDER BY $order $limit")) {
         $xml.= "<cell><![CDATA[" . $tipo . "]]></cell>";
 		// Source Type
 		$sourceType=$plugin->get_sourceType();
-		$xml.= "<cell><![CDATA[<a href='plugin.php?sourcetype=$sourceType'>" . $sourceType . "</a>]]></cell>";
+		$xml.= "<cell><![CDATA[<a href='plugin.php?sourcetype=$sourceType' target='main'>" . $sourceType . "</a>]]></cell>";
         $desc = $plugin->get_description();
         if ($desc == "") $desc = "&nbsp;";
         $xml.= "<cell><![CDATA[" . $desc . "]]></cell>";

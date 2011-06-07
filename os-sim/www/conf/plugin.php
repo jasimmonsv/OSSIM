@@ -51,6 +51,9 @@ ossim_valid($sourcetype, OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Sou
 if (ossim_error()) {
 	die(ossim_error());
 }
+if ($category_id != "") {
+	$gheight = 135;
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -108,18 +111,31 @@ if (ossim_error()) {
 	function action(com,grid) {
         var items = $('.trSelected', grid);
         if (com=='<?=_("Insert new event type")?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'newpluginsidform.php?plugin='+urlencode(items[0].id.substr(3));
+			if (typeof(items[0]) != 'undefined')
+				<?php if ($category_id != "") { ?>
+				parent.location.href = 'newpluginsidform.php?plugin='+urlencode(items[0].id.substr(3));
+				<?php } else { ?>
+				document.location.href = 'newpluginsidform.php?plugin='+urlencode(items[0].id.substr(3));
+				<?php } ?>
 			else alert('<?php echo _("You must select a data source")?>');
 		}
         else if (com=='<?php echo _("Edit") ?>') {
         	if (typeof(items[0]) != 'undefined')
-            	document.location.href = 'pluginsid.php?id='+urlencode(items[0].id.substr(3));
+				<?php if ($category_id != "") { ?>
+            	parent.location.href = 'pluginsid.php?id='+urlencode(items[0].id.substr(3));
+				<?php } else { ?>
+				document.location.href = 'pluginsid.php?id='+urlencode(items[0].id.substr(3));
+				<?php } ?>
             else
               alert('<?php echo _('You must select a data source')?>');
         }
 	}
     function linked_to(rowid) {
+    	<?php if ($category_id != "") { ?>
+    	parent.location.href = 'pluginsid.php?id='+urlencode(rowid);
+		<?php } else { ?>
         document.location.href = 'pluginsid.php?id='+urlencode(rowid);
+        <?php } ?>
     }
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_('Saving column layout')?>...',false);

@@ -47,6 +47,8 @@ require_once 'classes/Plugin_sid.inc';
 require_once 'classes/Classification.inc';
 require_once 'classes/Category.inc';
 require_once 'classes/Subcategory.inc';
+$db    = new ossim_db();
+$conn  = $db->connect();
 
 $page = ( !empty($_POST['page']) ) ? POST('page') : 1;
 $rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 25;
@@ -58,24 +60,33 @@ $search = GET('query');
 if (empty($search)) $search = POST('query');
 $id = GET('id');
 if (empty($id)) $search = POST('id');
-$field = POST('qtype');
+$field = GET('qtype');
+if (empty($field)) $field = POST('qtype');
+$subcategory_id = GET('subcategory_id');
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
 ossim_valid($search, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("search"));
 ossim_valid($field, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("field"));
 ossim_valid($id, OSS_ALPHA, 'illegal:' . _("id"));
+ossim_valid($subcategory_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("subcategory_id"));
 if (ossim_error()) {
     die(ossim_error());
 }
 if (empty($order)) $order = "sid";
 $where = "WHERE sid <> 20000000 AND sid <> 2000000000 AND plugin_id = $id";
-if (!empty($search) && !empty($field)) $where.= " AND $field like '%" . $search . "%'";
+if (!empty($search) && !empty($field)) {
+	if ($field == "category_id") {
+		$pids = Plugin_sid::GetPluginSidsByCategory($conn,$id,$search,$subcategory_id);
+		$plugin_list = implode(",",$pids);
+		$where .= " AND sid in ($plugin_list)";
+	} else {
+		$where.= " AND $field like '%" . $search . "%'";
+	}
+}
 
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db    = new ossim_db();
-$conn  = $db->connect();
 $xml   = "";
 
 if ($plugin_list = Plugin_sid::get_list($conn, "$where ORDER BY $order $limit")) {
@@ -99,17 +110,17 @@ if ($plugin_list = Plugin_sid::get_list($conn, "$where ORDER BY $order $limit"))
         }else{
 			$category_name='';
 		}
-        $category = (!empty($category_name)) ? $category_name . " (" . $category_id . ")" : "-";
+        $category = (!empty($category_name)) ? "<a href='pluginsid.php?id=$id&category_id=$category_id'>$category_name</a>" : "-";
         $xml.= "<cell><![CDATA[" . $category . "]]></cell>";
 		// subcategory
 		if($subcategory_id = $plugin->get_subcategory_id()){
 			if ($subcategory_list = Subcategory::get_list($conn, "WHERE id = '$subcategory_id'")) {
-                $subcategory_name = $subcategory_list[0]->get_name();
+                $subcategory_name = "<a href='pluginsid.php?id=$id&category_id=$category_id&subcategory_id=$subcategory_id'>".$subcategory_list[0]->get_name()."</a>";
             }
 		}else{
 			$subcategory_name='';
 		}
-		$subcategory = (!empty($subcategory_name)) ? $subcategory_name . " (" . $subcategory_id . ")" : "-";
+		$subcategory = (!empty($subcategory_name)) ? $subcategory_name : "-";
 		$xml.= "<cell><![CDATA[" . $subcategory . "]]></cell>";
         // translate class id
         if ($class_id = $plugin->get_class_id()) {
@@ -117,7 +128,7 @@ if ($plugin_list = Plugin_sid::get_list($conn, "$where ORDER BY $order $limit"))
                 $class_name = $class_list[0]->get_name();
             }
         }
-        $class = (!empty($class_name)) ? $class_name . " (" . $class_id . ")" : "-";
+        $class = (!empty($class_name)) ? $class_name : "-";
         $xml.= "<cell><![CDATA[" . $class . "]]></cell>";
         $xml.= "<cell><![CDATA[" . $name . "]]></cell>";
         $prio = $plugin->get_priority();
