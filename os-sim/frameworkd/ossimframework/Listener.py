@@ -43,6 +43,7 @@ import Const
 from DoControl import ControlManager
 from DoNessus import NessusManager
 from DoNagios import NagiosManager
+from ApacheNtopProxyManager import ApacheNtopProxyManager
 from Logger import Logger
 from OssimConf import OssimConf
 import Util
@@ -71,7 +72,6 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
         while 1:
             try:
                 line = self.rfile.readline().rstrip('\n')
-
                 if len(line) > 0:
                     command = line.split()[0]
 
@@ -145,6 +145,11 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
                                 response = controlmanager.process(self, command, newcommand)
                             else:
                                 logger.debug("Invalid add_asset command:%s", linebk)
+                    elif command == "refresh_sensor_list":
+                        logger.info("Check ntop proxy configuration ...")
+                        ap = ApacheNtopProxyManager(OssimConf(Const.CONFIG_FILE))
+                        ap.refreshConfiguration()
+                        
                     else:
                         a = Action.Action(line)
                         a.start()
