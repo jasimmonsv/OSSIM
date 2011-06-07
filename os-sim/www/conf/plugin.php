@@ -116,13 +116,21 @@ if ($category_id != "") {
 		}
         else if (com=='<?php echo _("Edit") ?>') {
         	if (typeof(items[0]) != 'undefined')
-            	document.location.href = 'pluginsid.php?id='+urlencode(items[0].id.substr(3));
+				<?php if ($category_id != "") { ?>
+            	parent.location.href = 'pluginsid.php?id='+urlencode(items[0].id.substr(3));
+				<?php } else { ?>
+				document.location.href = 'pluginsid.php?id='+urlencode(items[0].id.substr(3));
+				<?php } ?>
             else
               alert('<?php echo _('You must select a data source')?>');
         }
 	}
     function linked_to(rowid) {
+    	<?php if ($category_id != "") { ?>
+    	parent.location.href = 'pluginsid.php?id='+urlencode(rowid);
+		<?php } else { ?>
         document.location.href = 'pluginsid.php?id='+urlencode(rowid);
+        <?php } ?>
     }
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_('Saving column layout')?>...',false);

@@ -100,7 +100,7 @@ if ($plugin_list = Plugin::get_list($conn, "$where ORDER BY $order $limit")) {
         $name = $plugin->get_name();
         $type = $plugin->get_type();
         $xml.= "<row id='$id'>";
-        $lnk = "<a href='pluginsid.php?id=$id'>$id</a>";
+        $lnk = "<a href='pluginsid.php?id=$id' target='main'>$id</a>";
         $xml.= "<cell><![CDATA[" . $lnk . "]]></cell>";
         $xml.= "<cell><![CDATA[" . $name . "]]></cell>";
         if ($type == '1') {
