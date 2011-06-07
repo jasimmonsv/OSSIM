@@ -926,7 +926,15 @@ class Util {
 	
 	
 	function get_system_uuid() {
-		$uuid = `sudo dmidecode -s system-uuid`;
+		
+		if ( file_exists("/etc/ossim/framework/db_encryption_key") )
+		{
+			exec("grep \"key\" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = \"=\" } ; {print $2}'", $output);
+			$uuid = $output[0];
+		}
+		else
+			$uuid = `sudo dmidecode -s system-uuid`;
+		
 		return trim($uuid);
 	}
 }

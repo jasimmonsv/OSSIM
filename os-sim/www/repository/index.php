@@ -243,11 +243,11 @@ $total_pages = floor(($total - 1) / $maxrows) + 1;
 							<tr bgcolor="<?php echo $color?>">
 								<td class="center nobborder"><?php echo $date?></td>
 								<?php
-																		
-									if(preg_match("/pro|demo/i",$version) && preg_match('/\^d+$/', $username)) 
+																
+									if(preg_match("/pro|demo/i",$version) && preg_match("/^\d+/", $username)) 
 									{
-										list($entities_all, $num_entities) = Acl::get_entities($conn, $username);
-										$username = $entities_all[$user]['name'];
+										$entity   = Acl::get_entity($conn,$username);
+										$username = ( !empty($entity['name']) ) ? $entity['name'] : _("Unknown");
 									}
 								?>
 								

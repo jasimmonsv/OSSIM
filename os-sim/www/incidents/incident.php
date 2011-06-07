@@ -686,7 +686,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
         $querye = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=$in_charge";
         $resulte=$conn->execute($querye);
         list($entity_name, $entity_type) = $resulte->fields;
-        $in_charge_name = $entity_name." [".$entity_type."]";;
+        $in_charge_name = ( !empty($entity_name) ) ? $entity_name." [".$entity_type."]" : _("Unknown");
     }
 	else 
 	{
