@@ -422,13 +422,14 @@ $incident_tag = new Incident_tag($conn);
 						<td <?php echo $class?> nowrap='nowrap'><?php echo $incident->get_date() ?></td>
 						<td <?php echo $class?> nowrap='nowrap'><?php echo $incident->get_life_time() ?></td>
 							<?php
-							  if (preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$incident->get_in_charge_name($conn))) {
+							if (preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$incident->get_in_charge_name($conn))) 
+							{
 									list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$incident->get_in_charge_name($conn));
-									$in_charge_name = $entity_name." [".$entity_type."]";
-							  }
-							  else {
+									$in_charge_name = ( !empty($entity_name) ) ? $entity_name." [".$entity_type."]" : _("Unknown");
+							}
+							else
 								$in_charge_name = $incident->get_in_charge_name($conn);
-							  }
+							  
 							?>
 						<td <?php echo $class?>><?php echo $in_charge_name ?></td>
 						<td <?php echo $class?>><?php echo $incident->get_submitter()?>&nbsp;</td>

@@ -90,7 +90,8 @@ function format_charge_name($in_charge_name, $conn)
 		$querye  = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=".$in_charge_name;
 		$resulte = $conn->execute($querye);
 		list($entity_name, $entity_type) = $resulte->fields;
-		return $entity_name." [".$entity_type."]";
+		
+		return (!empty($entity_name) ) ? $entity_name." [".$entity_type."]" : _("Unknown");
 	}
 }
 

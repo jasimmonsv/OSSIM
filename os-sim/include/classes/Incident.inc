@@ -2365,7 +2365,7 @@ class Incident {
 				if ( $pro && preg_match("/^\d+$/",$in_charge)) 
 				{
 					   list($entity_name, $entity_type) = Acl::get_entity_name_type($conn, $in_charge);
-					   $in_charge                       = $entity_name." [".$entity_type."]";
+					   $in_charge                       = ( !empty($entity_name) ) ? $entity_name." [".$entity_type."]" : _("Unknown");
 				}
 				
 				$user_list[$in_charge] = ( !empty($user_list[$in_charge]) ) ? $user_list[$in_charge] + 1 : 1;
