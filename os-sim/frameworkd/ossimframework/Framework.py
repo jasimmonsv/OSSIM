@@ -46,9 +46,10 @@ from datetime import datetime
 # LOCAL IMPORTS
 #
 import Const
-
+from ApacheNtopProxyManager import ApacheNtopProxyManager
 from Logger import Logger
 logger = Logger.logger
+
 
 class Framework:
 
@@ -211,12 +212,15 @@ class Framework:
         from OssimConf import OssimConf
         conf = OssimConf (Const.CONFIG_FILE)
 
+        logger.info("Check ntop proxy configuration ...")
+        ap = ApacheNtopProxyManager(conf)
+        ap.refreshConfiguration()
         for c in self.__classes :
             conf_entry = "frameworkd_" + c.lower()
 
             if str(conf[conf_entry]).lower() in ('1', 'yes', 'true'):
                 logger.info(c.upper() + " is enabled")
-		print conf_entry
+                print conf_entry
                 exec "from %s import %s" % (c, c)
                 exec "t = %s()" % (c)
                 t.start()

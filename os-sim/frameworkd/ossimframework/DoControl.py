@@ -74,17 +74,22 @@ class ControlManager:
         query = 'select hostname,ip from host where ip in  (select host_ip from  host_sensor_reference where sensor_name="%s");' % agent_id
         tmp = self.__myDB.exec_query(query)
         new_command = 'action="refresh_asset_list" list={'
+        sendCommand = False
         for host in tmp:
             new_command += '%s=%s,' % (host['hostname'], host['ip'])
+            sendCommand = True
         new_command = new_command[0:len(new_command) - 1]
         new_command += '}'
         # add this connection to the transaction map
         #transaction = self.__transaction_id_get()
         #self.transaction_map[transaction] = {'socket':requestor, 'time':time.time()}
         # append the transaction to the message for tracking
-        if self.control_agents.has_key(agent_id):
-            self.control_agents[agent_id].wfile.write(new_command + ' transaction="NA"\n')
-            logger.info("Updating asset list to agent: %s " % (agent_id))
+        if sendCommand:
+            if self.control_agents.has_key(agent_id):
+                self.control_agents[agent_id].wfile.write(new_command + ' transaction="NA"\n')
+                logger.info("Updating asset list to agent: %s " % (agent_id))
+        else:
+            logger.info("Empty asset list!")
     def process(self, requestor, command, line):
         try:
             logger.debug("Processing: %s" % line)

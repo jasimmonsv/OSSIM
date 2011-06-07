@@ -47,4 +47,7 @@ HTTP_SSL = False
 
 #AES encryption/decrypt file
 ENCRYPTION_KEY_FILE = "/etc/ossim/framework/db_encryption_key"
+
+#Apatch - Ntop proxy configuration file template
+NTOP_APACHE_PROXY_TEMPLATE = "/etc/ossim/framework/ntop_proxy_apache_template.conf"
 # vim:ts=4 sts=4 tw=79 expandtab:
