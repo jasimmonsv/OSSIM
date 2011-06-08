@@ -51,32 +51,6 @@ $pro        = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 
 $my_session = session_id();
 
-function is_expired($time)
-{
-	$conf     = $GLOBALS["CONF"];
-	$activity = strtotime($time);
-	
-	if (!$conf) {
-		require_once 'ossim_db.inc';
-		require_once 'ossim_conf.inc';
-		$conf = new ossim_conf();
-	}
-		
-	$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
-	
-	if ($expired_timeout == 0)
-		return false;
-	
-	$expired_date = $activity + $expired_timeout;
-    $current_date = strtotime(date("Y-m-d H:i:s"));
-	
-	if ( $expired_date < $current_date )
-		return true;
-	else
-		return false;
-}
-
-
 function get_country($ccode, $cname)
 {
 	if( $ccode == "" )
@@ -320,10 +294,14 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 						$s_country_name = geoip_country_name_by_addr($gi, $user->get_ip());
 						$geo_code       = get_country($s_country, $s_country_name);
 						$flag           = ( !empty($geo_code) ) ?  "<img src='".$geo_code."' border='0' align='top'/>" : "";
+
+						$logon_date     = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$user->get_logon_date())+(3600*Util::get_timezone()));
+						$activity_date  = Util::get_utc_unixtime($dbconn,$user->get_activity());
 						
-						$style          = ( is_expired($user->get_activity()) ) ? "background:#EFE1E0;" : "background:#EFFFF7;";	
-						$expired        = ( is_expired($user->get_activity()) ) ? "<span style='color:red'>("._("Expired").")</span>" : "";
+						$style          = ( Session_activity::is_expired($activity_date) ) ? "background:#EFE1E0;" : "background:#EFFFF7;";	
+						$expired        = ( Session_activity::is_expired($activity_date) ) ? "<span style='color:red'>("._("Expired").")</span>" : "";
 						$agent          = explode("###", $user->get_agent()); 	
+
 						if ($agent[1]=="av report scheduler") $agent = array("AV Report Scheduler","wget");
 						
 						echo "  <tr style='$style' id='".$user->get_id()."'>
@@ -332,8 +310,8 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 									<td class='ops_host'>".Host::ip2hostname($dbconn, $user->get_ip()).$flag."</td>
 									<td class='ops_agent'><a txt='".htmlentities($agent[1])."' class='info_agent'>".htmlentities($agent[0])."</a></td>
 									<td class='ops_id'>".$user->get_id()." $expired</td>
-									<td class='ops_logon'>".$user->get_logon_date()."</td>							
-									<td class='ops_activity'>"._(TimeAgo(strtotime($user->get_activity())))."</td>
+									<td class='ops_logon'>".$logon_date."</td>					
+									<td class='ops_activity'>"._(TimeAgo($activity_date,gmdate("U")))."</td>
 									<td class='ops_actions'>$action</td>	
 								</tr>";
 					}
