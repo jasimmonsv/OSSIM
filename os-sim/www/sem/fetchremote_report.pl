@@ -10,6 +10,7 @@ $script_name = $ARGV[1];
 $NUM_HOSTS = $ARGV[2];
 $date_from = $ARGV[3];
 $date_to = $ARGV[4];
+$range = $ARGV[5];
 
 if ($logger_source !~ /^(\d+\.\d+\.\d+\.\d+)+$/) {
 	print "Parameters error\n";
@@ -31,6 +32,10 @@ if ($date_to !~ /[\d\-]+/) {
 	print "Parameters error\n";
 	exit;
 }
+if ($range !~ /[a-z]+/) {
+	print "Parameters error\n";
+	exit;
+}
 
-$cmd = "ssh $logger_source \"cd /usr/share/ossim/www/report/Logger;php $script_name.php '$NUM_HOSTS' '$date_from' '$date_to'\"";
+$cmd = "ssh $logger_source \"cd /usr/share/ossim/www/report/Logger;php $script_name.php '$NUM_HOSTS' '$date_from' '$date_to' $range\"";
 system($cmd);
