@@ -133,6 +133,9 @@ if ( $critical ) {
 //online();
 
 $conf = $GLOBALS["CONF"];
+$dbconn->disconnect();
+$dbconn = $db->connect();
+
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
 $arruser = array();
@@ -536,6 +539,8 @@ echo "</tr>";
 
 
 echo "</table>";
+
+$dbconn->disconnect();
 
 function get_msg($dbconn,$query_msg) {
     $result=$dbconn->execute($query_msg);
