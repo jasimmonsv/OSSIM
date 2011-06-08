@@ -121,6 +121,8 @@
  |      1638 | proftpd            | detector |
  |      1639 | knockd             | detector |
  |      1640 | usbudev            | detector |
+ |      1641 | airlock            | detector |
+ |      1642 | bluecoat           | detector |
  +-----------+--------------------+----------+
  |      1801 | forensics-db-1     | detector |
  +-----------+--------------------+----------+

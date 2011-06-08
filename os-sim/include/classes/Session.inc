@@ -1427,7 +1427,7 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 		if ( preg_match($pattern_exp, $agent) == true )
 			return true;
 						
-		$logon_date  = $activity = date("Y-m-d H:i:s");
+		$logon_date  = $activity = gmdate("Y-m-d H:i:s");
 				
 		$conf = $GLOBALS["CONF"];
 		
@@ -1441,8 +1441,8 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 		
 		if ( $expired_timeout != 0 )
 		{
-			$time = strtotime(date("Y-m-d H:i:s")) - $expired_timeout;
-			$date = date("Y-m-d H:i:s", $time);
+			$time = gmdate("U") - $expired_timeout;
+			$date = gmdate("Y-m-d H:i:s", $time);
 			$sql = "DELETE FROM sessions WHERE activity < '$date'";
         
 			$params = array(
@@ -1486,7 +1486,7 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 				
 		$id       = session_id();
 		$login    = Session::get_session_user();
-		$activity = ( empty($time) ) ? date("Y-m-d H:i:s") : date("Y-m-d H:i:s", $time);
+		$activity = ( empty($time) ) ? gmdate("Y-m-d H:i:s") : gmdate("Y-m-d H:i:s", $time);
 		
 		$sql = "UPDATE sessions SET activity=? WHERE id=? AND login=?";
         
@@ -1555,6 +1555,31 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 			
 			return true;
 		}
+	}
+	
+	
+	function is_expired($activity)
+	{
+		$conf     = $GLOBALS["CONF"];
+		
+		if (!$conf) {
+			require_once 'ossim_db.inc';
+			require_once 'ossim_conf.inc';
+			$conf = new ossim_conf();
+		}
+			
+		$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
+		
+		if ($expired_timeout == 0)
+			return false;
+		
+		$expired_date = $activity + $expired_timeout;
+		$current_date = gmdate("U");
+		
+		if ( $expired_date < $current_date )
+			return true;
+		else
+			return false;
 	}
 	
 
@@ -1627,13 +1652,15 @@ function expire_session_check() {
 								
 	if ($expired_timeout==0) 
 		return;
-			
-	if ( isset($_SESSION["_expiration_time"]) && intval($_SESSION["_expiration_time"])+$expired_timeout < time())  {
+	
+	$time = gmdate("U");
+	
+	if ( isset($_SESSION["_expiration_time"]) && intval($_SESSION["_expiration_time"])+$expired_timeout < $time)  {
 		header("Location: /ossim/session/login.php?action=logout");
 	}
 		
 	// only update if not exists bypass => header ajax responses
-	$_SESSION["_expiration_time"] = time();
+	$_SESSION["_expiration_time"] = $time;
 	Session_activity::update($_SESSION["_expiration_time"]);
 }
 

@@ -842,6 +842,8 @@ class Util {
     
     // Convert date to UTC unixtime using mysql
 	function get_utc_unixtime($conn,$date) {
+		return strtotime($date." GMT");
+		/*
         $unix = strtotime($date);
         $conn->Execute("SET SESSION time_zone='+00:00'");
         if (!$rs = & $conn->Execute("select UNIX_TIMESTAMP('$date')")) {
@@ -850,7 +852,7 @@ class Util {
         else {
             if (!$rs->EOF) $unix = $rs->fields[0];
         }
-        return $unix;
+        return $unix;*/
 	}
     // Get the next UTC date to schedule tasks
     function get_utc_date_calc($conn,$date,$interval) {
@@ -885,7 +887,8 @@ class Util {
         return $time;
 	}
     function get_timezone() {
-        return((isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100);
+        //return((isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100);
+        return intval($_SESSION["_timezone"]);
     }
 		
 	// Get current ossim complete url

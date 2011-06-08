@@ -276,7 +276,7 @@ class AlarmGroups {
 	function get_grouped_alarms($conn, $group_type, $show_options=1, $hide_closed=0, $from_date, $to_date, $ip_src="", $ip_dst="", $sensor="", $query="", $directive_id="", $num_events="", $num_events_op="", $tag="", $limit="LIMIT 0,10") {
 		// CRITERIAS
 		// Hide Closed
-		$closed_where = ($hide_closed) ? " AND status='open'" : "";
+		$closed_where = (intval($hide_closed)==1) ? " AND a.status='open'" : "";
 		// Show Options
 		if ($show_options == 2) {
 			$groups_join = ", alarm_groups g";
@@ -351,8 +351,14 @@ class AlarmGroups {
 		} else $sensor_join = "";
 		
 		// QUERY
-		// Group by name (unique)
-		if ($group_type == "name") {
+        // Group by similar field
+		if ($group_type == "similar") {
+            $query = "SELECT similar AS group_id, name, max(a.risk) as max_risk, count(a.similar) as howmany
+            FROM alarm a, plugin_sid p WHERE a.plugin_id = p.plugin_id AND a.plugin_sid = p.sid $closed_where GROUP BY a.similar $limit";
+
+            // Group by name (unique)
+		}
+		else if ($group_type == "name") {
 			$query = "SELECT SQL_CALC_FOUND_ROWS count( * ) AS howmany,
 			sha1( alarm_event.name ) AS group_id,
 			alarm_event.name AS name,
@@ -615,8 +621,12 @@ class AlarmGroups {
             $limit = "LIMIT $nevents OFFSET $inf";
         }
         if ($query != "") {
-            $where[] = "(p.name LIKE \"%".str_replace('"','\"',$query)."%\")";
+            if (preg_match("/[0-9a-f]{40}/i", $query)) 
+                $where[] = "(a.similar = '$query')";
+            else
+                $where[] = "(p.name LIKE \"%".str_replace('"','\"',$query)."%\")";
         }
+
         $sql_where = count($where) ? 'WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND ' . implode(" AND ", $where) : "WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid";
         
 		$sensor_str = "";

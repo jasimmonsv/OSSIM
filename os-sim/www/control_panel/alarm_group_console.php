@@ -88,7 +88,8 @@ $src_ip = POST('src_ip');
 $dst_ip = POST('dst_ip');
 $backup_inf = $inf = POST('inf');
 $sup = POST('sup');
-$hide_closed = POST('hide_closed');
+$hide_closed = (POST('hide_closed')!="" || POST('unique_id')!="") ? POST('hide_closed') : GET('hide_closed');
+if ($hide_closed=="1") $hide_closed = "on";
 $date_from = POST('date_from');
 $date_to = POST('date_to');
 $num_alarms_page = POST('num_alarms_page');
@@ -277,35 +278,43 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
   <script type="text/javascript">
   var open = false;
   
-  function toggle_group (group_id,ip_src,ip_dst,time,from) {
+  function toggle_group (group_id,ip_src,ip_dst,time,from,similar) {
 	document.getElementById(group_id+from).innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	$.ajax({
 		type: "GET",
-		url: "alarm_group_response.php?from="+from+"&group_id="+group_id+"&unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>&date_from=<?php echo POST('date_from') ?>&date_to=<?php echo POST('date_to') ?>&no_resolv=<?php echo $no_resolv ?>",
+		url: "alarm_group_response.php?from="+from+"&group_id="+group_id+"&unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>&date_from=<?php echo POST('date_from') ?>&date_to=<?php echo POST('date_to') ?>&no_resolv=<?php echo $no_resolv ?>&similar="+similar,
 		data: "",
 		success: function(msg){
 			//alert (msg);
 			document.getElementById(group_id+from).innerHTML = msg;
+
 			plus = "plus"+group_id;
-			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"');return false\"><img align='absmiddle' src='../pixmaps/minus-small.png' border='0'></a>";
-		}
+			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"','"+similar+"');return false\"><img align='absmiddle' src='../pixmaps/minus-small.png' border='0'></a>";
+            $(".auto_display").each(function(){
+                var alarm_data = $(this).attr("id").replace("eventplus", "");
+                var tmp = alarm_data.split("-")
+                var backlog_id = tmp[0];
+                var event_id   = tmp[1];
+                toggle_alarm(backlog_id, event_id);
+            });
+        }
 	});
   }
-  function untoggle_group (group_id,ip_src,ip_dst,time) {
+  function untoggle_group (group_id,ip_src,ip_dst,time,similar) {
 	plus = "plus"+group_id;
-	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"','');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
+	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"','','"+similar+"');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
 	document.getElementById(group_id).innerHTML = "";
   }
   function opencloseAll () {
 	if (!open) {
 	<? foreach ($alarm_group as $group) { ?>
-	toggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>','');
+	toggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>','','<? echo ($group_type == "similar") ? "1" : "" ?>');
 	<? } ?>
 	open = true;
 	document.getElementById('expandcollapse').src='../pixmaps/minus.png';
 	} else {
 	<? foreach ($alarm_group as $group) { ?>
-	untoggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>');
+	untoggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>','<? echo ($group_type == "similar") ? "1" : "" ?>');
 	<? } ?>
 	open = false;
 	document.getElementById('expandcollapse').src='../pixmaps/plus.png';
@@ -373,32 +382,32 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 		}
 	}
 
-	function open_group(group_id,ip_src,ip_dst,time) {
+	function open_group(group_id,ip_src,ip_dst,time,similar) {
 		// GROUPS
 		$('#lock_'+group_id).html("<img src='../pixmaps/loading.gif' width='16'>");
-		document.getElementById("plus"+group_id).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"','');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
+		document.getElementById("plus"+group_id).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"','','"+similar+"');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
 		document.getElementById(group_id).innerHTML = "";
 		$.ajax({
 			type: "GET",
 			url: "alarm_group_response.php?only_open=1&group1="+group_id,
 			data: "",
 			success: function(msg){
-				document.getElementById('lock_'+group_id).innerHTML = "<a href='' onclick=\"close_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"');return false\"><img src='../pixmaps/lock-unlock.png' alt='<?php echo _("Open, click to close group") ?>' title='<?php echo _("Open, click to close group") ?>' border=0></a>";
+				document.getElementById('lock_'+group_id).innerHTML = "<a href='' onclick=\"close_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"','"+similar+"');return false\"><img src='../pixmaps/lock-unlock.png' alt='<?php echo _("Open, click to close group") ?>' title='<?php echo _("Open, click to close group") ?>' border=0></a>";
 			}
 		});
 	}
 	
-	function close_group(group_id,ip_src,ip_dst,time) {
+	function close_group(group_id,ip_src,ip_dst,time,similar) {
 		// GROUPS
 		$('#lock_'+group_id).html("<img src='../pixmaps/loading.gif' width='16'>");
-		document.getElementById("plus"+group_id).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"','');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
+		document.getElementById("plus"+group_id).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"','','"+similar+"');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
 		document.getElementById(group_id).innerHTML = "";
 		$.ajax({
 			type: "GET",
 			url: "alarm_group_response.php?only_close=1&group1="+group_id,
 			data: "",
 			success: function(msg){
-				document.getElementById('lock_'+group_id).innerHTML = "<a href='' onclick=\"open_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"');return false\"><img src='../pixmaps/lock.png' alt='<?php echo _("Closed, click to open group") ?>' title='<?php echo _("Closed, click to open group") ?>' border=0></a>";
+				document.getElementById('lock_'+group_id).innerHTML = "<a href='' onclick=\"open_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"','"+similar+"');return false\"><img src='../pixmaps/lock.png' alt='<?php echo _("Closed, click to open group") ?>' title='<?php echo _("Closed, click to open group") ?>' border=0></a>";
 			}
 		});
 	}
@@ -795,6 +804,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 										<option value="all" <?php if ($group_type == "all") echo "selected" ?>>Alarm name, Src/Dst, Date</option>
 										<option value="namedate" <?php if ($group_type == "namedate") echo "selected" ?>>Alarm name, Date</option>
 										<option value="name" <?php if ($group_type == "name") echo "selected" ?>>Alarm name</option>
+                                        <option value="similar" <?php if ($group_type == "similar") echo "selected" ?>>Similar alarms</option>
 									</select>
 								</td>
 							</tr>
@@ -852,13 +862,14 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 		$group_id = $group['group_id'];
 		$_SESSION[$group_id] = $group['name'];
 		$ocurrences = $group['group_count'];
+        //if($group_type=="similar" && $ocurrences>1) { $ocurrences = $ocurrences-1; }
 		$max_risk = $group['max_risk'];
 		$id_tag = $group['id_tag'];
 		if ($group['date'] != $lastday) {
 			$lastday = $group['date'];
 			list($year, $month, $day) = split("-", $group['date']);
 			$date = Util::htmlentities(strftime("%A %d-%b-%Y", mktime(0, 0, 0, $month, $day, $year)));
-			$show_day = ($group_type == "name") ? 0 : 1;
+			$show_day = ($group_type == "name" || $group_type == "similar") ? 0 : 1;
 		} else $show_day = 0;
 		$descr = $db_groups[$group_id]['descr'];
 		$status = ($db_groups[$group_id]['status'] != "") ? $db_groups[$group_id]['status'] : "open";
@@ -911,12 +922,12 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 		<? } ?>
 	<tr>
 		<td class="nobborder" width="20"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
-		<td class="nobborder" width="20" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<? echo ($group_type == "name") ? "" : $group['date'] ?>','');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
+		<td class="nobborder" width="20" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<? echo ($group_type == "name" || $group_type == "similar") ? "" : $group['date'] ?>','','<? echo ($group_type == "similar") ? "1" : "" ?>');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
 		<th style='text-align: left; border-width: 0px; background: <?=$background?>'>
 			<table class="transparent">
 			<tr>
 			<?php if ($tags_html[$id_tag] != "") { ?><td class="nobborder"><?php echo $tags_html[$id_tag]; ?></td><?php } ?>
-			<td class="nobborder"><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></td>
+			<td class="nobborder"><?=Util::signaturefilter($group['name'])?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></td>
 			</tr>
 			</table>
 		</th>

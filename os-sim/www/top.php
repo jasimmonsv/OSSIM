@@ -36,7 +36,7 @@ require_once 'classes/WebIndicator.inc';
 require_once 'classes/Util.inc';
 Session::useractive("session/login.php");
 // refresh hour
-$tz     =( isset($_SESSION["_timezone"]) ) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz     = Util::get_timezone();
 $timetz = gmdate("U")+(3600*$tz);
 if (GET("lasthour")=="1") {
 	echo gmdate("H:i",$timetz);
@@ -338,31 +338,6 @@ $keys = array_keys($menu);
 		require_once ('ossim_db.inc');
 		require_once ('ossim_conf.inc');
 
-		function is_expired($time)
-		{
-			$conf     = $GLOBALS["CONF"];
-			$activity = strtotime($time);
-			
-			if (!$conf) {
-				require_once 'ossim_db.inc';
-				require_once 'ossim_conf.inc';
-				$conf = new ossim_conf();
-			}
-				
-			$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
-			
-			if ($expired_timeout == 0)
-				return false;
-			
-			$expired_date = $activity + $expired_timeout;
-			$current_date = strtotime(date("Y-m-d H:i:s"));
-			
-			if ( $expired_date < $current_date )
-				return true;
-			else
-				return false;
-		}
-		
 		$db           = new ossim_db();
 		$conn         = $db->connect();
 		$all_sessions = Session_activity::get_list($conn," ORDER BY activity desc");
@@ -370,12 +345,20 @@ $keys = array_keys($menu);
 				
 		foreach ($all_sessions as $sess) 
 		{
-			if ($sess->get_id() == session_id()) {
-				$ago = str_replace(" ago","",TimeAgo(strtotime($sess->get_logon_date())));
+			if ($sess->get_id() == session_id()) 
+			{
+				$ago = str_replace(" ago","",TimeAgo(Util::get_utc_unixtime($conn,$sess->get_logon_date()),gmdate("U")));
 			}
-			if (!is_expired($sess->get_activity())) $users++;
+			if (!Session_activity::is_expired(Util::get_utc_unixtime($conn,$sess->get_activity()))) $users++;
 		}
 		$db->close($conn);
+
+		// TIME DEBUG
+		//var_dump($tz);
+		//var_dump(gmdate("U"));
+		//var_dump($timetz);
+		//var_dump($sess->get_activity());
+		//var_dump(Util::get_utc_unixtime($conn,$sess->get_activity()));
 		?>
 
 		<div id="side-bar2" class="jx-bottom-bar jx-bar-rounded-bl jx-bar-rounded-br">
