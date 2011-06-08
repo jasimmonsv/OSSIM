@@ -106,7 +106,10 @@ class Alarm {
     var $id_tag;
     var $event_data;
     var $tzone;
-    function Alarm($event_id, $backlog_id, $timestamp, $status, $since, $plugin_id, $plugin_sid, $protocol, $src_ip, $dst_ip, $src_port, $dst_port, $risk, $sensors, $snort_sid, $snort_cid, $sid_name, $sid_priority, $rule_level = "", $alarm = 1, $id_tag="", $tzone=0) {
+    var $similar;
+    var $csimilar;
+    
+    function Alarm($event_id, $backlog_id, $timestamp, $status, $since, $plugin_id, $plugin_sid, $protocol, $src_ip, $dst_ip, $src_port, $dst_port, $risk, $sensors, $snort_sid, $snort_cid, $sid_name, $sid_priority, $rule_level = "", $alarm = 1, $id_tag="", $tzone=0, $similar="", $csimilar=0) {
         $this->event_id = intval($event_id);
         $this->backlog_id = intval($backlog_id);
         $this->timestamp = $timestamp;
@@ -133,9 +136,17 @@ class Alarm {
         else $this->sensors = array(
             $sensors
         );
+        $this->similar = $similar;
+        $this->csimilar = $csimilar;
     }
     function get_event_id() {
         return $this->event_id;
+    }
+    function get_similar() {
+        return $this->similar;
+    }
+    function get_csimilar() {
+        return $this->csimilar;
     }
     function get_backlog_id() {
         return $this->backlog_id;
@@ -268,21 +279,20 @@ class Alarm {
     function __get_sensors($conn, $event_id, $backlog_id) {
         $sensor = array();
         
-		if ($backlog_id != 0) {
-            $sql = "SELECT distinct event.sensor AS sensor FROM event, backlog_event 
-                    WHERE backlog_event.backlog_id = ? AND backlog_event.event_id = event.id";
-            $params = array(
-                $backlog_id
-            );
-            if (!$rs = & $conn->Execute($sql, $params)) {
-                print $conn->ErrorMsg();
-                return $sensor;
-            }
-            while (!$rs->EOF) {
-                if (Session::allowedSensors() == "" || Session::sensorAllowed($rs->fields["sensor"])) $sensor[] = $rs->fields["sensor"];
-                $rs->MoveNext();
-            }
-        } else {
+        $sql = "SELECT distinct event.sensor AS sensor FROM event, backlog_event 
+                WHERE backlog_event.backlog_id = ? AND backlog_event.event_id = event.id";
+        $params = array(
+            $backlog_id
+        );
+        if (!$rs = & $conn->Execute($sql, $params)) {
+            print $conn->ErrorMsg();
+            return $sensor;
+        }
+        while (!$rs->EOF) {
+            if (Session::allowedSensors() == "" || Session::sensorAllowed($rs->fields["sensor"])) $sensor[] = $rs->fields["sensor"];
+            $rs->MoveNext();
+        }
+        if (!count($sensor)) {
             $sql = "SELECT sensor FROM event WHERE id = ?";
             $params = array(
                 $event_id
@@ -468,10 +478,11 @@ class Alarm {
 		$sensor_str = "";
 		if (Session::allowedSensors() != "") {
 			$user_sensors = explode(",",Session::allowedSensors());
-			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
-				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."'" : " OR e.sensor LIKE '".$user_sensor."'";
+			$sensor_str = " AND e.id=a.event_id AND e.sensor in ('".implide("','",Session::allowedSensors())."')";
+			//foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
+			//	$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."'" : " OR e.sensor LIKE '".$user_sensor."'";
 			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
-			$sensor_str = " AND ($sensor_str) AND e.id=a.event_id";
+			//$sensor_str = " AND ($sensor_str) AND e.id=a.event_id";
 		}
 		if ($sensor != "") {
 			$sensor_join = " ,event e";
@@ -497,25 +508,25 @@ class Alarm {
 		
 		// ... ", a.timestamp + 0 AS timestamp" what is this?
         $sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, p.priority, 
-                  inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip)
-                FROM alarm a$tag_left_join,plugin_sid p$sensor_join$directive_join$tag_join $sql_where $order $limit";
+                  inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip), a.similar as similar, count(a.similar) as csimilar
+                FROM alarm a$tag_left_join,plugin_sid p$sensor_join$directive_join$tag_join $sql_where GROUP BY a.similar $order $limit";
         //echo "SQL1: ".$sql."<br>";
         //exit;
 		// Sensor order exception:
 		if ($order == "ORDER BY sensor") {
-			$sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, p.priority 
-                  inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip)
-                FROM alarm a,event e,plugin_sid p$directive_join $sql_where AND e.id=a.event_id ORDER BY e.sensor $limit";
+			$sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, p.priority
+                  inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip), a.similar as similar, count(a.similar) as csimilar
+                FROM alarm a,event e,plugin_sid p$directive_join $sql_where AND e.id=a.event_id GROUP BY a.similar ORDER BY e.sensor $limit";
 		} elseif ($order == "ORDER BY sensor DESC") {
 			$sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, p.priority, 
-                  inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip)
-                FROM alarm a,event e,plugin_sid p$directive_join $sql_where AND e.id=a.event_id ORDER BY e.sensor DESC $limit";
+                  inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip), a.similar as similar, count(a.similar) as csimilar
+                FROM alarm a,event e,plugin_sid p$directive_join $sql_where AND e.id=a.event_id GROUP BY a.similar ORDER BY e.sensor DESC $limit";
 		}
-		
         if (!$rs = & $conn->Execute($sql)) {
             print $conn->ErrorMsg();
             return array();
         }
+        //echo $sql;
         // Total rows
         $total = & $conn->Execute("SELECT FOUND_ROWS() as contador");
         $num_rows = 0;
@@ -524,7 +535,32 @@ class Alarm {
             $sensors = Alarm::__get_sensors($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]);
             $rs->fields["src_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["src_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["src_port"]] : $rs->fields["src_port"];
             $rs->fields["dst_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] : $rs->fields["dst_port"];
-			$list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(a.src_ip)"], $rs->fields["inet_ntoa(a.dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], $rs->fields["priority"], "", 1, $rs->fields["id_tag"], $rs->fields["id_tag"]);
+			$list[] = new Alarm($rs->fields["event_id"],
+                                $rs->fields["backlog_id"],
+                                $rs->fields["timestamp"],
+                                $rs->fields["status"],
+                                Alarm::__get_since($conn, $rs->fields["event_id"],
+                                $rs->fields["backlog_id"]) ,
+                                $rs->fields["plugin_id"],
+                                $rs->fields["plugin_sid"],
+                                $rs->fields["protocol"],
+                                $rs->fields["inet_ntoa(a.src_ip)"],
+                                $rs->fields["inet_ntoa(a.dst_ip)"],
+                                $rs->fields["src_port"],
+                                $rs->fields["dst_port"],
+                                $rs->fields["risk"],
+                                $sensors,
+                                $rs->fields["snort_sid"],
+                                $rs->fields["snort_cid"],
+                                $rs->fields["sid_name"],
+                                $rs->fields["priority"],
+                                "",
+                                1,
+                                $rs->fields["id_tag"],
+                                $rs->fields["id_tag"],
+                                $rs->fields["similar"],
+                                $rs->fields["csimilar"]
+                                );
             $rs->MoveNext();
         }
         return array(
@@ -652,9 +688,10 @@ class Alarm {
     *
     *   $event_id => alarm to expand
     */
-    function get_events($conn, $backlog_id, $show_all = 0, $event_id = "") {
+    function get_events($conn, $backlog_id, $show_all = 0, $event_id = "", $from = 0, $max = 50, $alarms_numbering) {
         $expand = false;
-        $query = "SELECT backlog_event.event_id AS event_id, 
+        $num_rows = 0;
+        $query = "SELECT SQL_CALC_FOUND_ROWS backlog_event.event_id AS event_id, 
                          backlog_event.backlog_id AS backlog_id, 
                          event.timestamp AS backlog_time,
                          event.timestamp AS timestamp,
@@ -678,41 +715,66 @@ class Alarm {
             FROM backlog_event, event 
             LEFT JOIN plugin_sid ON plugin_sid.plugin_id=event.plugin_id AND plugin_sid.sid=event.plugin_sid
             WHERE backlog_event.event_id = event.id AND
-                backlog_event.backlog_id = $backlog_id ";
+                backlog_event.backlog_id = $backlog_id";
+        // Get Alarm1 ...events... Alarm2 RANGE
+        if ($event_id != "") {
+        	$next_a_id = 0;
+        	foreach ($alarms_numbering as $a_id => $pos) {
+        		if ($a_id < $event_id && !$next_a_id) {
+        			$next_a_id = $a_id;
+        		}
+        	}
+        	$query .= " AND (backlog_event.event_id <= $event_id && backlog_event.event_id > $next_a_id) ";
+        }
         if (!$show_all) {
             $query.= " AND event.alarm = 1 ";
         }
-        $query.= "ORDER BY event.id DESC";
+        $query.= " ORDER BY event.id DESC";
+        if ($show_all || $event_id != "") {
+        	$query .= " LIMIT $from,$max";
+        }
         $query = OssimQuery($query);
-		
+		//echo "SQL: $query<br>";
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
-            $list = array();
+            // Total rows
+	        $total = & $conn->Execute("SELECT FOUND_ROWS() as contador");
+	        if (!$total->EOF) $num_rows = $total->fields['contador'];
+        	$list = array();
             while (!$rs->EOF) {
-                if ($show_all == 2) { 
-                    $expand = true;
-                } elseif ((!$expand) and ($rs->fields["event_id"] == $event_id)) {
-                    $expand = true;
-                } elseif (($expand) and ($rs->fields["alarm"] == 1)) {
-                    $expand = false;
-                }
-                if (($expand) or ($rs->fields["alarm"] == 1)) {
-                    $maxrisk = ($rs->fields["risk_c"] > $rs->fields["risk_a"]) ? $rs->fields["risk_c"] : $rs->fields["risk_a"];
-                    $list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], "", /* status */
-                    $rs->fields["backlog_time"], $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["src_ip"], $rs->fields["dst_ip"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $rs->fields["sensor"], $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], $rs->fields["sid_priority"], $rs->fields["rule_level"], $rs->fields["alarm"], "", $rs->fields["tzone"]);
-                }
+                $maxrisk = ($rs->fields["risk_c"] > $rs->fields["risk_a"]) ? $rs->fields["risk_c"] : $rs->fields["risk_a"];
+                $list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], "", /* status */
+                $rs->fields["backlog_time"], $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["src_ip"], $rs->fields["dst_ip"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $rs->fields["sensor"], $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], $rs->fields["sid_priority"], $rs->fields["rule_level"], $rs->fields["alarm"], "", $rs->fields["tzone"]);
                 $rs->MoveNext();
             }
         }
-        return $list;
+        return array($list, $num_rows);
+    }
+    function get_alarms_numbering($conn, $backlog_id) {
+    	$numbering = array();
+    	$count = 1;
+    	$query = "SELECT * FROM backlog_event, event 
+    			WHERE backlog_event.backlog_id = ? 
+                AND event.id = backlog_event.event_id 
+                AND event.alarm = 1 ORDER BY event.id DESC";
+    	if (!$rs = & $conn->Execute($query, array($backlog_id))) {
+            print $conn->ErrorMsg();
+        } else {
+        	while (!$rs->EOF) {
+        		 $numbering[$rs->fields['event_id']] = $count;
+        		 $count++;
+        		 $rs->MoveNext();
+        	}
+        }
+        return $numbering;
     }
     function get_total_events($conn, $backlog_id) {
         $total_count = 0;
         $sql = "SELECT count(*) as total_events
                 FROM backlog_event, event 
                 WHERE backlog_event.backlog_id = ? 
-                AND event.id = backlog_event.event_id AND event.plugin_id<>1505";
+                AND event.id = backlog_event.event_id AND event.plugin_id<>1505 AND event.alarm = 0";
         if (!$rs = & $conn->Execute($sql, array($backlog_id))) {
             print $conn->ErrorMsg();
         } elseif (!$rs->EOF) { 
@@ -958,6 +1020,21 @@ class Alarm {
 	        if (!$rs->EOF) $this->event_data = $rs->fields;
 	    }
         return Util::htmlentities($this->event_data[$key],ENT_QUOTES);
+    }
+    
+    function get_similar_info($conn, $similar) {
+        $data = array();
+         
+        $sql = "SELECT min(timestamp) as min_timestamp, max(timestamp) as max_timestamp
+                FROM alarm 
+                WHERE similar = ? ";
+        if (!$rs = & $conn->Execute($sql, array($similar))) {
+            print $conn->ErrorMsg();
+        } elseif (!$rs->EOF) { 
+            $data["min_date"] = $rs->fields["min_timestamp"];
+            $data["max_date"] = $rs->fields["max_timestamp"];
+        }
+        return $data;
     }
 }
 ?>

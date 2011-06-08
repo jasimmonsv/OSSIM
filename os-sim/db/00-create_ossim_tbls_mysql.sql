@@ -1116,6 +1116,7 @@ CREATE TABLE alarm (
         efr             INTEGER (11) NOT NULL DEFAULT 0,
 		uuid_event      CHAR(36) ASCII,
 		uuid_backlog    CHAR(36) ASCII,
+		similar         VARCHAR(40) NOT NULL DEFAULT  '0000000000000000000000000000000000000000',
         PRIMARY KEY (backlog_id),
         KEY `timestamp` (`timestamp`),
         KEY `src_ip` (`src_ip`),
@@ -1124,6 +1125,17 @@ CREATE TABLE alarm (
         KEY `plugin_id` (`plugin_id`),
         KEY `plugin_sid` (`plugin_sid`)
 );
+
+DROP TRIGGER IF EXISTS set_similar_field;
+DELIMITER '//'
+CREATE TRIGGER set_similar_field BEFORE INSERT ON alarm
+FOR EACH ROW BEGIN
+  IF NEW.similar='0000000000000000000000000000000000000000' THEN
+     SET NEW.similar = sha1(NEW.backlog_id);
+  END IF;
+END;
+//
+DELIMITER ";"
 
 --
 -- Alarmgroups

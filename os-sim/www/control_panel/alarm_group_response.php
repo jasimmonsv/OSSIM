@@ -73,7 +73,13 @@ $timestamp = GET('timestamp');
 $from_date = GET('date_from');
 $to_date = GET('date_to');
 $timestamp = GET('timestamp');
-$name = $_SESSION[GET('name')];
+
+
+if(intval(GET('similar'))!=1)
+    $name = $_SESSION[GET('name')];
+else
+    $name = GET('name');
+    
 $group_id = GET('group_id');
 $hide_closed = GET('hide_closed');
 $only_delete = GET('only_delete'); // Number of groups to delete
@@ -103,7 +109,6 @@ ossim_valid($no_resolv, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("no_resolv"));
 if (ossim_error()) {
     die(ossim_error());
 }
-
 if ($timestamp != "") {
 	$from_date = ($timestamp!="") ? $timestamp." 00:00:00" : null;
 	$to_date = ($timestamp!="") ? $timestamp : null;
@@ -168,6 +173,7 @@ foreach($host_list as $host) {
 	$assets[$host->get_ip() ] = $host->get_asset();
 }
 list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"",$from,$top,$from_date,$to_date,$name);
+
 $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 ?>
 <table class="transparent" width="100%">
@@ -200,7 +206,8 @@ $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(da
 		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Action")?></td>
 	</tr>
     <?php } ?>
-<? foreach ($list as $s_alarm) {
+<? 
+foreach ($list as $s_alarm) {
 	$bgcolor = (++$i%2 == 0) ? "#FAFAFA" : "#F2F2F2";
 	$s_id = $s_alarm->get_plugin_id();
 	$s_sid = $s_alarm->get_plugin_sid();
@@ -260,15 +267,16 @@ $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(da
 	/* Alarm name */
 	$s_alarm_name = ereg_replace("directive_event: ", "", $s_sid_name);
 	$s_alarm_name = Util::translate_alarm($conn, $s_alarm_name, $s_alarm);
-	$summary = Alarm::get_alarm_stats($conn, $s_backlog_id, $s_event_id);
-	$event_ocurrences = $summary["total_count"];
+	//$summary = Alarm::get_alarm_stats($conn, $s_backlog_id, $s_event_id);
+	//$event_ocurrences = $summary["total_count"];
+    $event_ocurrences = Alarm::get_total_events($conn, $s_backlog_id);
 	if ($event_ocurrences != 1) {
 		$ocurrences_text = strtolower(gettext("Events"));
 	} else {
 		$ocurrences_text = strtolower(gettext("Event"));
 	}
 	$events_count = ($event_ocurrences > 0) ? "<br><font style='font-size: 9px; color: #AAAAAA;'>($event_ocurrences $ocurrences_text)</font>" : "";
-	$balloon_name = "<div class='balloon'>" . $s_alarm_name . $events_count . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>".gettext("Src Asset:")." <b>" . $s_asset_src . "</b><br>".gettext("Dst Asset:")." <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
+
 	/* Risk field */
 	if ($s_risk > 7) {
 		$color = "red; color:white";
@@ -317,11 +325,17 @@ $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(da
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
 	/* Expand button */
-	if ($event_ocurrences > 0) $expand_button = "<a href='' onclick=\"toggle_alarm('$s_backlog_id','$s_event_id');return false;\"><img src='../pixmaps/plus-small.png' border='0' alt='plus'></img></a>";
-	else $expand_button = "<img src='../pixmaps/plus-small-gray.png' border='0' alt='plus'>";
+	if ($s_backlog_id && $s_id==1505 && $event_ocurrences > 0){
+        $expand_button = "<a href='' onclick=\"toggle_alarm('$s_backlog_id','$s_event_id');return false;\"><img src='../pixmaps/plus-small.png' border='0' alt='plus'></img></a>";
+	}
+    else{
+        $expand_button = "<img src='../pixmaps/plus-small-gray.png' border='0' alt='plus'>";
+        $events_count = "";
+    }
+	$balloon_name = "<div class='balloon'>" . $s_alarm_name . $events_count . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>".gettext("Src Asset:")." <b>" . $s_asset_src . "</b><br>".gettext("Dst Asset:")." <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
 ?>
 	<tr>
-		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center;padding-left:30px' width='3%' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><?php echo $expand_button ?></td>
+		<td class="nobborder <?php echo (($event_ocurrences==1 && $s_backlog_id && $s_id==1505 && $event_ocurrences > 0) ? "auto_display":"")?>" style='background-color:<?php echo $bgcolor ?>;text-align: center;padding-left:30px' width='3%' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><?php echo $expand_button ?></td>
 		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center'><?=$checkbox?></td>
 		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: left; padding-left:10px' width='30%'><strong><?=$balloon_name?></strong></td>
 		<?=$risk_field?>
@@ -353,10 +367,15 @@ $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(da
 		<td class="nobborder"></td>
 		<td class="nobborder" colspan='9' name='eventbox<?=$s_backlog_id . "-" . $s_event_id?>"' id='eventbox<?=$s_backlog_id . "-" . $s_event_id?>'></td></tr>
 <? } ?>
-	<?php if ($top < $num_rows) { ?>
+	<?php
+    //echo "top: $top<br />";
+    //echo "num_rows: $num_rows<br />";
+    //echo "from+100: ".($from+100)."<br />";
+    //echo "total: ";var_dump(count($list));
+    if ($top < $num_rows) { ?>
 	<div id="link_row" style="display:inline">
 	<tr>
-		<td class="center nobborder" colspan="10"><a href="" onclick="toggle_group('<?=$group_id ?>','<?=$name ?>','<?php echo $src_ip ?>','<?php echo $dst_ip ?>','',<?php echo $from + 100 ?>);this.style.color='transparent';return false">> <?php echo _("Show the next 100 alarms") ?></a></td>
+		<td class="center nobborder" colspan="10"><a href="" onclick="toggle_group('<?=$group_id ?>','<?php echo $src_ip ?>','<?php echo $dst_ip ?>','',<?php echo $from + 100 ?>,'<?php echo intval(GET('similar'))?>');this.style.color='transparent';return false">> <?php echo _("Show the next 100 alarms") ?></a></td>
 	</tr>
 	</div>
 	<tr>

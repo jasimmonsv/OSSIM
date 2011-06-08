@@ -382,13 +382,11 @@ if (!$sup) $sup = $ROWS;
 
 //if ($sensor_query != "") $sensor_query_ip = (preg_match("/\d+\.\d+\.\d+\.\d+/",$sensor_query)) ? $sensor_query : Sensor::$sensor_query;
 $sensors_str = "";
-$hosts_str   = "";
-
+$hosts_str = "";
 foreach ($sensors as $s_ip=>$s_name) {
 	if ($s_name!=$s_ip) $sensors_str .= '{ txt:"'.$s_ip.' ['.$s_name.']", id: "'.$s_ip.'" },';
     else $sensors_str .= '{ txt:"'.$s_ip.'", id: "'.$s_ip.'" },';
 }
-
 foreach ($hosts as $h_ip=>$h_name) {
 	if ($h_name!=$h_ip) $hosts_str .= '{ txt:"'.$h_ip.' ['.$h_name.']", id: "'.$h_ip.'" },';
     else $hosts_str .= '{ txt:"'.$h_ip.'", id: "'.$h_ip.'" },';
@@ -598,7 +596,7 @@ if (!isset($_GET["hide_search"])) {
 						<table class="transparent">
 							<tr>
 								<td class="nobborder" nowrap><input type="button" value="<?=_("Ungrouped")?>" class="buttonon" disabled></td>
-								<td class="nobborder"><input type="button" onclick="document.location.href='alarm_group_console.php'" value="<?=_("Grouped")?>" class="button"></td>
+								<td class="nobborder"><input type="button" onclick="document.location.href='alarm_group_console.php?hide_closed=1'" value="<?=_("Grouped")?>" class="button"></td>
 							</tr>
 						</table>
 					</td>
@@ -768,18 +766,16 @@ echo gettext("Action"); ?> </td>
 $time_start = time();
 if ($count > 0) {
     $datemark = "";
-		
-		
-	foreach($alarm_list as $alarm) 
-	{
+    foreach($alarm_list as $alarm) {
         /* hide closed alarmas */
-        if (($alarm->get_status() == "closed") and ($hide_closed == 1)) 
-			continue;
-        
-		$id         = $alarm->get_plugin_id();
+        if (($alarm->get_status() == "closed") and ($hide_closed == 1)) continue;
+        $id         = $alarm->get_plugin_id();
         $sid        = $alarm->get_plugin_sid();
         $backlog_id = $alarm->get_backlog_id();
         $id_tag     = $alarm->get_id_tag();
+        $csimilar   = $alarm->get_csimilar();
+        $similar    = $alarm->get_similar();
+        
         /* get plugin_id and plugin_sid names */
         /*
         * never used ?
@@ -797,17 +793,13 @@ if ($count > 0) {
         }
         */
         $sid_name = $alarm->get_sid_name(); // Plugin_sid table just joined (Granada 27 mayo 2009)
-        $date     = Util::timestamp2date($alarm->get_timestamp());
-        $date     = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$date)+(3600*$tz));
-        
-		if ($backlog_id && $id==1505) 
-		{
+        $date = Util::timestamp2date($alarm->get_timestamp());
+        $date = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$date)+(3600*$tz));
+        if ($backlog_id && $id==1505) {
             $since = Util::timestamp2date($alarm->get_since());
             $since = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$since)+(3600*$tz));            
-        } 
-		else 
-		{
-             $since = $date;
+        } else {
+            $since = $date;
         }
         /* show alarms by days */
         $date_slices = split(" ", $date);
@@ -837,13 +829,14 @@ if ($count > 0) {
             $aid = $alarm->get_event_id();
             #$summary = Alarm::get_total_events($conn, $backlog_id);
             #$event_count_label = $summary["total_count"] . " "._("events");
-            $event_count_label = Alarm::get_total_events($conn, $backlog_id)." "._("events");
+            $event_count = Alarm::get_total_events($conn, $backlog_id);
+            $event_count_label = $event_count." "._("events");
         }
 ?>
       <tr>
         <td class="nobborder"><input style="border:none" type="checkbox" name="check_<?php echo $backlog_id ?>_<?php echo $alarm->get_event_id() ?>" id="check_<?php echo $backlog_id ?>" class="alarm_check" datecheck="<?php echo $date_unformated ?>" value="1"></td>
         <td class="nobborder" nowrap id="plus<?php echo $inf + 1 ?>">
-           <? if ($backlog_id && $id==1505 && $event_count_label > 0) { ?>
+           <? if ($backlog_id && $id==1505 && $event_count > 0) { ?>
            <a href="" onclick="show_alarm('<?php echo $backlog_id ?>','<?php echo $inf + 1 ?>');return false;"><img align='absmiddle' src='../pixmaps/plus-small.png' border='0'></a><?php echo ++$inf ?>
            <? } else { ?>
            <img align='absmiddle' src='../pixmaps/plus-small-gray.png' border='0'><font style="color:gray"><?php echo ++$inf ?></font>
@@ -856,7 +849,7 @@ if ($count > 0) {
         $alarm_name_orig = $alarm_name;
         if ($backlog_id && $id==1505) {
             $events_link = "events.php?backlog_id=$backlog_id";
-            if ($event_count_label > 0) {
+            if ($event_count > 0) {
             	$alarm_name = "<a href=\"\"  onclick=\"show_alarm('" . $backlog_id . "','" . ($inf) . "');return false;\">$alarm_name</a>";
             } else {
             	$alarm_name = "<a href=\"\"  onclick=\"return false;\">$alarm_name</a>";
@@ -874,25 +867,42 @@ if ($count > 0) {
         <table class="transparent"><tr>
         <?php if ($tags_html[$id_tag] != "") { ?><td class="nobborder"><?php echo $tags_html[$id_tag]; ?></td><?php } ?>
         <td class="nobborder"><b><?php echo $alarm_name; ?></b>
-		<?php
-        echo ($event_count_label > 0) ? "<br><font color=\"#AAAAAA\" style=\"font-size: 8px;\">(" . $event_count_label . ")</font>" : "";
-?>
+        
+        <span style='color: #AAAAAA;font-size:9px;'>
+        <?php
+        
+        if ($event_count > 0) {
+            echo "<br />[" . $event_count_label;
+        }
+        else if($csimilar>1) {
+            echo "<br />[";
+        }
+        
+        if($csimilar>1) {
+            echo ",&nbsp;". _("similar alarms: ");
+            echo "<a href='javascript:;' class='alarminfo' style='text-decoration:none' similar='$similar'>".$csimilar."</a>";
+        }
+
+        if($event_count > 0 || $csimilar>1) echo "]";
+        
+        ?>
+        </span>
         </td>
         </tr></table>
         </td>
         
         <!-- risk -->
 <?php
-        $src_ip   = $alarm->get_src_ip();
-        $dst_ip   = $alarm->get_dst_ip();
+        $src_ip = $alarm->get_src_ip();
+        $dst_ip = $alarm->get_dst_ip();
         $src_port = $alarm->get_src_port();
         $dst_port = $alarm->get_dst_port();
         //$src_port = Port::port2service($conn, $alarm->get_src_port());
         //$dst_port = Port::port2service($conn, $alarm->get_dst_port());
 		$src_port = Port::port2service($conn, $src_port);
         $dst_port = Port::port2service($conn, $dst_port);
-        $sensors  = $alarm->get_sensors();
-        $risk     = $alarm->get_risk();
+        $sensors = $alarm->get_sensors();
+        $risk = $alarm->get_risk();
         if ($risk > 7) {
             echo "
             <td class='nobborder' style='text-align:center;background-color:red'>
@@ -935,14 +945,15 @@ if ($count > 0) {
         <!-- sensor -->
         <td class="nobborder" style="text-align:center">
 <?php
-		foreach($sensors as $sensor) 
-		{
-			?>
-          <a href="../sensor/sensor_plugins.php?hmenu=Sensors&smenu=Sensors&sensor=<?php echo $sensor ?>"><?php echo ($no_resolv) ? $sensor : Host::ip2hostname($conn, $sensor) ?></a>  
-			<?php
+        foreach($sensors as $sensor) {
+?>
+          <a href="../sensor/sensor_plugins.php?hmenu=Sensors&smenu=Sensors&sensor=<?php
+            echo $sensor ?>"
+            ><?php
+            echo ($no_resolv) ? $sensor : Host::ip2hostname($conn, $sensor) ?></a>  
+<?php
         }
-        
-		if (!count($sensors)) {
+        if (!count($sensors)) {
             echo "&nbsp;";
         }
 ?>
@@ -1100,9 +1111,15 @@ $(document).ready(function(){
 			this.load('alarm_netlookup.php?ip=' + ip);
 		}
 	});
+    
+    $(".alarminfo").simpletip({
+		position: 'right',
+		onBeforeShow: function() {
+			this.load('alarm_info.php?similar=' + this.getParent().attr('similar'));
+		}
+	});
 	
 	var sensors = [<?=preg_replace("/\,$/","",$sensors_str)?>];
-	
 	$("#sensors").autocomplete(sensors, {
 		minChars: 0,
 		width: 225,
@@ -1114,8 +1131,6 @@ $(document).ready(function(){
 	}).result(function(event, item) {
 		$("#sensors").val(item.id);
 	});
-	
-	
 	var hosts = [<?=preg_replace("/\,$/","",$hosts_str)?>];
 	$("#src_ip").autocomplete(hosts, {
 		minChars: 0,
@@ -1128,7 +1143,6 @@ $(document).ready(function(){
 	}).result(function(event, item) {
 		$("#src_ip").val(item.id);
 	});
-	
 	$("#dst_ip").autocomplete(hosts, {
 		minChars: 0,
 		width: 225,

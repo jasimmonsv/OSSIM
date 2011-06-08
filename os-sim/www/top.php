@@ -352,6 +352,13 @@ $keys = array_keys($menu);
 			if (!Session_activity::is_expired(Util::get_utc_unixtime($conn,$sess->get_activity()))) $users++;
 		}
 		$db->close($conn);
+
+		// TIME DEBUG
+		//var_dump($tz);
+		//var_dump(gmdate("U"));
+		//var_dump($timetz);
+		//var_dump($sess->get_activity());
+		//var_dump(Util::get_utc_unixtime($conn,$sess->get_activity()));
 		?>
 
 		<div id="side-bar2" class="jx-bottom-bar jx-bar-rounded-bl jx-bar-rounded-br">

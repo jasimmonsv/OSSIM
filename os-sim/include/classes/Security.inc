@@ -304,6 +304,7 @@ define('OSS_ERROR', _("unkown error")); // default error message
 define('OSS_SQL', 'illegal:(select |union |update |delete |insert )');
 define('OSS_URL_ADDRESS', 'func:valid_url');
 define('OSS_WEEKDAY', 'func:valid_weekday');
+define('OSS_SHA1', OSS_LETTER . OSS_DIGIT);
 
 // don't use
 $GLOBALS['ossim_last_error'] = false; // track the latest error
