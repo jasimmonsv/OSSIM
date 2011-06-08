@@ -98,7 +98,7 @@ class NtopDiscovery(threading.Thread):
 					if not self.inv.hostHasName(ip):
 						self.inv.insertHostName(ip, name)
 					if not self.inv.hostHasSensor(ip, sensorName):
-						self.insertSensorReference(ip, sensorName)
+						self.inv.insertSensorReference(ip, sensorName)
 					
 		
 	def run(self):
