@@ -1101,7 +1101,7 @@ DROP TABLE IF EXISTS alarm;
 CREATE TABLE alarm (
         backlog_id      BIGINT NOT NULL,
         event_id        BIGINT NOT NULL,
-        timestamp       TIMESTAMP NOT NULL,
+        timestamp       TIMESTAMP NULL,
         status          ENUM ("open", "closed") DEFAULT "open",
         plugin_id       INTEGER NOT NULL,
         plugin_sid      INTEGER NOT NULL,

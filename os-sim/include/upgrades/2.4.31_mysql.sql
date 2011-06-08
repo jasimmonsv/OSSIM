@@ -18,6 +18,7 @@ DELIMITER ';'
 CALL addcol();
 DROP PROCEDURE addcol;
 
+ALTER TABLE  `alarm` CHANGE  `timestamp`  `timestamp` TIMESTAMP NULL;
 UPDATE alarm SET similar = SHA1(backlog_id);
 
 DROP TRIGGER IF EXISTS set_similar_field;
