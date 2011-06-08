@@ -834,44 +834,10 @@ def translate_wsaea_IDs(string):
 class HostResolv():
     HOST_RESOLV_DYNAMIC_CACHE = {}
     # Dynamic host-ip cache. 
-    def add_asset(data):
-        """ Add an asset to the dynamic agent host cache"""
-        pattern = "action=\"add_asset\"\s+hostname=\"(?P<hostname>\w+)\"\s+ip=\"(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})\""
-        reg_comp = re.compile(pattern)
-        res = reg_comp.match(data)
-        if res is not None:
-            hostname = res.group('hostname')
-            ip = res.group('ip')
-        if hostname is not None and ip is not None:
-            if HostResolv.HOST_RESOLV_DYNAMIC_CACHE.has_key(hostname):
-                print "updating cache..."
-                HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
-            else:
-                print "Adding new host.."
-                HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
-        HostResolv.saveHostCache()
-        HostResolv.printCache()
-    add_asset = staticmethod(add_asset)
-    def remove_asset(data):
-        """Remove an asset from dynamic agent cache."""
-        print "removing asset from dynamic cache"
-        pattern = "action=\"remove_asset\"\s+hostname=\"(?P<hostname>\w+)\""
-        reg_comp = re.compile(pattern)
-        res = reg_comp.match(data)
-        if res is not None:
-            hostname = res.group('hostname')
-        if hostname is not None:
-            if HostResolv.HOST_RESOLV_DYNAMIC_CACHE.has_key(hostname):
-                print "updating cache..."
-                del HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname]
-        HostResolv.saveHostCache()
-        HostResolv.printCache()
-    remove_asset = staticmethod(remove_asset)
-
     def refreshCache(data):
         ''' Refresh the HOST dynamic cache'''
         #action="refresh_asset_list" list={ossim-unstable-pro=192.168.2.18,crosa=192.168.2.130} id=all transaction="50653"
-        logger.debug("Updating dynamic host cache... ")
+        logger.info("Updating dynamic host cache... %s" % data)
         HostResolv.HOST_RESOLV_DYNAMIC_CACHE.clear()
         pattern = "action=\"refresh_asset_list\"\s+list={(?P<list>.*)}"
         ipv4_reg = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
@@ -882,11 +848,17 @@ class HostResolv():
         if res is not None:
             tmp_list = res.group('list')
             if tmp_list is not None:
-                host_list = tmp_list.split(',')
+                host_list = tmp_list.split(';')
+                logger.info("HOST_LIST: %s" % host_list)
                 for asset in host_list:
-                    hostname, ip = asset.split('=')
-                    if re.match(ipv4_reg, ip) and re.match(hostname_valid, hostname):
-                        HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
+                    ip, hostnames = asset.split('=')                    
+                    hostname_list = hostnames.split(',')
+                    logger.debug ("IP = %s , hostnamelist: %s" % (ip,hostname_list))
+                    for hostname in hostname_list:
+                        hostname = hostname.strip()
+                        if re.match(ipv4_reg, ip) and re.match(hostname_valid, hostname):
+                            HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
+                            logger.info("Adding host/ip to cache %s->%s" % (hostname,ip))
         HostResolv.printCache()
         HostResolv.saveHostCache()
     refreshCache = staticmethod(refreshCache)

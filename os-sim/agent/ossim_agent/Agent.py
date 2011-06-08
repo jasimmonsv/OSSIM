@@ -239,7 +239,7 @@ class Agent:
                 if tmpFrameworkConn.connect(attempts=3, waittime=30):
                     logger.debug("Control Framework (%s:%s) is now enabled!" % (frmk_tmp_ip, frmk_tmp_port))
                     conn_counter += 1
-                    tmpFrameworkConn.control_messages()
+                    tmpFrameworkConn.frmk_control_messages()
                     self.__frameworkConnecitonList.append(tmpFrameworkConn)
         if conn_counter == 0:
             logger.warning("No Framework connections available")

@@ -71,13 +71,16 @@ class ControlManager:
             self.__myconf["ossim_pass"])
             self.__myDB_connected = True
         #read host list
-        query = 'select hostname,ip from host where ip in  (select host_ip from  host_sensor_reference where sensor_name="%s");' % agent_id
+        query = 'select hostname,ip,fqdns from host where ip in  (select host_ip from  host_sensor_reference where sensor_name="%s");' % agent_id
         tmp = self.__myDB.exec_query(query)
         new_command = 'action="refresh_asset_list" list={'
         sendCommand = False
-        for host in tmp:
-            new_command += '%s=%s,' % (host['hostname'], host['ip'])
-            sendCommand = True
+        for host in tmp:            
+            if host['fqdns'] is not None:
+                new_command += '%s=%s,%s;' % (host['ip'],host['hostname'], host['fqdns'])
+            else:
+                new_command += '%s=%s' % (host['ip'] , host['hostname'])
+            sendCommand = True            
         new_command = new_command[0:len(new_command) - 1]
         new_command += '}'
         # add this connection to the transaction map
@@ -88,11 +91,13 @@ class ControlManager:
             if self.control_agents.has_key(agent_id):
                 self.control_agents[agent_id].wfile.write(new_command + ' transaction="NA"\n')
                 logger.info("Updating asset list to agent: %s " % (agent_id))
+                logger.debug("Cmd: %s" % new_command)
         else:
             logger.info("Empty asset list!")
     def process(self, requestor, command, line):
+        
         try:
-            logger.debug("Processing: %s" % line)
+            logger.info("Processing: %s" % line)
 
             response = ""
             action = Util.get_var("action=\"([^\"]+)\"", line)
@@ -134,7 +139,9 @@ class ControlManager:
                     names = ""
 
                 response += ' names="%s" errno="0" error="Success." ackend\n' % names
-
+            elif action == "refresh_asset_list":
+                for agent_id in self.control_agents.keys():
+                    self.refreshAgentCache(self.control_agents[agent_id], agent_id)
             else:
                 # check if we are a transaction
                 transaction = Util.get_var("transaction=\"([^\"]+)\"", line)

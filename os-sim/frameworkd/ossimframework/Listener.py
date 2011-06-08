@@ -102,49 +102,13 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
                     elif command == "ping":
                         response = "pong\n"
 
-                    elif command == "add_asset":
-                        #To all agents:
-                        #add_asset hostname=crg ip=192.168.2.15 id=all
-                        linebk = line
-                        pattern = "add_asset\s+hostname=(?P<hostname>\w+)\s+ip=(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})"
-                        reg_comp = re.compile(pattern)
-                        res = reg_comp.match(line)
-                        if res is not None:
-                            hostname = res.group('hostname')
-                            ip = res.group('ip')
-                            if hostname is not None and ip is not None:
-                                newcommand = 'action="%s" hostname="%s" ip="%s" id=all' % (command, hostname, ip)
-                                if controlmanager == None:
-                                    controlmanager = ControlManager(OssimConf(Const.CONFIG_FILE))
-                                response = controlmanager.process(self, command, newcommand)
-                            else:
-                                logger.debug("Invalid add_asset command:%s", linebk)
-                    elif command == "remove_asset":
-                        linebk = line
-                        pattern = "remove_asset\s+hostname=(?P<hostname>\w+)"
-                        reg_comp = re.compile(pattern)
-                        res = reg_comp.match(line)
-                        if res is not None:
-                            hostname = res.group('hostname')
-                            if hostname is not None:
-                                newcommand = 'action="%s" hostname="%s" id=all' % (command, hostname)
-                                if controlmanager == None:
-                                    controlmanager = ControlManager(OssimConf(Const.CONFIG_FILE))
-                                response = controlmanager.process(self, command, newcommand)
-                    elif command == "refresh_asset_list":
-                        linebk = line
-                        pattern = "refresh_asset_list list={(?P<list>.*)}"
-                        reg_comp = re.compile(pattern)
-                        res = reg_comp.match(line)
-                        if res is not None:
-                            host_list = res.group('list')
-                            if host_list is not None:
-                                newcommand = 'action="%s" list={%s} id=all' % (command, host_list)
-                                if controlmanager == None:
-                                    controlmanager = ControlManager(OssimConf(Const.CONFIG_FILE))
-                                response = controlmanager.process(self, command, newcommand)
-                            else:
-                                logger.debug("Invalid add_asset command:%s", linebk)
+                    elif command == "add_asset" or command == "remove_asset" or command == "refresh_asset_list":
+                        linebk = ""                        
+                        if controlmanager == None:
+                            controlmanager = ControlManager(OssimConf(Const.CONFIG_FILE))
+                        linebk = "action=\"refresh_asset_list\"\n"
+                        response = controlmanager.process(self, command, linebk)
+                           
                     elif command == "refresh_sensor_list":
                         logger.info("Check ntop proxy configuration ...")
                         ap = ApacheNtopProxyManager(OssimConf(Const.CONFIG_FILE))

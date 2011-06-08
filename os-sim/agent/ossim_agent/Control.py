@@ -141,11 +141,12 @@ class ControlManager():
 
             self.__response.append(message + ' %s ackend\n' % ControlError.get(0))
         elif action == "refresh_asset_list":
+            logger.info("Update asset list ....received from framework")
             HostResolv.refreshCache(data)
-        elif action == "add_asset":
-            HostResolv.add_asset(data)
-        elif action == "remove_asset":
-            HostResolv.remove_asset(data)
+#        elif action == "add_asset":
+#            HostResolv.add_asset(data)
+#        elif action == "remove_asset":
+#            HostResolv.remove_asset(data)
         # report basic OS statistics
         # report basic OS statistics
         elif action == "os_info":

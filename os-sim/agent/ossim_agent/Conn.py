@@ -543,7 +543,8 @@ class FrameworkConn():
         self.__keep_processing = True
         # instatiate the control manager
         self.__controlmanager = ControlManager(conf)
-
+        self.__alive = False
+        self.__tryReconect = False
 
     # connect to framework daemon
     #  attempts == 0 means that agent try to connect forever
@@ -559,7 +560,7 @@ class FrameworkConn():
                 % (self._framework_ip, self._framework_port))
 
             while attempts == 0 or count < attempts:
-                self.__connect_to_server()
+                self.__connect_to_framework()
 
                 if self.__conn is not None:
                     break
@@ -588,6 +589,7 @@ class FrameworkConn():
             self.__conn.close()
             self.__conn = None
         self.__keep_processing = False
+        self.__alive = False
         self.__controlmanager.stopProcess()
 
 
@@ -596,11 +598,14 @@ class FrameworkConn():
     def reconnect(self, attempts=0, waittime=10.0):
 
         self.close()
+        self.__keep_processing = True
         time.sleep(2)
-
+        self.__tryReconect = True
         while self.__keep_processing:
             if self.connect(attempts, waittime) is not None:
+                self.frmk_control_messages()
                 break
+        self.__tryReconect = False
 
 
     def send(self, msg):
@@ -609,18 +614,20 @@ class FrameworkConn():
                 self.__conn.send(msg)
 
             except socket.error, e:
-                logger.error(e)
-                self.reconnect()
+                logger.error(e)                
+                if not self.__tryReconect:
+                    self.reconnect()                    
 
             except AttributeError, e: # self.__conn == None
-                self.reconnect()
+                if not self.__tryReconect:
+                    self.reconnect()                    
 
             else:
                 logger.debug(msg.rstrip())
                 return
 
 
-    def __connect_to_server(self):
+    def __connect_to_framework(self):
         self.__conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # establish a 15 minute timeout on the socket
         self.__conn.settimeout(15)
@@ -646,7 +653,7 @@ class FrameworkConn():
         else:
             if data == 'ok id="' + str(self._framework_id) + '"\n':
                 logger.info("Connected to the control framework (%s:%s) !" % (self._framework_ip, self._framework_port))
-
+                self.__alive = True
             else:
                 logger.error("Bad response from the control framework: %s" % (str(data)))
                 self.__conn = None
@@ -656,20 +663,23 @@ class FrameworkConn():
 
         char = data = ''
 
-        while self.__keep_processing:
+        while self.__keep_processing and not self.__tryReconect:
             try:
                 char = self.__conn.recv(1)
 
             except socket.timeout, e:
                 logger.debug("Timed out waiting!")
+                self.__alive = False
 
             except socket.error, e:
                 logger.error('Error receiving data from the control framework: %s' % str(e))
-                self.reconnect()
+                if not self.__tryReconect:                    
+                    self.reconnect()
 
             except AttributeError:
                 logger.error('Error receiving data from the control framework!')
-                self.reconnect()
+                if not self.__tryReconect:                    
+                    self.reconnect()
 
             else:
                 data += char
@@ -679,31 +689,32 @@ class FrameworkConn():
 
                 elif char == '':
                     logger.warning('Connection to the control framework appears to be down.')
-                    self.reconnect()
+                    if not self.__tryReconect:                        
+                        self.reconnect()
 
         return data
 
 
     # receive control messages from the framework daemon
-    def __recv_control_messages(self):
+    def __recv_frmk_control_messages(self):
 
         while self.__keep_processing:
-            try:
+#            try:
                 # receive message from server (line by line)
-                data = self.__recv_line().rstrip('\n')
+            data = self.__recv_line().rstrip('\n')
 
-                try:
-                    response = self.__controlmanager.process(self.__conn, data)
+#                try:
+            response = self.__controlmanager.process(self.__conn, data)
                     # send out all items in the response queue
-                    while len(response) > 0:
-                        self.send(response.pop(0))
+            while len(response) > 0:
+                self.send(response.pop(0))
 
-                except Exception, e:
-                    logger.warning('Unexpected exception: %s' % str(e))
+#                except Exception, e:
+#                    logger.warning('Unexpected exception: %s' % str(e))
 
-            except Exception, e:
-                logger.error(
-                    'Unexpected exception receiving from the control framework: %s' % str(e))
+#            except Exception, e:
+#                logger.error(
+#                    'Unexpected exception receiving from the control framework: %s' % str(e))
 
 
     def __ping(self):
@@ -713,8 +724,8 @@ class FrameworkConn():
 
 
     # launch new thread to manage control messages
-    def control_messages(self):
-        thread.start_new_thread(self.__recv_control_messages, ())
+    def frmk_control_messages(self):
+        thread.start_new_thread(self.__recv_frmk_control_messages, ())
 
         # enable keep-alive pinging if appropriate
         if self._framework_ping:

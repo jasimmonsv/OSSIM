@@ -173,6 +173,8 @@ class EventOS(Event):
         "log",
         "fdate",
         "tzone",
+        "src_ip",
+        "dst_ip",
     ]
 
 
@@ -193,6 +195,8 @@ class EventMac(Event):
         "log",
         "fdate",
         "tzone",
+        "src_ip",
+        "dst_ip",
     ]
 
 
@@ -215,6 +219,8 @@ class EventService(Event):
         "log",
         "fdate",
         "tzone",
+        "src_ip",
+        "dst_ip",
     ]
 
 
@@ -249,6 +255,8 @@ class EventHids(Event):
         "log",
         "fdate",
         "tzone",
+        "src_ip",
+        "dst_ip",
     ]
 
 
@@ -306,6 +314,8 @@ class Snort(Event):
         "type",
         "occurrences",
         "date",
+        "src_ip",
+        "dst_ip",
         "fdate",
         "tzone",
     ]
