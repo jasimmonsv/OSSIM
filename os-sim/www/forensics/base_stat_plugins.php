@@ -23,6 +23,7 @@ include_once ("$BASE_path/base_db_common.php");
 include_once ("$BASE_path/base_qry_common.php");
 include_once ("$BASE_path/base_stat_common.php");
 include ("geoip.inc");
+require_once ('classes/Util.inc');
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 $hosts_ips = array_keys($hosts);
 
@@ -86,7 +87,7 @@ if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+ti
     }
 }
 // Timezone
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 
 //$qs->AddValidAction("ag_by_id");
 //$qs->AddValidAction("ag_by_name");

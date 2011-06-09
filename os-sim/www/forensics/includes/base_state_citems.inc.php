@@ -854,7 +854,7 @@ class TimeCriteria extends MultipleElementCriteria {
     function GetUTC() {
     	/* convert to UTC time for sql */
     	require_once("classes/Util.inc");
-    	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+    	$tz = Util::get_timezone();
     	$utc_criteria = $this->criteria;
         for ($i = 0; $i < $this->criteria_cnt; $i++) if ($this->criteria[$i][4] != " " && $this->criteria[$i][4] != "") {
         	$y = $this->criteria[$i][4];

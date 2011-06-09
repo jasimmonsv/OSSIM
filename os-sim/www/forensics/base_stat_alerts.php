@@ -22,6 +22,8 @@ include ("$BASE_path/includes/base_include.inc.php");
 include_once ("$BASE_path/base_db_common.php");
 include_once ("$BASE_path/base_qry_common.php");
 include_once ("$BASE_path/base_stat_common.php");
+require_once ('classes/Util.inc');
+
 ($debug_time_mode >= 1) ? $et = new EventTiming($debug_time_mode) : '';
 $cs = new CriteriaState("base_stat_alerts.php");
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
@@ -107,7 +109,7 @@ $event_cnt = 1;
 }
 }*/
 // Timezone
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 
 /* create SQL to get Unique Alerts */
 $cnt_sql = "SELECT count(DISTINCT acid_event.plugin_id, acid_event.plugin_sid) " . $from . $where;

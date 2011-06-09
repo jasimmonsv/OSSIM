@@ -115,7 +115,9 @@ class Policy_time {
         }
     }
     function to_utc ($begin_hour, $end_hour, $begin_day, $end_day) {
-    	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+        require_once ('classes/Util.inc');
+                
+    	$tz = Util::get_timezone();
     	$begin_hour -= $tz;
  		if ($begin_hour<0) { $begin_hour+=24; $begin_day--; }
 		elseif ($begin_hour>23) { $begin_hour-=24; $begin_day++; }
@@ -129,7 +131,9 @@ class Policy_time {
     	return array($begin_hour, $end_hour, $begin_day, $end_day);
     }
     function from_utc ($begin_hour, $end_hour, $begin_day, $end_day) {
-    	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+        require_once ('classes/Util.inc');
+        
+    	$tz = Util::get_timezone();
     	$begin_hour += $tz;
  		if ($begin_hour<0) { $begin_hour+=24; $begin_day--; }
 		elseif ($begin_hour>23) { $begin_hour-=24; $begin_day++; }

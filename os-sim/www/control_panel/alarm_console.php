@@ -694,7 +694,7 @@ if ($sup < $count) {
 		</tr>
     <?php
     // Timezone correction
-    $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+    $tz = Util::get_timezone(); 
     ?>
       <tr>
         <td class="nobborder" width="20" align="center"><input type="checkbox" name="allcheck" onclick="checkall()"></td>

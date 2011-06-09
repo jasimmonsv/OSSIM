@@ -151,7 +151,7 @@ if ($have_scanmap == 1 && $show_all) {
     $have_scanmap = 0;
 }
 // Timezone correction
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 $alarms_numbering = Alarm::get_alarms_numbering($conn, $backlog_id);
 list($alarm_list, $total_events) = Alarm::get_events($conn, $backlog_id, $show_all, $event_id, $from, $max_events, $alarms_numbering);
 $first_number = ($event_id != "") ? (($from > 0) ? $from - 1 : $from) : get_first_number($from, $alarms_numbering, $alarm_list[0]->get_event_id());

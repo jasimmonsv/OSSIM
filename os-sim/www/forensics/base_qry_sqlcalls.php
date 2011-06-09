@@ -23,6 +23,8 @@ $htmlPdfReport = new Html($siem_events_title,$siem_events_title,'','font-size:10
 */
 // GEOIP
 include ("geoip.inc");
+require_once("classes/Util.inc");
+
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 global $colored_alerts, $debug_mode;
 /* **************** Run the Query ************************************************** */
@@ -40,7 +42,7 @@ if ($printing_ag) {
     $tmp_page_get = "";
 }
 // Timezone
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone(); 
 
 /* Run the query to determine the number of rows (No LIMIT)*/
 //$qs->GetNumResultRows($cnt_sql, $db);
