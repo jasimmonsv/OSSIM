@@ -29,6 +29,7 @@ include ("$BASE_path/includes/base_include.inc.php");
 include_once ("$BASE_path/base_db_common.php");
 include_once ("$BASE_path/base_qry_common.php");
 include_once ("$BASE_path/base_stat_common.php");
+require_once ('classes/Util.inc');
 // Check role out and redirect if needed -- Kevin
 $roleneeded = 10000;
 $payload = FALSE;
@@ -369,7 +370,7 @@ if ($myrow6 = $result6->baseFetchRow()) {
 }
 
 // Timezone
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 $event_date = $timestamp;
 $tzdate = $event_date;
 $event_date_uut = get_utc_unixtime($db,$event_date);

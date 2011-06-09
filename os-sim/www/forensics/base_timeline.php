@@ -24,6 +24,7 @@ include_once ("$BASE_path/base_qry_common.php");
 include_once ("$BASE_path/base_stat_common.php");
 Session::logcheck("MenuEvents", "EventsForensics");
 include ("geoip.inc");
+require_once ('classes/Util.inc');
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 $hosts_ips = array_keys($hosts);
 
@@ -60,7 +61,7 @@ $qro = new QueryResultsOutput("base_qry_main.php" . $qs->SaveStateGET());
 $qro->AddTitle(qroReturnSelectALLCheck());
 
 // Timezone
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 
 /* Apply sort criteria */
 if ($qs->isCannedQuery()) $sort_sql = " ORDER BY timestamp DESC ";

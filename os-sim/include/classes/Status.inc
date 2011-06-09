@@ -527,7 +527,9 @@ class Status {
 	}
 	
 	function get_sql_graphic($tr, $where) {
-		$tz  =( isset($_SESSION["_timezone"]) ) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+		require_once ('classes/Util.inc');
+
+		$tz  = Util::get_timezone();
 		$tzc = Util::get_tzc($tz);
 		
 		switch ($tr) {

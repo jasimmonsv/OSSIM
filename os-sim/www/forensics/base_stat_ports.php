@@ -22,6 +22,8 @@ include ("$BASE_path/includes/base_include.inc.php");
 include_once ("$BASE_path/base_db_common.php");
 include_once ("$BASE_path/base_common.php");
 include_once ("$BASE_path/base_qry_common.php");
+require_once ('classes/Util.inc');
+
 $BUser = new BaseUser();
 #if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
 $et = new EventTiming($debug_time_mode);
@@ -156,7 +158,7 @@ switch ($port_type) {
         break;
 }
 // Timezone
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 
 /* create SQL to get Unique Alerts */
 $cnt_sql = "SELECT count(DISTINCT $port_type_sql) " . " FROM acid_event " . $criteria_clauses[0] . " WHERE " . $criteria_clauses[1];

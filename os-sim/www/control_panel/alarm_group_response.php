@@ -174,7 +174,7 @@ foreach($host_list as $host) {
 }
 list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"",$from,$top,$from_date,$to_date,$name);
 
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 ?>
 <table class="transparent" width="100%">
 	<?php if ($from < 1) { ?>

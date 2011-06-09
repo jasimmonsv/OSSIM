@@ -454,7 +454,7 @@ if ($from_remote) {
 fclose($fp);
 $time2 = microtime(true);
 $totaltime = round($time2 - $time1, 2);
-$tz=(GET("tzone")!="") ? $tzone : ( (isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100 );
+$tz=(GET("tzone")!="") ? $tzone : Util::get_timezone(); 
 $txtzone = Util::timezone($tz);
 ?>
 <div id="processcontent" style="display:none">

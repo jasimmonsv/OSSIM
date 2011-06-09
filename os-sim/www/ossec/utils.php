@@ -940,9 +940,10 @@ function SIEM_trends_hids($agent_ip)
 {
 	include_once '../panel/sensor_filter.php';
 	require_once 'classes/Plugin.inc';
+    require_once 'classes/Util.inc';
 	require_once 'ossim_db.inc';
 	
-	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+	$tz = Util::get_timezone();
 	
 	$tzc     = Util::get_tzc($tz);
 	$data    = array();

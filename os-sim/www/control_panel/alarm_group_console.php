@@ -856,7 +856,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 	</tr>
 <?
     // Timezone correction
-    $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+    $tz = Util::get_timezone();
     foreach($alarm_group as $group) {
         $group['date'] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$group['date'])+(3600*$tz));
 		$group_id = $group['group_id'];

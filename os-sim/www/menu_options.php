@@ -37,6 +37,7 @@
 require_once ('ossim_conf.inc');
 require_once ('classes/Upgrade.inc');
 require_once ('classes/Session.inc');
+require_once ('classes/Util.inc');
 
 $conf           = $GLOBALS["CONF"];
 $version        = $conf->get_conf("ossim_server_version", FALSE);
@@ -258,8 +259,8 @@ if ( Session::menu_perms("MenuEvents", "EventsForensics") )
 { 
 	$events = 1;
 	
-	$tz = (isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
-	$timetz = gmdate("U")+(3600*$tz);
+	$tz        = Util::get_timezone();
+	$timetz    = gmdate("U")+(3600*$tz);
 	$tmp_month = gmdate("m",$timetz);
 	$tmp_day   = gmdate("d",$timetz);
 	$tmp_year  = gmdate("Y",$timetz);

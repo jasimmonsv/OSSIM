@@ -59,7 +59,7 @@ $conn_aux = $db_aux->connect();
 $_SESSION["_solera"] = ($conf->get_conf("solera_enable", FALSE)) ? true : false;
 
 // Timezone correction
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 
 $param_query = GET("query") ? GET("query") : "";

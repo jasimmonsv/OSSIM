@@ -42,8 +42,11 @@ if (!isset($_SESSION["_user"])) {
 	header("Location: $login_location");
 	exit;
 }
+
+require_once("classes/Util.inc");
+        
 // Timezone correction
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 
 // Custom Views

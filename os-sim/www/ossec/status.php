@@ -38,7 +38,7 @@
 
 require_once ('classes/Session.inc');
 require_once ('utils.php');
-
+require_once ('classes/Util.inc');
 
 $m_perms  = array ("MenuEvents", "MenuEvents");
 $sm_perms = array ("EventsHids", "EventsHidsConfig");
@@ -47,7 +47,7 @@ if ( !Session::menu_perms($m_perms, $sm_perms) )
 	Session::unallowed_section(null, 'noback',$m_perms[0], $sm_perms[0]);
 
 
-$tz     =(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz     = Util::get_timezone();
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 
 

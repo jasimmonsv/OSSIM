@@ -1,11 +1,12 @@
 <?php
+require_once ('classes/Util.inc');
+
 // Timezone correction
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz = Util::get_timezone();
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 
 // Sensor sid allowed (snort bbdd)
 function GetSnortSensorSids($conn2) {
-	$ret = array();
 	$query = "SELECT * FROM snort.sensor";
 	if (!$rs = & $conn2->Execute($query)) {
 		print $conn2->ErrorMsg();
@@ -13,7 +14,7 @@ function GetSnortSensorSids($conn2) {
 	}
 	while (!$rs->EOF) {
 		$sname = ($rs->fields['sensor']!="") ? $rs->fields['sensor'] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$rs->fields['hostname']));
-		if ($sname!="") $ret[$sname][] = $rs->fields['sid'];
+		$ret[$sname][] = $rs->fields['sid'];
 		$rs->MoveNext();
 	}
 	return $ret;

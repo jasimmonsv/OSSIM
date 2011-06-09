@@ -62,7 +62,7 @@ if (!isset($_SESSION['plugins_to_show'])) $_SESSION['plugins_to_show'] = array()
 // responder js
 if (GET('modo') == "responder") {
     // Timezone correction
-    $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+    $tz = Util::get_timezone();
 	$tzc = Util::get_tzc($tz);	
     $plugins = "";
     $plgs = explode(",",GET('plugins'));
