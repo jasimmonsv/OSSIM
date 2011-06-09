@@ -71,6 +71,7 @@ class ControlManager:
             self.__myconf["ossim_pass"])
             self.__myDB_connected = True
         #read host list
+        logger.info("Update assets to framework: %s"% agent_id)
         query = 'select hostname,ip,fqdns from host where ip in  (select host_ip from  host_sensor_reference where sensor_name="%s");' % agent_id
         tmp = self.__myDB.exec_query(query)
         new_command = 'action="refresh_asset_list" list={'
@@ -79,7 +80,7 @@ class ControlManager:
             if host['fqdns'] is not None:
                 new_command += '%s=%s,%s;' % (host['ip'],host['hostname'], host['fqdns'])
             else:
-                new_command += '%s=%s' % (host['ip'] , host['hostname'])
+                new_command += '%s=%s;' % (host['ip'] , host['hostname'])
             sendCommand = True            
         new_command = new_command[0:len(new_command) - 1]
         new_command += '}'
