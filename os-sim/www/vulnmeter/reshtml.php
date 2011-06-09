@@ -148,6 +148,10 @@ case "POST" :
 
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
+
+$dbconn->disconnect();
+$dbconn = $db->connect();
+
 if ($pag=="" || $pag<1) $pag=1;
 
 $arruser = array();
@@ -1532,6 +1536,8 @@ switch($disp) {
 
 }
 echo "<br>";
+
+$dbconn->disconnect();
 
 function get_msg($dbconn,$query_msg) {
     //echo "$query_msg<br>";

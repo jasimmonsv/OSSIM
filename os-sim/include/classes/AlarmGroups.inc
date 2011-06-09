@@ -353,8 +353,8 @@ class AlarmGroups {
 		// QUERY
         // Group by similar field
 		if ($group_type == "similar") {
-            $query = "SELECT similar AS group_id, name, max(a.risk) as max_risk, count(a.similar) as howmany
-            FROM alarm a, plugin_sid p WHERE a.plugin_id = p.plugin_id AND a.plugin_sid = p.sid $closed_where GROUP BY a.similar $limit";
+            $query = "SELECT SQL_CALC_FOUND_ROWS similar AS group_id, name, max(a.risk) as max_risk, count(a.similar) as howmany
+            FROM alarm a, plugin_sid p WHERE a.plugin_id = p.plugin_id AND a.plugin_sid = p.sid $closed_where GROUP BY a.similar ORDER BY a.timestamp DESC $limit";
 
             // Group by name (unique)
 		}

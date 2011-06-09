@@ -586,7 +586,9 @@ class Host {
 	}
     // get lists of sensors/hosts 
     function get_ips_and_hostname($conn,$checkperm=false) {
-    	if (Session::am_i_admin()) $checkperm = false;
+    	require_once('classes/Sensor.inc');
+		
+		if (Session::am_i_admin()) $checkperm = false;
     	
     	if ($checkperm)
     	{

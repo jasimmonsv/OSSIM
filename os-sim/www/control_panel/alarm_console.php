@@ -871,10 +871,10 @@ if ($count > 0) {
         <span style='color: #AAAAAA;font-size:9px;'>
         <?php
         
-        if ($event_count > 0) {
+        if ($backlog_id && $id==1505 && $event_count > 0) {
             echo "<br />[" . $event_count_label;
         }
-        else if($csimilar>1) {
+        elseif($csimilar>1) {
             echo "<br />[";
         }
         
@@ -883,7 +883,7 @@ if ($count > 0) {
             echo "<a href='javascript:;' class='alarminfo' style='text-decoration:none' similar='$similar'>".$csimilar."</a>";
         }
 
-        if($event_count > 0 || $csimilar>1) echo "]";
+        if (($backlog_id && $id==1505 && $event_count > 0) || $csimilar>1) echo "]";
         
         ?>
         </span>

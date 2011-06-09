@@ -49,6 +49,14 @@ require_once ('classes/Plugin_sid.inc');
 require_once ('classes/Port.inc');
 require_once ('classes/Util.inc');
 require_once ('classes/Security.inc');
+function get_first_number($from, $alarms_numbering, $event_id) {
+	foreach ($alarms_numbering as $a_id => $pos) {
+		if ($a_id > $event_id) {
+			$from--;
+		}
+	}
+	return $from;
+}
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 /*****************
@@ -144,14 +152,13 @@ if ($have_scanmap == 1 && $show_all) {
 }
 // Timezone correction
 $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
-if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
-	$count_events = 0;
-    $count_alarms = 0;
+$alarms_numbering = Alarm::get_alarms_numbering($conn, $backlog_id);
+list($alarm_list, $total_events) = Alarm::get_events($conn, $backlog_id, $show_all, $event_id, $from, $max_events, $alarms_numbering);
+$first_number = ($event_id != "") ? (($from > 0) ? $from - 1 : $from) : get_first_number($from, $alarms_numbering, $alarm_list[0]->get_event_id());
+if ($total_events > 0) {
+	$count_events = $first_number;
+    $count_alarms = 0; // obsolete
     foreach($alarm_list as $alarm) {
-		if ($show_all > 0 && ($count_events < $from || $count_events >= $to) && !$alarm->get_alarm()) {
-			$count_events++;
-			continue;
-		}
     	$id = $alarm->get_plugin_id();
         $sid = $alarm->get_plugin_sid();
         $backlog_id = $alarm->get_backlog_id();
@@ -180,7 +187,7 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         <!-- id & name event -->
         <td><?php
         $aid = $alarm->get_event_id();
-        if ($alarm->get_alarm()) echo "<b>" . ++$count_alarms . "</b>";
+        if ($alarm->get_alarm()) echo "<b>" . $alarms_numbering[$aid] . "</b>";
         else echo ++$count_events;
 ?></td>
         <td><?php
@@ -423,7 +430,7 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 	</tr>
 	<?php
 	}
-	if ($from > 0 || $count_events > $to) { ?>
+	if ($from + $max_events < $total_events || $from > 0) { ?>
 	<tr>
 		<td class="center nobborder" colspan="9">
 			<table align="center" class="transparent">
@@ -431,8 +438,8 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 				<?php if ($from > 0) { ?>
 				<td class="nobborder" style="padding-right:10px"><input type="button" class="button" onclick="document.location.href='events_ajax.php?backlog_id=<?php echo $backlog_id ?>&event_id=<?php echo $event_id ?>&show_all=<?php echo $show_all ?>&hide=<?php echo $hide ?>&from=<?php echo $from-$max_events ?>&box=1'" value="<< <?php echo _("Previous") ?> <?php echo $max_events ?> <?php echo _("events") ?>"></td>
 				<?php } ?>
-				<td class="nobborder"><?php echo _("Showing events")." <b>".($from+1)."</b> - <b>".(($to > $count_events) ? $count_events : $to)."</b>" ?></td>
-				<?php if ($count_events > $to) { ?>
+				<td class="nobborder"><?php echo _("Showing events")." <b>".($first_number + 1)."</b> - <b>".($count_events)."</b>" ?></td>
+				<?php if ($from + $max_events < $total_events) { ?>
 				<td class="nobborder" style="padding-left:10px"><input type="button" class="button" onclick="document.location.href='events_ajax.php?backlog_id=<?php echo $backlog_id ?>&event_id=<?php echo $event_id ?>&show_all=<?php echo $show_all ?>&hide=<?php echo $hide ?>&from=<?php echo $from+$max_events ?>&box=1'" value="<?php echo _("Next") ?> <?php echo $max_events ?> <?php echo _("events") ?> >>"></td>
 				<?php } ?>
 				</tr>
