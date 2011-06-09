@@ -865,7 +865,7 @@ class HostResolv():
 
 
     def saveHostCache():
-        logger.debug("Savin dynamic host cache in /etc/ossim/agent/host_cache.dic")
+        logger.info("Saving dynamic host cache in /etc/ossim/agent/host_cache.dic")
         pickle.dump(HostResolv.HOST_RESOLV_DYNAMIC_CACHE, open("/etc/ossim/agent/host_cache.dic", "wb"))
     saveHostCache = staticmethod(saveHostCache)
 

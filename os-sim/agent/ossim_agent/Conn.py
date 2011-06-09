@@ -544,7 +544,9 @@ class FrameworkConn():
         # instatiate the control manager
         self.__controlmanager = ControlManager(conf)
         self.__alive = False
-        self.__tryReconect = False
+        self.__pingThread = None
+        self.__reciverControlMsgThread = None
+        self.__event = threading.Event()
 
     # connect to framework daemon
     #  attempts == 0 means that agent try to connect forever
@@ -584,7 +586,10 @@ class FrameworkConn():
 
     def close(self):
         logger.info("Closing control framework connection ...")
-
+        if self.__reciverControlMsgThread is not None:
+            self.__reciverControlMsgThread.join(1)
+        if self.__pingThread is not None:
+            self.__pingThread.join(1)
         if self.__conn is not None:
             self.__conn.close()
             self.__conn = None
@@ -596,16 +601,15 @@ class FrameworkConn():
 
     # Reset the current connection by closing and reopening it
     def reconnect(self, attempts=0, waittime=10.0):
-
-        self.close()
-        self.__keep_processing = True
+        self.__event.set()
+        if self.__conn is not None:
+            self.__conn.close()
+            self.__conn = None        
         time.sleep(2)
-        self.__tryReconect = True
         while self.__keep_processing:
             if self.connect(attempts, waittime) is not None:
-                self.frmk_control_messages()
-                break
-        self.__tryReconect = False
+                self.__event.clear()
+                break        
 
 
     def send(self, msg):
@@ -659,11 +663,11 @@ class FrameworkConn():
                 self.__conn = None
 
 
-    def __recv_line(self):
+    def __recv_line(self,event):
 
         char = data = ''
 
-        while self.__keep_processing and not self.__tryReconect:
+        while self.__keep_processing:
             try:
                 char = self.__conn.recv(1)
 
@@ -689,19 +693,24 @@ class FrameworkConn():
 
                 elif char == '':
                     logger.warning('Connection to the control framework appears to be down.')
-                    if not self.__tryReconect:                        
+                    if not event.isSet():                        
                         self.reconnect()
+
+                    
+            #if try_reconnect = true, we must wait 
+            while event.isSet():
+                time.sleep(2)
 
         return data
 
 
     # receive control messages from the framework daemon
-    def __recv_frmk_control_messages(self):
+    def __recv_frmk_control_messages(self, event):
 
         while self.__keep_processing:
 #            try:
                 # receive message from server (line by line)
-            data = self.__recv_line().rstrip('\n')
+            data = self.__recv_line(event).rstrip('\n')
 
 #                try:
             response = self.__controlmanager.process(self.__conn, data)
@@ -725,11 +734,14 @@ class FrameworkConn():
 
     # launch new thread to manage control messages
     def frmk_control_messages(self):
-        thread.start_new_thread(self.__recv_frmk_control_messages, ())
-
+        #thread.start_new_thread(self.__recv_frmk_control_messages, ())
+        self.__reciverControlMsgThread =  threading.Thread(target=self.__recv_frmk_control_messages, args=(self.__event,))
+        self.__reciverControlMsgThread.start()
         # enable keep-alive pinging if appropriate
         if self._framework_ping:
-            thread.start_new_thread(self.__ping, ())
+            self.__pingThread = threading.Thread(target=self.__ping, args=())
+            self.__pingThread.start()
+            
 
 
 # vim:ts=4 sts=4 tw=79 expandtab:

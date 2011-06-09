@@ -71,7 +71,6 @@ class ControlManager:
             self.__myconf["ossim_pass"])
             self.__myDB_connected = True
         #read host list
-        logger.info("Update assets to framework: %s"% agent_id)
         query = 'select hostname,ip,fqdns from host where ip in  (select host_ip from  host_sensor_reference where sensor_name="%s");' % agent_id
         tmp = self.__myDB.exec_query(query)
         new_command = 'action="refresh_asset_list" list={'
@@ -98,8 +97,6 @@ class ControlManager:
     def process(self, requestor, command, line):
         
         try:
-            logger.info("Processing: %s" % line)
-
             response = ""
             action = Util.get_var("action=\"([^\"]+)\"", line)
 
