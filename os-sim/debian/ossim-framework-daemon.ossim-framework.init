@@ -43,6 +43,8 @@ d_start() {
    
    start-stop-daemon --quiet --start --pidfile $PIDFILE \
         --exec $DAEMON -- -d #> /dev/null
+
+   echo `pidof -o %PPID -x $NAME` > $PIDFILE
 }
 
 
