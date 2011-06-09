@@ -17,3 +17,10 @@ INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, r
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1614, 8, NULL, NULL, 'F5 load balancer: Generic NOTICE', 1, 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1614, 9, NULL, NULL, 'F5 load balancer: Generic INFO', 1, 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1614, 10, NULL, NULL, 'F5 load balancer: Generic WARNING', 3, 1);
+
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1614, 11, NULL, NULL, 'F5 load balancer: Node down', 1, 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1614, 12, NULL, NULL, 'F5 load balancer: Node up', 1, 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1614, 13, NULL, NULL, 'F5 load balancer: HTTP Authentication failure', 1, 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1614, 14, NULL, NULL, 'F5 load balancer: HTTP Authentication failure', 1, 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1614, 15, NULL, NULL, 'F5 load balancer: SSH login accepted', 1, 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1614, 16, NULL, NULL, 'F5 load balancer: Login failed', 1, 1);
