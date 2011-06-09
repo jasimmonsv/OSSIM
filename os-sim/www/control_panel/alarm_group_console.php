@@ -884,8 +884,9 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
         } else {
             $ocurrence_text = strtolower(gettext("Alarm"));
         }
+        $current_page = "document.getElementById('action').value='change_page';document.getElementById('inf').value=$inf;document.getElementById('sup').value=$sup";
 		//$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='alarm_group_console.php?group_type=$group_type&release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>" : "<a href='alarm_group_console.php?group_type=$group_type&take=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Take")."</a>";
-		$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='' onclick=\"document.getElementById('release').value=$group_id;form_submit();return false\">"._("Release")."</a>" : "<a href='' onclick=\"document.getElementById('take').value='$group_id';form_submit();return false\">"._("Take")."</a>";
+		$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='' onclick=\"$current_page;document.getElementById('release').value=$group_id;form_submit();return false\">"._("Release")."</a>" : "<a href='' onclick=\"$current_page;document.getElementById('take').value='$group_id';form_submit();return false\">"._("Take")."</a>";
 		
 		if ($db_groups[$group_id]['owner'] != "")
 			if ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) {
@@ -893,7 +894,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 				$background = '#A7D7DF;';
 				if ($status == 'open') {
 					//$owner = "<a href='alarm_group_console.php?group_type=$group_type&release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>";
-					$owner = "<a href='' onclick=\"document.getElementById('release').value='$group_id';form_submit();return false\">"._("Release")."</a>";
+					$owner = "<a href='' onclick=\"$current_page;document.getElementById('release').value='$group_id';form_submit();return false\">"._("Release")."</a>";
 				}
 				$group_box = "<input type='checkbox' id='check_" . $group_id . "' name='group' value='" . $group_id . "' >";
 				$incident_link = '<a class=greybox2 title=\''._("New ticket for Group ID") . $group_id . '\' href=\'../incidents/newincident.php?nohmenu=1&' . "ref=Alarm&" . "title=" . urlencode($alarm_name) . "&" . "priority=$s_risk&" . "src_ips=$src_ip&" . "event_start=$since&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . '\'>' . '<img border=0 src=\'../pixmaps/script--pencil.png\' alt=\''._("ticket").'\' border=\'0\'/>' . '</a>';
