@@ -32,7 +32,7 @@ if ($date_to !~ /[\d\-]+/) {
 	print "Parameters error\n";
 	exit;
 }
-if ($range ne "" && $range !~ /[a-z]+/) {
+if ($range ne "" && $range !~ /[a-zA-Z]+/) {
 	print "Parameters error\n";
 	exit;
 }
