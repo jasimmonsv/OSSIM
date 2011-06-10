@@ -239,10 +239,13 @@ class PdfReport{
             $html2pdf = new HTML2PDF($this->orientation,$this->paperformat,'en', true, 'UTF-8',array(0,0,0,0));
             $html2pdf->pdf->SetDisplayMode('real');
             $html2pdf->setTestTdInOnePage(false);
+            $html2pdf->setTestIsImage(false);
+            //$html2pdf->setModeDebug();
             $html2pdf->WriteHTML(file_get_contents($this->pathHtmlAux));
             
-			if( $output=='navigator' )
+			if( $output=='navigator' ) {
 			    $html2pdf->Output($this->namePdf,'D');
+            }
             elseif($output=='server')
 			{
                 $html2pdf->Output($this->pathDirResourcesHtml.$this->namePdf, 'F');
