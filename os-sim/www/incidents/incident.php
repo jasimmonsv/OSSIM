@@ -148,8 +148,15 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 		}
 		
 		function GB_onclose() {
-			document.location.href = "../incidents/incident.php?id=<?php echo $id?>";
-		}
+            <?php
+            if (intval(GET('nohmenu')) == 1) {?>
+                document.location.href = "../incidents/incident.php?id=<?php echo $id?>&nohmenu=1";
+            <?php
+            }
+            else {?>
+                document.location.href = "../incidents/incident.php?id=<?php echo $id?>";
+            <?php } ?>
+        }
 		
 		function switch_user(select) {
 			if( select=='entity' && $('#transferred_entity').val()!=''){
@@ -322,9 +329,11 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 </head>
 
 <body>
-
-<?php include ("../hmenu.php"); ?>
-
+<?php
+	if (intval(GET('nohmenu')) == 1) {
+		echo "<br>";
+	} else include ("../hmenu.php");
+?>
 <table align="center" width="100%">
 	<tr>
 		<th> <?php echo _("Ticket ID") ?> </th>
@@ -545,7 +554,7 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 				<tr>
 					<th nowrap='nowrap' class='documents'>
 						<img align='absmiddle' src="../repository/images/linked2.gif" border='0'/>
-						<a href="../repository/addrepository.php?id=<?php echo $id?>&id_link=<?php echo $id?>&name_link=<?php echo urlencode($title) ?>&type_link=incident" class='greybox_2' title='<?php echo _("Link existing document")?>'><?php echo _("Link existing document")?></a>
+						<a href="../repository/addrepository.php?id=<?php echo $id?>&id_link=<?php echo $id?>&type_link=incident" class='greybox_2' title='<?php echo _("Link existing document")?>'><?php echo _("Link existing document")?></a>
 					</th>
 				</tr>
 							

@@ -145,8 +145,12 @@ else $lnk = "ip=$host";
 						$src_port = $matches[8];
 						$dst_port = $matches[9];
 						$target = ($greybox) ? "target='main'" : "";
+                        
+                        $niplugin = str_replace("<", "[", $plugin);
+                        $niplugin = str_replace(">", "]", $niplugin);
+                        
 						$line = "<tr>
-									<td nowrap bgcolor='$bgcolor'>" . "<a $target href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $inc_counter . "</td>
+									<td nowrap bgcolor='$bgcolor'>" . "<a $target href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($niplugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $inc_counter . "</td>
 									<td nowrap bgcolor='$bgcolor'>" . htmlspecialchars($matches[2]) . "</td>
 									<td bgcolor='$bgcolor'><font color=\"$color\">$plugin</font></td>
 									<td bgcolor='$bgcolor'>";

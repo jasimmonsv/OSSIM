@@ -1049,6 +1049,10 @@ $tmp_eid = $alarm->get_event_id();
 ?>
         <a class="greybox2" title="New ticket for Alert ID<?php echo $aid
 ?>" href="<?php
+        
+        $alarm_name_orig = str_replace("<", "[", $alarm_name_orig);
+        $alarm_name_orig = str_replace(">", "]", $alarm_name_orig);
+        
         echo "../incidents/newincident.php?nohmenu=1&" . "ref=Alarm&" . "title=" . urlencode($alarm_name_orig) . "&" . "priority=$risk&" . "src_ips=$src_ip&" . "event_start=$since&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port&" . "backlog_id=$tmp_bid&" . "event_id=$tmp_eid&" . "alarm_gid=$tmp_agid" ?>"><img src="../pixmaps/script--pencil.png" alt="<?=_("ticket")?>" title="<?=_("ticket")?>" border="0"/></a>
         </td>
       </tr>

@@ -44,7 +44,7 @@ $conf      = $GLOBALS["CONF"];
 $link_type = (GET('linktype') != "") ? GET('linktype') : "incident";
 $id        = GET('id');
 $id_link   = GET('id_link');
-$name_link = GET('name_link');
+//$name_link = GET('name_link');
 $type_link = GET('type_link');
 //$id_document = (GET('id_document') != "") ? GET('id_document') : ((POST('id_document') != "") ? POST('id_document') : "");
 $linkdoc = GET('linkdoc');
@@ -52,7 +52,7 @@ $linkdoc = GET('linkdoc');
 ossim_valid($link_type, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("link type"));
 ossim_valid($id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("id"));
 ossim_valid($id_link, OSS_DIGIT, 'illegal:' . _("id_link"));
-ossim_valid($name_link, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("name_link"));
+//ossim_valid($name_link, OSS_ALPHA, OSS_PUNC, OSS_SPACE, '\(\)', 'illegal:' . _("name_link"));
 ossim_valid($type_link, OSS_ALPHA, 'illegal:' . _("type_link"));
 //ossim_valid($id_document, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("id_document"));
 ossim_valid($linkdoc, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Linkdoc"));
@@ -71,6 +71,9 @@ $db = new ossim_db();
 $conn = $db->connect();
 list($document_list, $documents_num_rows) = Repository::get_list($conn);
 
+if($id!="") {
+    $name_link = $conn->GetOne("SELECT title from incident as total WHERE id=$id");
+}
 // New link on relationships
 if ($linkdoc != "" && GET('insert') == "1") {
     $aux = explode("####", GET('newlinkname'));
@@ -131,7 +134,7 @@ $rel_list = Repository::get_relationships_by_link($conn, $id_link);
 						?>
 						<tr>
 							<td class="nobborder"><?php echo $rel['title'] ?></td>
-							<td class="nobborder" style='text-align:center;'><a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?id=<?php echo $id ?>&id_link=<?php echo $id_link ?>&name_link=<?php echo $name_link ?>&key_delete=<?php echo $id_link ?>&id_delete=<?php echo $rel['id_document'] ?>&type_link=<?php echo $type_link ?>"><img src="../repository/images/del.gif" border="0"/></a></td>
+							<td class="nobborder" style='text-align:center;'><a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?id=<?php echo $id ?>&id_link=<?php echo $id_link ?>&key_delete=<?php echo $id_link ?>&id_delete=<?php echo $rel['id_document'] ?>&type_link=<?php echo $type_link ?>"><img src="../repository/images/del.gif" border="0"/></a></td>
 						</tr>
 						<?php
 					} ?>
