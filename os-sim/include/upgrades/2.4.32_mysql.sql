@@ -26,6 +26,9 @@ REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql
 (193, 'Last Promiscuous Host', 'SIEM Events', 'SIEM/LastPromiscuousHost.php', 'Last Promiscuous Host:top:text:OSS_DIGIT:10:50;Product Type:sourcetype:select:OSS_ALPHA.OSS_SLASH.OSS_SPACE.OSS_NULLABLE:SOURCETYPE:;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:;Plugin Groups:plugin_groups:select:OSS_DIGIT.OSS_NULLABLE:PLUGINGROUPS:', '', 29),
 (194, 'Last Hosts with Multiple Events', 'SIEM Events', 'SIEM/LastMultipleEventsHost.php', 'Last Hosts:top:text:OSS_DIGIT:10:50;Product Type:sourcetype:select:OSS_ALPHA.OSS_SLASH.OSS_SPACE.OSS_NULLABLE:SOURCETYPE:;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:;Plugin Groups:plugin_groups:select:OSS_DIGIT.OSS_NULLABLE:PLUGINGROUPS:', '', 29);
 
+REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES
+(440, 'Title Page', 'Title Page', 'Common/titlepage.php', 'Logo:logo:FILE:OSS_NULLABLE::;Main Title:maintitle:text:OSS_TEXT::64;I.T. Security:it_security:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Address:address:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Tel:tlfn:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::;Date:date:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::', '', 1);
+
 -- ATENCION! Keep this at the end of this file
 use ossim;
 REPLACE INTO config (conf, value) VALUES ('last_update', '2011-06-08');
