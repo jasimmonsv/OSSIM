@@ -1881,7 +1881,7 @@ $default_open = intval(GET('open'));
 			 });
 
 			<?php	if (intval(GET('passpolicy'))==1)  { ?>
-			$('#test14-header').click(); 
+			$('#test13-header').click(); 
 			<?php  }  ?>
 			
 			<?php	if ($default_open>0)  { ?>
