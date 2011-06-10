@@ -73,13 +73,15 @@ class Watchdog(threading.Thread):
     AGENT_DATE = "agent-date agent_date=\"%s\" tzone=\"%s\"\n"
 
     __shutdown_running = False
+    __pluginID_stoppedByServer = []
+    
     def __init__(self, conf, plugins):
 
         self.conf = conf
         self.plugins = plugins
         self.interval = self.conf.getfloat("watchdog", "interval") or 3600.0
         self.patternlocalized = re.compile('(?P<tzone_symbol>[-|+])(?P<tzone_hour>\d{2})(?P<tzone_min>\d{2})')
-
+        
         threading.Thread.__init__(self)
 
 
@@ -151,6 +153,10 @@ class Watchdog(threading.Thread):
             elif Watchdog.pidof(process, process_aux) is not None:
                 logger.info(WATCHDOG_PROCESS_STARTED % (process, id))
                 Output.plugin_state(Watchdog.PLUGIN_START_STATE_MSG % (id))
+                for pid in Watchdog.__pluginID_stoppedByServer:
+                    if pid == id:
+                         Watchdog.__pluginID_stoppedByServer.remove(id)
+                         break
 
             else:
                 logger.warning(WATCHDOG_ERROR_STARTING_PROCESS % (process, id))
@@ -178,10 +184,12 @@ class Watchdog(threading.Thread):
             if not process:
                 logger.debug("plugin (%s) has an unknown state" % (name))
                 Output.plugin_state(Watchdog.PLUGIN_UNKNOWN_STATE_MSG % (id))
-
+                
             elif Watchdog.pidof(process, process_aux) is None:
                 logger.info(WATCHDOG_PROCESS_STOPPED % (process, id))
                 Output.plugin_state(Watchdog.PLUGIN_STOP_STATE_MSG % (id))
+                Watchdog.__pluginID_stoppedByServer.append(id)
+                logger.info("Plugin %s process :%s stopped by server..." % (id,name))
 
             else:
                 logger.warning(WATCHDOG_ERROR_STOPPING_PROCESS % (process, id))
@@ -217,6 +225,7 @@ class Watchdog(threading.Thread):
         if notify:
             logger.info("plugin (%s) is now disabled" % (name))
             Output.plugin_state(Watchdog.PLUGIN_DISABLE_STATE_MSG % (id))
+            
 
     disable_process = staticmethod(disable_process)
 
@@ -293,7 +302,13 @@ class Watchdog(threading.Thread):
 
                 logger.debug("Checking process %s for plugin %s." \
                     % (process, name))
-
+                sttopedBySrv = False
+                
+                for pid in Watchdog.__pluginID_stoppedByServer:
+                    if pid == id:
+                         sttopedBySrv = True
+                         break
+                
                 # 1) unknown process to monitoring
                 if not process:
                     logger.debug("plugin (%s) has an unknown state" % (name))
@@ -315,7 +330,7 @@ class Watchdog(threading.Thread):
                     # restart services (if start=yes in plugin 
                     # configuration and plugin is enabled)
                     if plugin.getboolean("config", "start") and \
-                       plugin.getboolean("config", "enable"):
+                       plugin.getboolean("config", "enable") and not sttopedBySrv:
                         self.start_process(plugin)
 
                         if self.pidof(process, process_aux) is not None and not first_run:
