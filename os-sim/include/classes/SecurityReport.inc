@@ -189,7 +189,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function Events($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false, $sensors=array()) {
+    function Events($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false, $sensors=array(), $order_type = "DESC") {
         require_once ('classes/Event_viewer.inc');
         require_once ('classes/Status.inc');
 		$list = array();
@@ -197,6 +197,8 @@ class SecurityReport {
 		
 		$from_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$from_date);
 		$to_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$to_date);
+		
+		if ($order_type == "") $order_type = "DESC";
 		
 		// User sensor filtering
 		$sensor_str_alarm = "";
@@ -267,7 +269,7 @@ class SecurityReport {
                                   AND plugin_sid.sid = a.plugin_sid$sensor_str_alarm $where2
                             $sql_plugin_groups GROUP BY a.plugin_id, a.plugin_sid
                             ORDER BY occurrences 
-                            DESC LIMIT $limit";
+                            $order_type LIMIT $limit";
                 $temp_conn = $this->ossim_conn;
                 break;
 
@@ -284,7 +286,7 @@ class SecurityReport {
                                 $where2
                                 $sql_plugin_groups GROUP BY acid_event.plugin_id, acid_event.plugin_sid, nip_src, nip_dst
                                 ORDER BY occurrences
-                                DESC LIMIT $limit";
+                                $order_type LIMIT $limit";
                 }
                 else 
 				{
@@ -294,7 +296,7 @@ class SecurityReport {
                                 $where2
                                 $sql_plugin_groups GROUP BY acid_event.plugin_id, acid_event.plugin_sid
                                 ORDER BY occurrences
-                                DESC LIMIT $limit";
+                                $order_type LIMIT $limit";
                 }
                 $db = new ossim_db();
 				$temp_conn = $db->snort_connect();
@@ -471,7 +473,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function Ports($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false, $sensors=array()) {
+    function Ports($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false, $sensors=array(), $order_type = "DESC") {
         require_once ('classes/Port.inc');
         require_once ('classes/Event_viewer.inc');
 		$list = array();
@@ -479,6 +481,8 @@ class SecurityReport {
 		
 		$from_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$from_date);
 		$to_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$to_date);
+		
+		if ($order_type == "") $order_type = "DESC";
 		
 		// User sensor filtering
 		$sensor_str_alarm = "";
@@ -543,7 +547,7 @@ class SecurityReport {
                 list($join2,$where2) = SecurityReport::make_join_where("a.","dst_ip",$assets,$sourcetype,$category,$subcategory);
                 //
                 $query = OssimQuery("SELECT count(a.dst_port) AS occurrences, a.dst_port as layer4_dport
-                  FROM alarm a $join2 $sensor_join WHERE a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59' AND a.dst_port<>0$sensor_str_alarm $where2 $sql_plugin_groups GROUP BY a.dst_port ORDER BY occurrences DESC LIMIT $limit");
+                  FROM alarm a $join2 $sensor_join WHERE a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59' AND a.dst_port<>0$sensor_str_alarm $where2 $sql_plugin_groups GROUP BY a.dst_port ORDER BY occurrences $order_type LIMIT $limit");
                 $temp_conn = $this->ossim_conn;
                 break;
 
@@ -557,13 +561,13 @@ class SecurityReport {
                     $query = OssimQuery("SELECT count(layer4_dport) AS occurrences, layer4_dport, INET_NTOA(ip_src) as nip_src, INET_NTOA(ip_dst) as nip_dst
                       FROM acid_event $join2 WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND layer4_dport<>0$sensor_str_event $where2
                       $sql_plugin_groups GROUP BY layer4_dport,nip_src,nip_dst
-                      ORDER BY occurrences DESC LIMIT $limit");
+                      ORDER BY occurrences $order_type LIMIT $limit");
                 }
                 else {
                     $query = OssimQuery("SELECT count(layer4_dport) AS occurrences, layer4_dport
                       FROM acid_event $join2 WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND layer4_dport<>0$sensor_str_event $where2
                       $sql_plugin_groups GROUP BY layer4_dport
-                      ORDER BY occurrences DESC LIMIT $limit");
+                      ORDER BY occurrences $order_type LIMIT $limit");
                 }
                 $db = new ossim_db();
 				$temp_conn = $db->snort_connect();
@@ -607,7 +611,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function EventsByRisk($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
+    function EventsByRisk($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array(), $order_type = "DESC") {
         require_once ('classes/Event_viewer.inc');
         require_once ('classes/Status.inc');
 		
@@ -616,6 +620,8 @@ class SecurityReport {
         
 		$from_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$from_date);
 		$to_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$to_date);
+		
+		if ($order_type == "") $order_type = "DESC";
 		
 		// User sensor filtering
 		$sensor_str_alarm = "";
@@ -680,7 +686,7 @@ class SecurityReport {
                 //
                 $query = OssimQuery("SELECT a.plugin_id, a.plugin_sid, plugin_sid.name as sig_name, a.risk as ossim_risk_a FROM alarm a $join2, plugin_sid$sensor_join
                   WHERE  a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59' AND plugin_sid.plugin_id = a.plugin_id AND plugin_sid.sid = a.plugin_sid$sensor_str_alarm $where2
-                  $sql_plugin_groups GROUP BY a.plugin_id, a.plugin_sid ORDER BY risk DESC LIMIT $limit");
+                  $sql_plugin_groups GROUP BY a.plugin_id, a.plugin_sid ORDER BY risk $order_type LIMIT $limit");
 
                 $temp_conn = $this->ossim_conn;
                 break;
@@ -693,7 +699,7 @@ class SecurityReport {
                 $query = OssimQuery("SELECT plugin_sid.name as sig_name, ossim_risk_a, acid_event.plugin_id, acid_event.plugin_sid
                   FROM acid_event $join2 LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' $sensor_str_event
                   $where2 $sql_plugin_groups GROUP BY acid_event.plugin_id, acid_event.plugin_sid
-                  ORDER BY ossim_risk_a DESC LIMIT $limit");
+                  ORDER BY ossim_risk_a $order_type LIMIT $limit");
                 $db = new ossim_db();
 				$temp_conn = $db->snort_connect();
 				//$temp_conn = $this->snort_conn;
