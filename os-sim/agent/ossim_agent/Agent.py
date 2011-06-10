@@ -113,6 +113,26 @@ class Agent:
 
                 # Now read the config file
                 plugin.read(path, withunicode)
+                
+                #check if custom plugin configuration exist
+                custompath = "%s.local" % path
+                if os.path.exists(custompath):
+                    logger.warning("Loading custom configuration for plugin: %s" % custompath)
+                    custom_plug = Plugin()
+                    custom_plug.read(custompath,withunicode,False)
+                                     
+                    for section in custom_plug.sections():
+                        for item in custom_plug.hitems(section):
+                            new_value = custom_plug.get(section,item)
+                            old_value = plugin.get(section,item)
+                            
+                            if new_value != old_value:
+                                plugin.set(section,item,new_value)
+                                logger.warning("Loading custon value for %s--->%s. New value: %s - Old value: %s" % (section,item,new_value,old_value))
+                self.nrules += len(plugin.sections()) \
+                               - plugin.sections().count('translation') \
+                               - 1 # [config]
+
                 plugin.set("config", "name", name)
                 plugin.set("config", "unicode_support", str(withunicode))
                 plugin.replace_aliases(aliases)

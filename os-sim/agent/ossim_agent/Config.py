@@ -66,7 +66,7 @@ class Conf(ConfigParser):
 
     # same as ConfigParser.read() but also check
     # if configuration files exists
-    def read(self, filenames, utf8):
+    def read(self, filenames, utf8,check_neededEntries = True):
         for filename in filenames:
             if not os.path.isfile(filename):
                 AgentCritical("Configuration file (%s) does not exist!" % \
@@ -77,8 +77,8 @@ class Conf(ConfigParser):
             fp = codecs.open(filenames, 'r', encoding='utf-8')
             fp.readline()#discard first line
             self.readfp(fp)
-
-        self.check_needed_config_entries()
+        if check_neededEntries:
+            self.check_needed_config_entries()
 
 
     # check for needed entries in .cfg files
