@@ -1146,6 +1146,10 @@ else {
 			$infolog = array(
 				$login
 			);
+			
+			require_once("classes/User_config.inc");
+       		User_config::deleteall($conn,$login);
+			
 			Log_action::log(3, $infolog);
 		}
 		
