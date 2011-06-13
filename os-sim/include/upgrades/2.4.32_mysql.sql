@@ -29,9 +29,24 @@ REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql
 REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES
 (440, 'Title Page', 'Title Page', 'Common/titlepage.php', 'Logo:logo:FILE:OSS_NULLABLE::;Main Title:maintitle:text:OSS_TEXT::64;I.T. Security:it_security:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Address:address:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Tel:tlfn:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::;Date:date:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::', '', 1);
 
+
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'custom_report_profiles' AND COLUMN_NAME = 'permissions')
+  THEN
+      ALTER TABLE `custom_report_profiles` ADD `permissions` INT(4) NOT NULL DEFAULT 0 AFTER `creator`;
+   END IF;        
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+
 -- ATENCION! Keep this at the end of this file
 use ossim;
-REPLACE INTO config (conf, value) VALUES ('last_update', '2011-06-08');
+REPLACE INTO config (conf, value) VALUES ('last_update', '2011-06-13');
 REPLACE INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.32');
 COMMIT;
 -- NOTHING BELOW THIS LINE / NADA DEBAJO DE ESTA LINEA
