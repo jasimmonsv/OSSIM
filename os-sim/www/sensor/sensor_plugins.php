@@ -237,23 +237,6 @@ if ( !Session::menu_perms("MenuConfiguration", "PolicySensors") )
 <?php
 ob_flush();
 
-if ( !empty($info_error) )
-{
-	?>
-	<div id='error_messages' class='ossim_error'>
-		<div style='text-align: left; padding: 0px 0px 10px 40px'><?php echo _("We found the following errors")?>:</div>
-		<div class='error_item'><?php echo implode("</div><div class='error_item'>", $info_error)?></div>
-	</div>
-
-	<?php
-}
-
-?>
-
-<table class="noborder" border='0' cellpadding='0' cellspacing='0' width='100%' align='center'>
-
-	<?php
-	
 	/* connect to db */
 	
 	$db             = new ossim_db();
@@ -282,12 +265,27 @@ if ( !empty($info_error) )
 		$info_error[] = $err;
 		
 	if (!$sensor_list && empty($ip_get)) 
-		$info_error[] = _("There aren't any sensors connected to OSSIM server");
+		$info_error[] = "<center>"._("There aren't any sensors connected to OSSIM server")."</center>";
 
 	$ossim_conf = $GLOBALS["CONF"];
 	$use_munin  = $ossim_conf->get_conf("use_munin");
 	
-	
+
+if ( !empty($info_error) )
+{
+	?>
+	<div id='error_messages' class='ossim_error'>
+		<div class='error_item'><?php echo implode("</div><div class='error_item'>", $info_error)?></div>
+	</div>
+
+	<?php
+}
+
+?>
+
+<table class="noborder" border='0' cellpadding='0' cellspacing='0' width='100%' align='center'>
+
+	<?php
 	foreach($sensor_list as $sensor) 
 	{
 		$ip = $sensor["sensor"];
@@ -317,7 +315,7 @@ if ( !empty($info_error) )
 				exit();
 			}
 			
-			/* connect */
+			/* connect  */
 			socket_set_block($socket);
 			socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 10, 'usec' => 0));
 			socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 5, 'usec' => 0));
