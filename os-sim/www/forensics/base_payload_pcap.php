@@ -186,13 +186,13 @@ foreach($phdr as $value) fputs($f, pack('L', $value));
 fputs($f, $packet);
 fclose($f);
 ?>
-<h1>pcap File:</h1>
-<link rel="stylesheet" type="text/css" href="styles/tree.css" />
+<h1><?php echo _("pcap File")?>:</h1>
+<link rel="stylesheet" type="text/css" href="../style/tree.css" />
 <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
 <script type="text/javascript" src="../js/jquery.tmpl.1.1.1.js"></script>
 <script type="text/javascript" src="../js/jquery.dynatree.js"></script>
 <script type="text/javascript">
-var loading = '<br><img src="images/ltWait.gif" border="0" align="absmiddle"> Loading tree...';
+var loading = '<br><img src="images/ltWait.gif" border="0" align="absmiddle"><?php echo _("Loading tree")?>...';
 var layer = '#container';
 var nodetree = null;
 function load_tree(filter) {
@@ -218,5 +218,15 @@ function load_tree(filter) {
 	});
 }
 </script>
+<style type='text/css'>
+	.dynatree-container {
+		border:none !important;
+	}
+	
+	.container {
+		line-height:16px
+	}
+	
+</style>
 <div id="loading"></div>
-<div id="container" style="width:350px;line-height:16px"></div>
+<div id="container"></div>

@@ -1,4 +1,4 @@
-<?
+<?php
 /*****************************************************************************
 *
 *    License:
@@ -505,26 +505,30 @@ else if(preg_match("/u_(.*)/",$key,$found))
 }
 else if(preg_match("/e_(.*)_netgroup/",$key,$found))
 {
-    $entityPerms = Acl::entityPerms($conn,$found[1]);
-    $all = count($entityPerms["assets"]);
-    $nets_allowed = array_keys($entityPerms["assets"]);
-    $net_groups = Net_group::get_list($conn);
+    $entityPerms   = Acl::entityPerms($conn,$found[1]);
+    $all           = count($entityPerms["assets"]);
+    $nets_allowed  = array_keys($entityPerms["assets"]);
+    $net_groups    = Net_group::get_list($conn);
     $netgroup_list = array();
 	
     foreach($net_groups as $net_group) 
 	{
         $allowed=0;
         $nets = $net_group->get_networks($conn, $net_group->get_name());
-        foreach($nets as $net) {
+        
+		foreach($nets as $net) {
             $net_ips = explode(",",$net->get_net_ips($conn));
             if (!$all || Acl::cidrs_allowed($net_ips,$entityPerms["assets"])) $allowed=1;
         }
-        if ($allowed) $netgroup_list[] = $net_group->get_name();
+		
+        if ( $allowed ) 
+			$netgroup_list[] = $net_group->get_name();
     }
     
     $buffer .= "[";
     $j = 0;
-    foreach($netgroup_list as $netgroup_name) {
+    foreach($netgroup_list as $netgroup_name) 
+	{
     	$netgroup_title = Util::htmlentities(utf8_encode($netgroup_name));
         $li = "url:'../net/newnetgroupform.php?name=".urlencode($netgroup_name)."', icon:'../../pixmaps/theme/net_group.png', title:'$netgroup_title'\n";
         $buffer .= (($j > 0) ? "," : "") . "{ $li }";
@@ -537,27 +541,32 @@ else if(preg_match("/e_(.*)_netgroup/",$key,$found))
 else if(preg_match("/e_(.*)_net$/",$key,$found))
 {
 	$entityPerms = Acl::entityPerms($conn,$found[1]);
-	$all = count($entityPerms["assets"]);
-	$nets = Net::get_all($conn);
+	$all         = count($entityPerms["assets"]);
+	$nets        = Net::get_list($conn, "", "ORDER BY name ASC", array_keys($entityPerms['sensors'])); //Net::get_all($conn);
 
     $buffer .= "[";
     $html    = "";
 
     $p = 0;
-    foreach($nets as $net) {
+    foreach($nets as $net) 
+	{
         $cidrs = explode(",",$net->get_ips());
-        if (!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"])) {
-            if($p>=$from && $p<$to) {
+        if (!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"])) 
+		{
+            if($p>=$from && $p<$to) 
+			{
                 $net_title  = Util::htmlentities(utf8_encode($net->get_name()));
                 $html .= "{url:'../net/newnetform.php?name=".urlencode($net->get_name())."', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$net->get_ips().")</font>'},";
             }
             $p++;
         }
     }
-    if ($p>$to) {
+    
+	if ($p>$to) {
         $html.= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."' }";
     }
-    if ($html != "") $buffer .= preg_replace("/,$/", "", $html); 
+    
+	if ($html != "") $buffer .= preg_replace("/,$/", "", $html); 
 	
     $buffer .= "]";
     if ($buffer=="[]")  $buffer = "[{title:'"._("No Nets Found")."'}]";
@@ -597,34 +606,53 @@ else if(preg_match("/ae_(.*)/",$key,$found))
 }
 else if(preg_match("/ue_(.*)/",$key,$found))
 {
-    $admin_users   = array();
+    
+	$entity_id     = $found[1];
+	$me            = Session::get_session_user();
+	
+	$admin_users   = array();
     $entities      = Acl::get_entities($conn);
     $entities_list = $entities[0];
-    
+	
 	foreach ($entities_list as $entity) {
         $admin_users[$entity["id"]] = $entity["admin_user"];
     }
-   
+	
+	$user_list = Acl::get_users_by_entity($conn, $entity_id);
+      
     $buffer    = "[";
-    $users     = Acl::get_users($conn);
-    $user_list = $users[0];
-    $j = 0;
-    
-	foreach ($user_list as $user)
+   		
+	$entity_parents   = Acl::get_entity_parents($conn, $entity_id);
+	$entity_parents[] = $entity_id;
+	
+	$am_i_pro_admin = false;
+	
+	foreach ($entity_parents as $index => $parent)
 	{
-        if( in_array($found[1],$user['entities']) )
+		if ( $admin_users[$parent] == $me )
 		{
-            if ( Session::is_admin($conn, $user["login"]) )
-				$icon = "../../pixmaps/user-gadmin.png";
-			elseif( $admin_users[$found[1]]==$user["login"] ) 
-                $icon = "../../pixmaps/user-business.png";
-            else
-                $icon = "../../pixmaps/user-green.png";
-				
-            $li = "title:'".$user["login"]."', key:'u_".$user["login"]."', icon:'$icon', isLazy:true";
-            $buffer .= (($j > 0) ? "," : "") . "{ $li }";
-            $j++;
-        }
+			$am_i_pro_admin = true;
+			break;
+		}
+	}
+	
+	$j = 0;
+    
+	foreach ($user_list as $k => $login)
+	{
+        if ( Session::is_admin($conn, $login) )
+			$icon = "../../pixmaps/user-gadmin.png";
+		elseif( $admin_users[$entity_id]==$login ) 
+            $icon = "../../pixmaps/user-business.png";
+        else
+            $icon = "../../pixmaps/user-green.png";
+		
+		
+		$li  = "title:'".$login."', icon:'$icon'";
+		$li .= ( Session::am_i_admin() || $am_i_pro_admin || $login == $me ) ? ", key:'u_".$login."', isLazy:true" : "";
+						        
+        $buffer .= (($j > 0) ? "," : "") . "{ $li }";
+        $j++;
     }
 	
     $buffer .= "]";
@@ -818,33 +846,56 @@ else
 
     /*   Entities tree   */
       
-    $entities = Acl::get_my_entities($conn);
-	$num_entities = count($entities);
+    $entities       = Acl::get_entities($conn);
+	$entities_types = Acl::get_entities_types($conn);
+	
+	$num_entities = count($entities[0]);
 	
 	$expand       = ( $num_entities > 0 ) ? "expand:true" : "expand:false";
 		
     echo "{title:'<font style=\"font-weight:normal\">"._("Entities")."</font>', isFolder:true, icon:'../../pixmaps/company.png', $expand, children:[";
-    $flag = false;
-    	
+    
+	$flag = false;
+	$entities_admin = array();
+	
 	if ( $num_entities > 0 )
 	{
-		foreach ($entities as $entity)
+		foreach ($entities[0] as $entity)
 		{
-			if ($entity['parent_id'] > 0 || $entity['type'] <= 0 ) 
-				continue;
+			$entity_allowed = Acl::entityAllowed($entity['id']);
 			
+			if ( $entity['parent_id'] > 0 || $entity['type'] <= 0 || !$entity_allowed ) 
+				continue;
+						
 			if ( $flag ) 
 				echo ",";
-			
+						
 			$flag = true;
 			
-			$icon        = "../../pixmaps/theme/any.png";
-			$e_key       = $entity['id'];
-			$e_style     = "font-weight:bold";
-			$entity_name = $entity['name'];
-					
-			echo "{title:'<font style=\"$e_style\">".Util::htmlentities($entity_name)."</font> <font style=\"color:gray\">[".$entity['type_name']."]</font>', key:'e_".$e_key."', icon:'$icon', expand:true,  url:'ENTITY:".$e_key."', name:'".utf8_encode($entity_name)."'";
-					echochildrens($entities, $entity['id'], $withusers);
+			$icon           = "../../pixmaps/theme/any.png";
+			$entity_name    = $entity['name'];
+			
+			if (  $entity_allowed == 2 )
+			{
+				
+				$e_style    = "font-weight:bold;";
+				$e_link     = "noLink: false"; 
+				$e_url      = "../acl/templates_edit.php?id=".$entity['id'];
+			}
+			else
+			{
+				$e_style    = "font-weight:bold; text-decoration:none";
+				$e_link     = "noLink: true";
+				$e_url      = "";
+			}
+			
+			$e_key      = "e_".$entity['id'];
+			
+			$entities_admin[$entity['admin_user']] = $entity['id'];
+			$title = "<font style=\"$e_style\">".Util::htmlentities($entity_name)."</font> <font style=\"color:gray\">[".$entities_types[$entity['type']]['name']."]</font>";
+						
+			echo "{title:'".$title."', ".$e_link.", key:'".$e_key."', icon:'$icon', expand:true,  url:'".$e_url."', name:'".utf8_encode($entity_name)."'";
+					echochildrens($entities, $entity['id'], $withusers, $entities_admin);
 			echo "}";
 		}
 	}
@@ -853,38 +904,81 @@ else
 		
 	echo "]}";
 		
-	if ( $withusers ) 
+	if ( $withusers && Session::am_i_admin() ) 
 		echo ",{title:'<font style=\"font-weight:normal\">"._("Others users")."</font>', isFolder:true, icon:'../../pixmaps/menu/assets.gif', isLazy:true, key:'ou'}";
 	
 	echo "]";
 }
 
 
-function echochildrens($entities,$parent_id, $withusers) {
+function echochildrens($entities,$parent_id, $withusers, $entities_admin) {
     echo ",children:[";
-        
-	if( $parent_id != "" ) 
+    
+	/* Connect to db */
+	$db   = new ossim_db();
+	$conn = $db->connect();
+
+	$users_by_entity = Acl::get_users_by_entity($conn, $parent_id);
+	$me              = Session::get_session_user();
+	$entities_types  = Acl::get_entities_types($conn);
+	
+	
+	$is_editable     = $parent_id != "" && ( !empty($users_by_entity[$me]) || Session::am_i_admin() || !empty($entities_admin[$me]) );
+	    
+	if( $is_editable ) 
 	{
         echo "{title:'<font style=\"font-weight:normal\">"._("All Assets")."</font>', key:'ae_".$parent_id."', icon:'../../pixmaps/menu/assets.gif', isFolder:true, isLazy:true}";
-        if ($withusers)
+        
+		if ($withusers)
 			echo ",{title:'<font style=\"font-weight:normal\">"._("Assets by user")."</font>', key:'ue_".$parent_id."', icon:'../../pixmaps/menu/assets.gif', isFolder:true, isLazy:true}";
     }
 			
-	$children = $entities[$parent_id]['children'];
-    
+	$children = Acl::get_entity_childs($conn,$parent_id);
+		
 	if ( !empty($children) )
 	{
-		foreach ($children as $child_id)
+		$flag = false;
+		
+		foreach ($children as $index => $child_id)
 		{
 			$icon      = "../../pixmaps/theme/any.png";
-			$child     = $entities[$child_id];
-			$child_key = $child_id;
-			$style     = "font-weight:bold";
+			$child     = $entities[0][$child_id];
+									
+			$entity_allowed = Acl::entityAllowed($child_id);
+			
+			if (  $entity_allowed == 2 )
+			{
+				
+				$child_style    = "font-weight:bold;";
+				$child_link     = "noLink: false"; 
+				$child_url      = "../acl/templates_edit.php?id=".$child_id;
+			}
+			else
+			{
+				$child_style    = "font-weight:bold; text-decoration:none";
+				$child_link     = "noLink: true";
+				$child_url      = "";
+			}
+			
+			$child_key = "e_".$child_id;
+			
+			
+			$chil_ent_admin                       = $entities_admin;
+			$chil_ent_admin[$child['admin_user']] = $child_id;
+			
+			
 			
 			if ( $child['parent_id'] == $parent_id )
 			{
-				echo ",{title:'<font style=\"$style\">".Util::htmlentities($child['name'])."</font> <font style=\"color:gray\">[".$child['type_name']."]</font>', url:'ENTITY:".$child_key."', key:'e_".$child_key."', icon:'$icon', expand:true, name:'".utf8_encode($child['name'])."'";
-					echochildrens($entities, $child_key, $withusers);
+				$title = "<font style=\"".$child_style."\">".Util::htmlentities($child['name'])."</font> <font style=\"color:gray\">[".$entities_types[$child['type']]['name']."]</font>";
+				
+				if ( $flag || $is_editable) 
+					echo ",";
+						
+				$flag = true;
+									
+				echo "{title:'".$title."', ".$child_link.", url:'".$child_url."', key:'".$child_key."', icon:'$icon', expand:true, name:'".utf8_encode($child['name'])."'";
+					echochildrens($entities, $child_id, $withusers, $entities_admin);
 				echo "}";
 			}	
 		}

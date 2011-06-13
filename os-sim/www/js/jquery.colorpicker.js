@@ -34,9 +34,9 @@
 			},
 			fillHSBFields = function  (hsb, cal) {
 				$(cal).data('colorpicker').fields
-					.eq(4).val(hsb.h).end()
-					.eq(5).val(hsb.s).end()
-					.eq(6).val(hsb.b).end();
+					.eq(4).val(Math.round(hsb.h)).end()
+					.eq(5).val(Math.round(hsb.s)).end()
+					.eq(6).val(Math.round(hsb.b)).end();
 			},
 			fillHexFields = function (hsb, cal) {
 				$(cal).data('colorpicker').fields

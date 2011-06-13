@@ -261,7 +261,7 @@ else if (preg_match("/all_(.*)/",$key,$found)) {
 
 }
 else if ($key!="all") {
-    $buffer .= "[ {title: '', isFolder: true, key:'key1', icon:'../../pixmaps/theme/any.png', expand:true, children:[\n";
+    $buffer .= "[ {title:'"._("Assets by Property")."', isFolder: true, key:'key1', icon:'../../pixmaps/theme/any.png', expand:true, children:[\n";
     $buffer .= "{ key:'os', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_os.png', title:'"._("OS")."' },\n";
     $buffer .= "{ key:'ports', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/ports.png', title:'"._("Ports")."' },\n";
     $buffer .= "{ key:'macs', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/mac.png', title:'"._("MAC/Vendor")."' },\n";

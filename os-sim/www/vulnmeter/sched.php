@@ -99,7 +99,8 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 			initAjax: { url: "draw_tree.php", data: {filter: filter} },
 			clickFolderMode: 2,
 			onActivate: function(dtnode) {
-                dtnode.data.url = html_entity_decode(dtnode.data.url);
+				dtnode.deactivate();
+				dtnode.data.url = html_entity_decode(dtnode.data.url);
 				var ln = ($('#ip_list').val()!='') ? '\n' : '';
 				var inside = 0;
 				if(dtnode.data.url.match(/AllAssets/)) {
@@ -160,6 +161,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
                             $('#ip_list').val($('#ip_list').val() + ln + dtnode.data.url)
                     }
 				}
+												
 			},
 			onDeactivate: function(dtnode) {},
             onLazyRead: function(dtnode){

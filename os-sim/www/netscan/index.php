@@ -293,7 +293,7 @@ $nmap_running = Scan::scanning_now();
 			outline: none;
 		}
 		
-		#tree {margin: 15px auto 5px auto;}
+		#tree {margin: 15px auto 5px auto; text-align: left;}
 		
 		#error_messages {
 			display: none;
