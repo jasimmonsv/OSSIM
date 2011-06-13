@@ -1296,6 +1296,8 @@ div.legend td { text-align:left; font-size:11px }
 function all_jobs($offset, $pageSize, $status=""){
 global $username, $uroles, $dbconn, $hosts;
 
+require_once ('classes/Util.inc');
+
 $tz = Util::get_timezone();
 
 $out = 0;
@@ -1369,10 +1371,10 @@ else {
      while ( !$result->EOF ) {
         list ($task_id, $failed_attempts, $meth_Wcheck, $profile, $report_key, $report_id, $scan_next, $meth_TARGET, $id_report, $failed_attempts, $scan_PRIORITY,
               $scan_PID, $nid, $nname, $nusername, $start_date, $end_date, $submit_date, $nstatus, $nnotify, $shostname) = $result->fields;
-               
-        if($tz!=0) {
-            $ustart_date = $start_date; // save start date to display scan time
         
+        $ustart_date = $start_date; // save start_date in UTC to display scan time
+        
+        if($tz!=0) {
             if(!is_null($submit_date)) {
                 $submit_date = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$submit_date)+(3600*$tz));
             }
@@ -1432,10 +1434,12 @@ else {
                }
           } elseif ( $start_date ) {
                $buttons = "";
-               $curtime = gen_strtotime("now", "");
-               list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($dbconn,$curtime,$tz);
+               //$curtime = gen_strtotime("now", "");
+               //list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($dbconn,$curtime,$tz);
                
-               $nmins = "RUN..>" . datediff("n", "$y-$m-$d $h:$u:$s", $ustart_date );
+               $curren_date = gmdate("Y-m-d H:i:s");
+               
+               $nmins = "RUN..>" . datediff("n", $curren_date, $ustart_date );
                $nmins .= " mins";
           } elseif ( $submit_date ) {
                $buttons = "<img src=\"images/sched.png\" title=\""._("JobID").": $nid, "._("scan_START").": $start_date, "._("scan_PID").": $scan_PID, "._("scan_PRIORITY").": $scan_PRIORITY, "._("failed_attempts").": $failed_attempts\" alt=\""._("JobID").": $nid, "._("scan_START").": $start_date, "._("scan_PID").": $scan_PID, "._("scan_PRIORITY").": $scan_PRIORITY, "._("failed_attempts").": $failed_attempts\" border=0>";
