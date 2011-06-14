@@ -45,7 +45,8 @@ function navigator () {
                 onMouseout="selectMouseOut();"></a> | 
             <a class="white<?=($_SESSION['tab']==3) ? "n" : ""?>" href="index.php?tab=3&hmenu=Network&smenu=Network"><?=_("Alerts")?></a> |
             <a class="white<?=($_SESSION['tab']==4) ? "n" : ""?>" href="index.php?tab=4&hmenu=Network&smenu=Network"><?=_("Stats")?></a> |
-            <a class="white<?=($_SESSION['tab']==5) ? "n" : ""?>" href="index.php?tab=5&hmenu=Network&smenu=Network"><?=_("Plugins")?></a>
+            <a class="white<?=($_SESSION['tab']==5) ? "n" : ""?>" href="index.php?tab=5&hmenu=Network&smenu=Network"><?=_("Plugins")?></a> |
+            <a class="white" href="../sensor/sensor.php?hmenu=SIEM+Components&smenu=SIEM+Components"><?=_("Sensors")?></a>
         </td></tr>
         </table>
     </div>
