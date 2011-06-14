@@ -74,14 +74,14 @@ $conn_snort          = $db->snort_connect();
 									{ 
 										?>
 										<td><span style='color:green; font-weight: bold;'><?php echo gettext("UP"); ?></span></td>
-										<td><a href="<?php echo "sensor_plugins.php?sensor=$ip&ip=$ip&cmd=stop&id=$id" ?>"><?php echo gettext("Stop"); ?> </a></td>
+										<td><a href="" onclick="GB_show('Command','<?php echo "sensor_plugins.php?sensor=$ip&ip=$ip&cmd=stop&id=$id" ?>',250,530);return false"><?php echo gettext("Stop"); ?> </a></td>
 										<?php
 									} 
 									elseif ($state == 'stop') 
 									{
 										?>
 										<td><span style='color:red; font-weight: bold;'><?php echo gettext("DOWN"); ?></span></td>
-										<td><a href="<?php echo "sensor_plugins.php?sensor=$ip&ip=$ip&cmd=start&id=$id" ?>"><?php echo gettext("Start"); ?> </a></td>
+										<td><a href="" onclick="GB_show('Command','<?php echo "sensor_plugins.php?sensor=$ip&ip=$ip&cmd=start&id=$id" ?>',250,530);return false""><?php echo gettext("Start"); ?> </a></td>
 										<?php
 									} 
 									else 
@@ -96,14 +96,14 @@ $conn_snort          = $db->snort_connect();
 									{
 										?>
 										<td><span style='color:green; font-weight: bold;'><?php echo gettext("ENABLED"); ?></span></td>
-										<td><a href="<?php echo "sensor_plugins.php?sensor=$ip&ip=$ip&cmd=disable&id=$id" ?>"><?php echo gettext("Disable"); ?> </a></td>
+										<td><a href="" onclick="GB_show('Command','<?php echo "sensor_plugins.php?sensor=$ip&ip=$ip&cmd=disable&id=$id" ?>',250,530);return false"><?php echo gettext("Disable"); ?> </a></td>
 										<?php
 									} 
 									else 
 									{
 										?>
 										<td><span style='color:red; font-weight: bold;'><?php echo gettext("DISABLED"); ?></span></td>
-										<td><a href="<?php echo "sensor_plugins.php?sensor=$ip&ip=$ip&cmd=enable&id=$id" ?>"><?php echo gettext("Enable"); ?> </a></td>
+										<td><a href="" onclick="GB_show('Command','<?php echo "sensor_plugins.php?sensor=$ip&ip=$ip&cmd=enable&id=$id" ?>',250,530);return false"><?php echo gettext("Enable"); ?> </a></td>
 										<?php
 									}
 								?>

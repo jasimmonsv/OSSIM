@@ -218,6 +218,40 @@ Session::logcheck("MenuConfiguration", "MonitorsSensors");
 
 <body>                             
 <?php
+/* connect to db */
+	
+	$db             = new ossim_db();
+	$conn           = $db->connect();
+	$conn_snort     = $db->snort_connect();
+
+// Ajax called BG Execute CMD
+if ((!empty($cmd)) && (!empty($id)) && (!empty($ip_get))) {
+	if ($cmd == "start") {
+		$action = _("Starting");
+	} elseif ($cmd == "stop") {
+		$action = _("Stopping");
+	} elseif ($cmd == "disable") {
+		$action = _("Disabling");
+	} elseif ($cmd == "stop") {
+		$action = _("Enabling");
+	}
+	
+	if ($plugin_list = Plugin::get_list($conn, "WHERE id = $id")) 
+	{
+		$plugin_name = $plugin_list[0]->get_name();
+	} 
+	else 
+	{
+		$plugin_name = $id;
+	}
+?>
+<div id='loading'>
+	<div><img src='../pixmaps/loading3.gif' alt='<?php echo _("Loading")?>'/><span><?php echo $action._(" $plugin_name, please wait a few seconds")?> ...</span></div>
+</div>
+<?php send_msg($cmd, $ip_get, $id); ?>
+<script type="text/javascript">parent.location.href='sensor_plugins.php';</script>
+<?php }
+
 
 include ("../hmenu.php");
 
@@ -237,16 +271,12 @@ if ( !Session::menu_perms("MenuConfiguration", "PolicySensors") )
 <?php
 ob_flush();
 
-	/* connect to db */
-	
-	$db             = new ossim_db();
-	$conn           = $db->connect();
-	$conn_snort     = $db->snort_connect();
 	$conf           = $GLOBALS["CONF"];
 	$acid_link      = $conf->get_conf("acid_link");
 	$acid_prefix    = $conf->get_conf("event_viewer");
 	$acid_main_link = str_replace("//", "/", $conf->get_conf("acid_link") . "/" . $acid_prefix . "_qry_main.php?clear_allcriteria=1&search=1&bsf=Query+DB&ossim_risk_a=+");
 	#
+	
 	$db_sensor_list = array();
 	$list_no_active = array();
 	$tmp_list = Sensor::get_all($conn);
@@ -286,68 +316,15 @@ if ( !empty($info_error) )
 <table class="noborder" border='0' cellpadding='0' cellspacing='0' width='100%' align='center'>
 
 	<?php
-	foreach($sensor_list as $sensor) 
+	foreach($sensor_list as $sensor=>$sensor_plugins_list) 
 	{
-		$ip = $sensor["sensor"];
+		$ip = $sensor;
 		unset($list_no_active[$ip]); // Remove active sensors of inactive list 
 		if (isset($db_sensor_rel[$ip])) $name = $db_sensor_rel[$ip];
-		$state = $sensor["state"];
-   
-
-		if ((!empty($cmd)) && (!empty($id))) 
-		{
-		
-			/*
-			*  Send message to server
-			*    sensor-plugin-CMD sensor="" plugin_id=""
-			*  where CMD can be (start|stop|enable|disable)
-			*/
-			require_once ('ossim_conf.inc');
-			$ossim_conf = $GLOBALS["CONF"];
-			/* get the port and IP address of the server */
-			$address = $ossim_conf->get_conf("server_address");
-			$port    = $ossim_conf->get_conf("server_port");
-			/* create socket */
-			$socket = socket_create(AF_INET, SOCK_STREAM, 0);
-			if ($socket < 0) 
-			{
-				echo ossim_error ( _("socket_create() failed: reason: ") . socket_strerror($socket) );
-				exit();
-			}
-			
-			/* connect  */
-			socket_set_block($socket);
-			socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 10, 'usec' => 0));
-			socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 5, 'usec' => 0));
-			
-			$result = socket_connect($socket, $address, $port);
-			if ($result < 0) {
-				 echo ossim_error( _("socket_connect() failed.\nReason:")." ($result) " . socket_strerror($result) );
-				exit();
-			}
-			/* first send a connect message to server */
-			$in = 'connect id="1" type="web"' . "\n";
-			$out = '';
-			socket_write($socket, $in, strlen($in));
-			$out = socket_read($socket, 2048, PHP_BINARY_READ);
-			if (strncmp($out, "ok id=", 4)) 
-			{
-				echo "<p><b>" . gettext("Bad response from server") . "</b></p>";
-				break;
-			}
-			/* send command */
-			$msg = "sensor-plugin-$cmd sensor=\"$ip\" plugin_id=\"$id\"\n";
-			socket_write($socket, $msg, strlen($msg));
-			socket_close($socket);
-			/* wait for
-			*   framework => server -> agent -> server => framework
-			* messages */
-			//sleep(5);
-			
-		}
+		$state = "start";
 
 		/* get plugin list for each sensor */
-		$sensor_plugins_list = server_get_sensor_plugins($ip);
+		//$sensor_plugins_list = server_get_sensor_plugins($ip);
 		/*
 		*  show sensor ip (and sensor name if available)
 		*  at the top of the table
@@ -355,21 +332,16 @@ if ( !empty($info_error) )
 		$up_enabled = 0;
 		$down_disabled = 0;
 		$totales = 0;
-		if ($sensor_plugins_list) 
-		{
-			foreach($sensor_plugins_list as $sensor_plugin) {
-				if ($sensor_plugin["sensor"] == $ip) {
-					$state = $sensor_plugin["state"];
-					$enabled = $sensor_plugin["enabled"];
-					if ($state == 'start' || $enabled == 'true') {
-						$up_enabled++;
-					}
-					if ($state == 'stop' || $enabled != 'true') {
-						$down_disabled++;
-					}
-					$totales++;
-				}
+		foreach($sensor_plugins_list as $plugin_id=>$sensor_plugin) {
+			$state = $sensor_plugin["state"];
+			$enabled = $sensor_plugin["enabled"];
+			if ($state == 'start' || $enabled == 'true') {
+				$up_enabled++;
 			}
+			if ($state == 'stop' || $enabled != 'true') {
+				$down_disabled++;
+			}
+			$totales++;
 		}
   	
 	?>
