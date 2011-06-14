@@ -1699,14 +1699,27 @@ function getCredentialId ( $cred_type, $passstore, $credid, $acc, $domain, $accp
 
 }
 
-function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $ROYEAR,$ROMONTH, $ROday,
+function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $ROYEAR, $ROMONTH, $ROday,
      $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list, $ip_exceptions_list,
      $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
      $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
      $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail, $not_resolve) {
-     
+
      global $wdaysMap, $daysMap, $allowscan, $uroles, $username, $schedOptions, $adminmail, $mailfrom, $dbk, $dbconn;
      
+     require_once("classes/Util.inc");
+     $tz = Util::get_timezone();
+     
+     if (empty($ROYEAR)) $ROYEAR = gmdate("Y");
+     if (empty($ROMONTH)) $ROMONTH = gmdate("m");
+     if (empty($ROday)) $ROday = gmdate("d");
+     list ($_y,$_m,$_d,$_h,$_u,$_s,$_time) = Util::get_utc_from_date($dbconn,"$ROYEAR-$ROMONTH-$ROday $time_hour:$time_min:00",$tz);
+     $ROYEAR = $_y;
+     $ROMONTH = $_m;
+     $ROday = $_d;
+     $time_hour = $_h;
+     $time_min = $_u;
+         
      if($not_resolve=="1")  $resolve_names = 0;
      else                   $resolve_names = 1;
      
@@ -1726,9 +1739,7 @@ function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $RO
      $tmp_target_list="";
      $jobs_names = array();
      $sjobs_names = array();
-     
-     $tz = Util::get_timezone();
-        
+
      //$I3crID = getCredentialId ( $cred_type, $passstore, $credid, $acc, $domain, $accpass, $acctype, $passtype );
      $I3crID = "";
      
@@ -1763,14 +1774,15 @@ function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $RO
      <tr><th align="right">Schedule Info</th><td>&nbsp;</td></tr>
 EOT;*/
 
-   $arrTime = localtime(time(), true);
-   $year = 1900 + $arrTime["tm_year"];
-   $mon = 1 + $arrTime["tm_mon"];
-   $mday =  $arrTime["tm_mday"];
-   $wday =  $arrTime["tm_wday"];
-   $hour = ($arrTime["tm_hour"]<10) ? "0".$arrTime["tm_hour"] : $arrTime["tm_hour"];
-   $min = ($arrTime["tm_min"]<10) ? "0".$arrTime["tm_min"] : $arrTime["tm_min"];
-   $sec = ($arrTime["tm_sec"]<10) ? "0".$arrTime["tm_sec"] : $arrTime["tm_sec"];
+   //$arrTime = localtime((int)gmdate('U'), true);
+   $arrTime = explode(":",gmdate('Y:m:d:w:H:i:s'));
+   $year = $arrTime[0];
+   $mon = $arrTime[1];
+   $mday =  $arrTime[2];
+   $wday =  $arrTime[3];
+   $hour = $arrTime[4];
+   $min = $arrTime[5];
+   $sec = $arrTime[6];
       	
    $timenow = $hour.$min.$sec;
    
@@ -1796,7 +1808,7 @@ EOT;*/
    switch($schedule_type) {
    case "N":
 
-          $requested_run = sprintf("%04d%02d%02d%02d%02d%02d",$year, $mon, $mday, $hour, $min, $sec );
+          $requested_run = gmdate("YmdHis");
           $sched_message = "No reccurring Jobs Necessary";
 
       break;
@@ -1810,44 +1822,43 @@ EOT;*/
 
       break;
    case "D":
-   
-          if ( $run_time > $timenow ) {
-	          $next_day = date("Ymd", mktime(0, 0, 0, date("m"), date("d"), date("y")));
-          } else {
-	          $next_day = date("Ymd", mktime(0, 0, 0, date("m"), date("d")+1, date("y")));
-          }
+          
+          if ( $run_time > $timenow )
+	          $next_day = $year.$mon.$mday; // today
+          else
+	          $next_day = gmdate("Ymd", strtotime("+1 day GMT",gmdate("U"))); // next day
+          
           $requested_run = sprintf("%08d%06d", $next_day, $run_time );
+
           $recurring = True;
           $sched_message = "Schedule Reccurring";
           $reccur_type = "Daily";
           
       break;
    case "W":
-            if ($run_wday == $wday && $run_time > $timenow) {
-                $next_day = date("Ymd", mktime(0, 0, 0, date("m"), date("d"), date("y")));
-            }
-            else {
-                $next_day = date("Ymd", strtotime("next ".$ndays[$run_wday]));
-            }
-          /*if ( $run_wday > $wday || ( $run_wday == $wday && $run_time > $timenow )) {
-	          $next_day = date("Ymd", mktime(0, 0, 0, date("m"), date("d")+($run_wday-$wday), date("y")));
-          } else {
-	          $next_day = date("Ymd", mktime(0, 0, 0, date("m"), date("d")+7, date("y")));
-          }*/
-          $requested_run = sprintf("%08d%06d", $next_day, $run_time );
-          $recurring = True;
-          $sched_message = "Schedule Reccurring";
-          $reccur_type = "Weekly";
+
+            if ($run_wday == $wday && $run_time > $timenow) 
+                $next_day = $year.$mon.$mday; // today
+            else
+                $next_day = gmdate("Ymd", strtotime("next ".$ndays[$run_wday]." GMT",gmdate("U"))); // next week
+          
+            
+            $requested_run = sprintf("%08d%06d", $next_day, $run_time );
+            
+            $recurring = True;
+            $sched_message = "Schedule Reccurring";
+            $reccur_type = "Weekly";
           
       break;
    case "M":
 
           if ( $run_mday > $mday || ( $run_mday == $mday && $run_time > $timenow )) {
-              $next_day = date("Ymd", mktime(0, 0, 0, date("m"), $run_mday, date("y")));
+              $next_day = $year.$mon.($run_mday<10 ? "0" : "").$run_mday; // this month
               #echo "date selected is in the future<br>";
           } else {
-              $next_day = date("Ymd", mktime(0, 0, 0, date("m")+1, $run_mday, date("y")));
-               #echo "date selected is in the past<br>";
+              $next_day = sprintf("%06d%02d", gmdate("Ym", strtotime("next month GMT",gmdate("U"))), $run_mday ) ;
+              #$next_day = gmdate("Ymd", mktime(0, 0, 0, date("m")+1, $run_mday, date("y"))); // next month
+              #echo "date selected is in the past<br>";
           }
           
           #echo "run_mday=$run_mday mday=$mday rtime=$run_time now=$timenow next_day=$next_day<br>";
@@ -1868,7 +1879,7 @@ EOT;*/
             "Sa" => 6,
             "Su" => 7);
    
-        $next_day = nthweekdaymonth(date("Y"), date("n"), 1, $dayweektonum[$dayofweek], $nthweekday); 
+        $next_day = nthweekdaymonth($year, gmdate("n"), 1, $dayweektonum[$dayofweek], $nthweekday); 
         
         
         $requested_run = sprintf("%08d%06d", $next_day, $run_time );
@@ -2049,13 +2060,9 @@ EOT;*/
          $arrAudits[$check] = "NULL";
       }
    }
-   if($tz==0) {
-        $insert_time =  date("YmdHis");   
-   }
-   else {
-        list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($dbconn, date("Y-m-d H:i:s"), $tz);
-        $insert_time = $y.$m.$d.$h.$u.$s;
-   }
+
+    $insert_time = gmdate("YmdHis");
+   
 //   if ( $need_authorized != "" || !($uroles['nessus']) ) {
 //      $jobType="R";  #REQUEST JOB
 //      #DO not wrap $subnet / $SVRid with ticks '' as 'Null' is not Null
@@ -2178,10 +2185,10 @@ EOT;*/
         }
         $query = array();
         
-        if($tz!=0) {
+    /*    if($tz!=0) {
             list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($dbconn, $requested_run, $tz);
             $requested_run = $y.$m.$d.$h.$u.$s;
-        }
+        }*/
 
         if ( $op == "editrecurring" && $sched_id > 0 ) {
             $query[] = "DELETE FROM vuln_job_schedule WHERE id='$sched_id'";
@@ -2645,7 +2652,7 @@ function nthweekdaymonth($year, $month, $day, $dayofweek, $nthweekday) {
     $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
     $firstdaymonth = mktime(0, 0, 0, $month, $day, $year);
-    $weekday = date("N", $firstdaymonth);
+    $weekday = gmdate("N", $firstdaymonth);
     
     if($weekday == $dayofweek) {
         $nextday = $day+(7*($nthweekday-1));
@@ -2656,14 +2663,14 @@ function nthweekdaymonth($year, $month, $day, $dayofweek, $nthweekday) {
     else {
         $nextday = ($day+(7-$weekday)+$dayofweek+(7*($nthweekday-1)));
     }
-    if ($nextday > $days_in_month || ($nextday < date("d") && $month==date("n"))){
+    if ($nextday > $days_in_month || ($nextday < gmdate("d") && $month==gmdate("n"))){
         $month = ($month==12)? 1: ++$month;
         $year = ($month==1)? $year++: $year;
         
         return nthweekdaymonth($year, $month, $day, $dayofweek, $nthweekday);
     }
     else
-        return(date("Ymd", mktime(0, 0, 0, $month, $nextday, $year)));
+        return(gmdate("Ymd", mktime(0, 0, 0, $month, $nextday, $year)));
 }
 
 ?>
