@@ -201,7 +201,7 @@ sim_database_new(SimConfigDS *config)
           g_print(" CONNECTION ERROR\n");
           g_print(" NAME: %s\n", db->_priv->name);
           g_print(" PROVIDER: %s\n", db->_priv->provider);
-          g_print(" DSN: %s\n", db->_priv->dsn);
+          g_print(" DSN: Check in config.xml\n");
           g_print(
               "We can't open the database connection. Please check that your DB is up.\n");
           exit(EXIT_FAILURE);
@@ -270,7 +270,7 @@ sim_database_execute_no_query(SimDatabase *database, const gchar *buffer)
               g_message(" CONNECTION ERROR");
               g_message(" NAME: %s", database->_priv->name);
               g_message(" PROVIDER: %s", database->_priv->provider);
-              g_message(" DSN: %s", database->_priv->dsn);
+              g_message(" DSN: Check in config.xml\n");
               g_message(
                   " We can't open the database connection. Please check that your DB is up.");
               g_message(" Waiting 10 seconds until next try....");
@@ -383,7 +383,7 @@ sim_database_execute_single_command(SimDatabase *database, const gchar *buffer)
           g_message(" CONNECTION ERROR");
           g_message(" NAME: %s", database->_priv->name);
           g_message(" PROVIDER: %s", database->_priv->provider);
-          g_message(" DSN: %s", database->_priv->dsn);
+          g_message(" DSN: Check in config.xml\n");
           g_message(
               " We can't open the database connection. Please check that your DB is up.");
           g_message(" Waiting 10 seconds until next try....");
