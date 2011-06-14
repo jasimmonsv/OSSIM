@@ -28,12 +28,10 @@ while (<STDIN>) {
             $line =~ s/INSERT\s+IGNORE\s+INTO\s+\`acid\_event\`\s+VALUES/INSERT IGNORE INTO `acid_event` ($replace_string) VALUES/;
         }
     }
-    elsif ($line =~ /INSERT\s+IGNORE\s+INTO\s+\`extra\_data\`\s+VALUES\s+\(\d+,\d+,.*?(',\d+|')\)/) {
+	# Get line with insert in extra_data
+	elsif ($line =~ /INSERT\s+IGNORE\s+INTO\s+\`extra\_data\`\s+VALUES\s+/ && $line !~ /INSERT\s+IGNORE\s+INTO\s+\`extra\_data\`\s+VALUES\s+\(.*,\d+\)\;$/) {
         # Count columns
         my $num_cols = 15;
-        if($1 =~ /',\d+$/i) {
-            $num_cols = 16;
-        }
         if (defined $columns['extra_data'][$num_cols]) {
             my $replace_string = $columns['extra_data'][$num_cols];
             $line =~ s/INSERT\s+IGNORE\s+INTO\s+\`extra\_data\`\s+VALUES/INSERT IGNORE INTO `extra_data` ($replace_string) VALUES/;
