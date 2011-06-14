@@ -9,6 +9,7 @@ $|=1;
 
 # restoredb.pl action YYYYMMDD user nomerge entity|user
 # perl /usr/share/ossim/scripts/restoredb.pl insert 20100601 admin nomerge 1 
+use lib "/usr/share/ossim/include";
 use ossim_conf;
 use DBI;
 use POSIX;
