@@ -275,7 +275,7 @@ class Agent:
         tmpPrioConnectedServer = -1
         if len(self.__outputServerList) > 0:
             for serverdata in self.__outputServerList:
-                if serverdata.get_priority() > tmpPrioConnectedServer and  serverdata.get_send_events():
+                if serverdata.get_priority() >= tmpPrioConnectedServer and  serverdata.get_send_events():
                     tmpConnection = ServerConn(serverdata.get_ip(), serverdata.get_port(), serverdata.get_priority(), \
                                                serverdata.get_allow_frmk_data(), serverdata.get_send_events(), self.plugins)
                     if not serverdata.get_allow_frmk_data():
@@ -609,7 +609,7 @@ class Agent:
             logger.info("-------> %s" % server)
             #set stop counter for every server to 0
             self.__stop_server_counter_array[server.get_ip()] = 0
-
+            
 
     def __changePriority(self):
         '''
