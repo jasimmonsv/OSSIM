@@ -633,7 +633,13 @@ elseif ($query == "move") {
 /* copy a rule */
 elseif ($query == "copy_rule") {
     $directive = unserialize($_SESSION['directive']);
-    $XML_FILE = get_directive_file($directive->id);
+    $file = $_GET['xml_file'];
+	ossim_valid($file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("directive_xml"));
+	if (ossim_error()) {
+		die(ossim_error());
+	}
+    if ($file != "") $XML_FILE = "/etc/ossim/server/".$file;
+	else $XML_FILE = get_directive_file($directive->id);
     $dom = open_file($XML_FILE);
     $direct = getDirectiveFromXML($dom, $directive->id);
     $tab_rules = $direct->rules;
