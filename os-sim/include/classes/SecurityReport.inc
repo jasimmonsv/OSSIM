@@ -51,8 +51,9 @@ class SecurityReport {
         $this->ossim_conn = $db->connect();
         $this->snort_conn = $db->snort_connect();
     }
-    function AttackHost($conn, $ip_target, $limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
-        $limit++;
+    function AttackHost($conn, $ip_target, $limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array(), $order_type = "DESC") {
+        if ($order_type == "") $order_type = "DESC";
+    	$limit++;
     	require_once ('classes/Host.inc');
         require_once ('classes/Net.inc');
         require_once ('classes/Session.inc');
@@ -142,7 +143,7 @@ class SecurityReport {
                 //
                 $query = OssimQuery("SELECT count(a.$ip_target) AS occurrences,
                   a.$ip_target as ip FROM alarm a $join2 $sensor_join where a.$ip_target != 0 AND a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59'$sensor_str_alarm $where2
-                  $sql_plugin_groups GROUP BY a.$ip_target ORDER BY occurrences DESC LIMIT $limit");
+                  $sql_plugin_groups GROUP BY a.$ip_target ORDER BY occurrences $order_type LIMIT $limit");
                 $temp_conn = $this->ossim_conn;
 				
                 break;
@@ -155,7 +156,7 @@ class SecurityReport {
                 //            
                 $query = OssimQuery("SELECT count($ip_target) AS occurrences,
                   $ip_target as ip FROM acid_event $join2 where ossim_risk_c >= 0 AND timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND ossim_risk_a >= 0$sensor_str_event $where2
-                  $sql_plugin_groups GROUP BY ip ORDER BY occurrences DESC LIMIT $limit");
+                  $sql_plugin_groups GROUP BY ip ORDER BY occurrences $order_type LIMIT $limit");
                 $db = new ossim_db();
 				$temp_conn = $db->snort_connect();
 				//$temp_conn = $this->snort_conn;
@@ -725,7 +726,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function PromiscuousHost($conn, $limit = 10, $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
+    function PromiscuousHost($conn, $limit = 10, $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array(), $order_type = "DESC") {
         require_once ('classes/Host.inc');
         require_once ('classes/Net.inc');
         require_once ('classes/Session.inc');
@@ -736,6 +737,8 @@ class SecurityReport {
         
 		$from_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$from_date);
 		$to_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$to_date);
+		
+		if ($order_type == "") $order_type = "DESC";
 		
 		// User sensor filtering
 		$sensor_str_alarm = "";
@@ -798,7 +801,7 @@ class SecurityReport {
         list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_src",$assets,$sourcetype,$category,$subcategory);
         //            
         $query = OssimQuery("select count(distinct(ip_dst)) as occurrences,INET_NTOA(ip_src) as ip from snort.acid_event WHERE timestamp BETWEEN '$from_date 00:00:00' AND '$to_date 23:59:59' $sensor_str_event $where2
-          $sql_plugin_groups GROUP BY ip ORDER BY occurrences DESC LIMIT $limit");
+          $sql_plugin_groups GROUP BY ip ORDER BY occurrences $order_type LIMIT $limit");
 			
 		//print_r($query);
 		
@@ -828,7 +831,7 @@ class SecurityReport {
 		
         return $list;
     }   
-    function MultipleEventsHost($conn, $limit = 10, $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
+    function MultipleEventsHost($conn, $limit = 10, $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array(), $order_type = "DESC") {
         require_once ('classes/Host.inc');
         require_once ('classes/Net.inc');
         require_once ('classes/Session.inc');
@@ -839,6 +842,8 @@ class SecurityReport {
         
 		$from_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$from_date);
 		$to_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$to_date);
+		
+		if ($order_type == "") $order_type = "DESC";
 		
 		// User sensor filtering
 		$sensor_str_alarm = "";
@@ -901,7 +906,7 @@ class SecurityReport {
         list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_src",$assets,$sourcetype,$category,$subcategory);
         //            
         $query = OssimQuery("select count(distinct plugin_id,plugin_sid) as occurrences,INET_NTOA(ip_src) as ip from snort.acid_event WHERE timestamp BETWEEN '$from_date 00:00:00' AND '$to_date 23:59:59' $sensor_str_event $where2
-          $sql_plugin_groups GROUP BY ip ORDER BY occurrences DESC LIMIT $limit");
+          $sql_plugin_groups GROUP BY ip ORDER BY occurrences $order_type LIMIT $limit");
 			
 		//print_r($query);
 		

@@ -157,7 +157,10 @@ if ( $edit )
 } 
 else 
 {
-    $title        = GET('title');
+
+    $title = GET('title');
+    $title = str_replace("'", "\'", $title);
+    
     $submitter    = GET('submitter');
     $priority     = GET('priority');
     $type 		  = GET('type');
@@ -176,6 +179,10 @@ else
     $anom_type    = GET('anom_type');
     $anom_ip      = GET('anom_ip');
     $a_sen        = GET('a_sen');
+               
+    preg_match("/\D*(\d+\.\d+\.\d+\.\d+)\D*/",$a_sen,$found);
+    $a_sen = $found[1];
+    
     $a_date       = GET('a_date');
     $a_mac_o      = GET('a_mac_o');
     $a_mac        = GET('a_mac');
@@ -354,7 +361,18 @@ else
 			$('#delfile_'+id).remove();
 			$('#del_'+id).val("1");
 		}
-
+        
+        // function to filter '<' and '>' in alarm title
+        function filterKey(e) {
+            if(window.event) { // IE
+                keynum = e.keyCode
+            }
+            else if(e.which) { // Netscape/Firefox/Opera
+                keynum = e.which
+            }
+            if(keynum==60 || keynum==62) return false;
+            else                         return true;
+        }
 	</script>
 	
 	<style type='text/css'>
@@ -403,6 +421,12 @@ else
 <input type="hidden" name="ref" value="<?php echo $ref ?>" />
 <input type="hidden" name="incident_id" value="<?php echo $incident_id ?>" />
 <input type="hidden" name="submitter" value="<?php echo $submitter ?>" />
+<?php
+if(intval(GET('nohmenu')) == 1) { ?>
+    <input type="hidden" name="nohmenu" value="1" />
+<?
+}
+?>
 
 <div id='info_error' class='ct_error'></div>
 
@@ -411,7 +435,7 @@ else
 		<th><?php echo _("Title") ?></th>
 		<td class="left">
 			<div class='wfl2'>
-				<input type="text" name="title" value="<?php echo $title ?>"/>
+				<input type="text" name="title" onkeypress="return filterKey(event)" value='<?php echo $title ?>' />
 			</div>
 			<div class='wfr2'><span>(*)</span></div>
 		</td>

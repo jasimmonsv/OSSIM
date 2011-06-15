@@ -12,7 +12,7 @@ var GB_DONE   = false;
 var GB_TYPE   = ''; // empty or "w"
 var GB_HEIGHT = 400;
 var GB_WIDTH  = 400;
-//var GB_SCROLL_DIFF = (navigator.appVersion.match(/MSIE/)) ? 1 : ((navigator.appCodeName.match(/Mozilla/)) ? 20 : 17 );
+var GB_SCROLL_DIFF = (navigator.appVersion.match(/MSIE/)) ? 1 : ((navigator.appCodeName.match(/Mozilla/)) ? 17 : 17 );
 //var GB_HDIFF = (navigator.appVersion.match(/MSIE/)) ? 12 : ((navigator.appCodeName.match(/Mozilla/)) ? 42 : 18 );
 var GB_HDIFF = 10;
 var GB_SLEEP = (navigator.appVersion.match(/MSIE/)) ? 1000 : 0;
@@ -70,14 +70,16 @@ function GB_position() {
   if (de && de.clientWidth > w) w = de.clientWidth;
   if (document.body.clientWidth > w) w = document.body.clientWidth;
   
+  w = w - GB_SCROLL_DIFF; 
     
   // total document height
   var h = document.body.scrollHeight
   if ((self.innerHeight+window.scrollMaxY) > h) h = self.innerHeight+window.scrollMaxY;
   if (de && de.clientHeight > h) h = de.clientHeight;
   if (document.body.clientHeight > h) h = document.body.clientHeight;
-  //
+  
   $("#GB_overlay" + GB_TYPE).css({width:(w)+"px",height:(h)+"px"});
+   
   var sy_correction = (navigator.appVersion.match(/MSIE/)) ? 30 : 0;  
   var sy = document.documentElement.scrollTop || document.body.scrollTop - sy_correction;
   var ww = (typeof(GB_WIDTH) == "string" && GB_WIDTH.match(/\%/)) ? GB_WIDTH : GB_WIDTH+"px";

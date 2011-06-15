@@ -41,16 +41,21 @@ Session::logcheck("MenuIntelligence", "PolicyPolicy");
 
 $filter = GET('filter');
 $filter = (mb_detect_encoding($filter." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($filter) : $filter;
-$key = GET('key');
+
+$key  = GET('key');
 $page = intval(GET('page'));
+
 ossim_valid($filter, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, 'illegal:' . _("Filter"));
 ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("key"));
 ossim_valid($page, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("page"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
+
 if ($filter == "undefined") $filter = "";
 if ($page == "" || $page<=0) $page = 1;
+
 $maxresults = 200;
 $to = $page * $maxresults;
 $from = $to - $maxresults;
@@ -78,13 +83,18 @@ $ossim_nets = array();
 $all_cclass_hosts = array();
 $buffer = "";
 
-if ($key=="" || preg_match("/^(all|hostgroup)/",$key)) {
+if ($key=="" || preg_match("/^(all|hostgroup)/",$key)) 
+{
 	if ($host_list = Host::get_list($conn, "", "ORDER BY hostname"))
-		foreach($host_list as $host) if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) {
-		    $ossim_hosts[$host->get_ip() ] = $host->get_hostname();
-		    $cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $host->get_ip());
-		    $all_cclass_hosts[$cclass][] = $host->get_ip();
-		    $total_hosts++;
+		foreach($host_list as $host) 
+		{
+			if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) 
+			{
+				$ossim_hosts[$host->get_ip() ] = $host->get_hostname();
+				$cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $host->get_ip());
+				$all_cclass_hosts[$cclass][] = $host->get_ip();
+				$total_hosts++;
+			}
 		}
 }
 

@@ -422,11 +422,11 @@ EOT;
 
 // modified by hsh to return all scan schedules
 if (in_array("admin", $arruser)){
-    $query = "SELECT t2.name as profile, t1.meth_TARGET, t1.time, t1.id, t1.name, t1.schedule_type, t1.meth_VSET, t1.meth_TIMEOUT, t1.username, t1.enabled, t1.next_CHECK, t1.email
+    $query = "SELECT t2.name as profile, t1.meth_TARGET, t1.id, t1.name, t1.schedule_type, t1.meth_VSET, t1.meth_TIMEOUT, t1.username, t1.enabled, t1.next_CHECK, t1.email
               FROM vuln_job_schedule t1 LEFT JOIN vuln_nessus_settings t2 ON t1.meth_VSET=t2.id ";
 }
 else {
-    $query = "SELECT t2.name as profile, t1.meth_TARGET, t1.time, t1.id, t1.name, t1.schedule_type, t1.meth_VSET, t1.meth_TIMEOUT, t1.username, t1.enabled, t1.next_CHECK, t1.email
+    $query = "SELECT t2.name as profile, t1.meth_TARGET, t1.id, t1.name, t1.schedule_type, t1.meth_VSET, t1.meth_TIMEOUT, t1.username, t1.enabled, t1.next_CHECK, t1.email
               FROM vuln_job_schedule t1 LEFT JOIN vuln_nessus_settings t2 ON t1.meth_VSET=t2.id WHERE username in ('$user') ";
 }
 //    if($viewall == 1) { // list all schedules
@@ -448,7 +448,13 @@ else {
         echo "<th>"._("Action")."</th></tr>";
     }
     while (!$result->EOF) {
-       list ($profile, $targets, $time, $schedid, $schedname, $schedtype, $sid, $timeout, $user, $schedstatus, $nextscan, $servers )=$result->fields;
+       list ($profile, $targets, $schedid, $schedname, $schedtype, $sid, $timeout, $user, $schedstatus, $nextscan, $servers )=$result->fields;
+       
+        $tz = intval($tz);
+        $nextscan = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn, $nextscan)+(3600*$tz));
+        
+        preg_match("/\d+\-\d+\-\d+\s(\d+:\d+:\d+)/",$nextscan,$found);
+        $time = $found[1];
 
        switch ($schedtype) {
        case "N":
@@ -498,9 +504,7 @@ else {
        } else { 
           $txt_enabled = "<td><a href=\"$ilink\"><font color=\"red\">"._("Disabled")."</font></a></td>"; 
        }
-       //$nextscan = $user_time = switchTime_TimeZone( $nextscan, "user", "TZdate" );
-       $nextscan = date("Y-m-d H:i:s",strtotime($nextscan));
-       
+
         if(preg_match('/^\d+$/', $user)) {
             list($entities_all, $num_entities) = Acl::get_entities($dbconn, $user);
             $user = $entities_all[$user]['name'];
@@ -513,11 +517,6 @@ EOT;
 ?>
     <td><?php echo $stt ?></td>
     <td><?php echo $time ?></td>
-    <?php
-        if($tz!=0) {
-            $nextscan = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn, $nextscan)+(3600*$tz));
-        }
-    ?>
     <td><?php echo $nextscan ?></td>
 <?php
     echo <<<EOT

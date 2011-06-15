@@ -297,6 +297,13 @@ for dir in "/usr/share/ossim/www/risk_maps/maps" "/usr/share/ossim/www/risk_maps
 	fi
 done
 
+# Default ossim_conf.pm
+cp -f /usr/share/ossim/include/ossim_conf.pm /usr/lib64/perl5/ossim_conf.pm 
+cp -f /usr/share/ossim/include/ossim_conf.pm /usr/lib/perl5/ossim_conf.pm 
+
+# Change PConnect to NConnect 
+sed -i 's/PConnect/NConnect/g' /usr/share/phpgacl/gacl.class.php
+
 #echo -n "Reloading ACLs.."
 #if [ -x /usr/bin/php ]; then
 #if [ -f /usr/share/ossim/include/ossim_acl.inc ]; then

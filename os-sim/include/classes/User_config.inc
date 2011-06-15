@@ -185,6 +185,16 @@ class User_config {
         }
         return true;
     }
+	function deleteall($conn, $login) {
+        $sql = "DELETE FROM user_config WHERE login=?";
+        $params = array(
+            $login
+        );
+        if (!$conn->Execute($sql, $params)) {
+            die(ossim_error($conn->ErrorMsg()));
+        }
+        return true;
+    }
     function copy_panel($conn, $from, $to) {
         // User should already have been checked but let's sanitize, just in case.
         require_once ('classes/Security.inc');
@@ -197,18 +207,24 @@ class User_config {
         }
         $conf = $GLOBALS["CONF"];
         $configs_dir = $conf->get_conf('panel_configs_dir');
-        $config = new User_config($conn);
-        $tmp_var = $config->get($from, 'panel_tabs', 'php');
-        $config->set($to, 'panel_tabs', $tmp_var, 'php');
+    	// AVT
         $regexp = "/$from" . "_(.*)" . '$/';
+        $hasavt = false;
         if ($handle = opendir($configs_dir)) {
             while (false !== ($file = readdir($handle))) {
                 if (preg_match($regexp, $file, $results)) {
                     if (file_exists("$configs_dir/$from" . "_" . $results[1])) {
                 		copy("$configs_dir/$from" . "_" . $results[1], "$configs_dir/$to" . "_" . $results[1]);
+                		$hasavt = true;
                     }
                 }
             }
+        }
+        // Database
+        if (!$hasavt) {
+	        $config = new User_config($conn);
+	        $tmp_var = $config->get($from, 'panel_tabs', 'php');
+	        $config->set($to, 'panel_tabs', $tmp_var, 'php');
         }
     }
 }

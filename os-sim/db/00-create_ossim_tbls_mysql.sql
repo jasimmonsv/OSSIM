@@ -2595,6 +2595,7 @@ CREATE TABLE `custom_report_profiles` (
   `id` int(5) NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL,
   `creator` varchar(64) NOT NULL,
+  `permissions` INT(4)  NOT NULL DEFAULT 0,
   `header` varchar(64) NOT NULL,
   `lfooter` varchar(64) NOT NULL,
   `rfooter` varchar(64) NOT NULL,

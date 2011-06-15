@@ -411,7 +411,11 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     if ($_SESSION["_solera"]) {
         $solera = "<a href=\"javascript:;\" onclick=\"solera_deepsee('".$myrow['timestamp']."','".$myrow['timestamp']."','$current_sip','".$myrow["layer4_sport"]."','$current_dip','".$myrow["layer4_dport"]."','".strtolower(IPProto2str($current_proto))."')\"><img src='../pixmaps/solera.png' border='0' align='absmiddle'></a>";
     }
-    $incident = "<a href=\"../incidents/newincident.php?" . "ref=Event&" . "title=" . urlencode($despues) . "&" . "priority=1&" . "src_ips=".$current_sip."&" . "event_start=".$myrow['timestamp']."&" . "event_end=".$myrow['timestamp']."&" . "src_ports=".$myrow["layer4_sport"]."&" . "dst_ips=".$current_dip."&" . "dst_ports=".$myrow["layer4_dport"]."&hmenu=Tickets&smenu=Tickets\"><img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\" align='absmiddle'/></a>";
+    
+    $nidespues = str_replace("<", "[", $despues);
+    $nidespues = str_replace(">", "]", $nidespues);
+    
+    $incident = "<a href=\"../incidents/newincident.php?" . "ref=Event&" . "title=" . urlencode($nidespues) . "&" . "priority=1&" . "src_ips=".$current_sip."&" . "event_start=".$myrow['timestamp']."&" . "event_end=".$myrow['timestamp']."&" . "src_ports=".$myrow["layer4_sport"]."&" . "dst_ips=".$current_dip."&" . "dst_ports=".$myrow["layer4_dport"]."&hmenu=Tickets&smenu=Tickets\"><img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\" align='absmiddle'/></a>";
     // 1- Checkbox
     qroPrintEntry($solera.' '.$incident.' <INPUT TYPE="checkbox" NAME="action_chk_lst[' . $i . ']" VALUE="' . htmlspecialchars($tmp_rowid) . '">',"","","","style='border-left:1px solid white;border-top:1px solid white' nowrap");
     echo '    <INPUT TYPE="hidden" NAME="action_lst['.$i.']" VALUE="'.htmlspecialchars($tmp_rowid).'">';
@@ -628,7 +632,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$cell_data['FILENAME'] = wordwrap($myrow['filename'],25," ",true);
 	$cell_data['PAYLOAD'] = wordwrap($myrow['data_payload'],25," ",true);
 	for ($u = 1; $u < 10; $u++)
-		$cell_data['USERDATA'.$u] = wordwrap($myrow['userdata'.$u],25," ",true);
+		$cell_data['USERDATA'.$u] = ($i<9) ? wordwrap($myrow['userdata'.$u],25," ",true) : $myrow['userdata'.$u];
 
     $cc = ($i % 2 == 0) ? "class='par'" : "";
     //$htmlPdfReport->set("<tr $cc>\n");

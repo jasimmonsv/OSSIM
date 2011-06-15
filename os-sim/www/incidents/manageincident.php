@@ -143,7 +143,12 @@ if ($action == 'subscrip')
 		    die_error("Invalid user");
     }
    
-	header("Location: incident.php?id=$id&edit=$edit");
+    if(intval(POST('nohmenu')) == 1) {
+        header("Location: incident.php?id=$id&edit=$edit&nohmenu=1");
+    }
+    else {
+        header("Location: incident.php?id=$id&edit=$edit");
+    }
     exit;
 }
 
@@ -212,7 +217,13 @@ if ($action == 'newticket')
         die_error();
 	}
 		
-	header("Location: incident.php?id=$id&edit=$edit");
+    if(intval(POST('nohmenu')) == 1) {
+        header("Location: incident.php?id=$id&edit=$edit&nohmenu=1");
+    }
+    else {
+        header("Location: incident.php?id=$id&edit=$edit");
+    }
+	
     exit;
 }
 
@@ -229,7 +240,13 @@ if ($action == 'delticket')
         die_error(_("You are not allowed to delete this ticket because you are neither *admin* or the ticket owner"));
     
 	Incident_ticket::delete($conn, GET('ticket_id'));
-    header("Location: incident.php?id=$id&edit=$edit");
+    
+    if(intval(POST('nohmenu')) == 1) {
+        header("Location: incident.php?id=$id&edit=$edit&nohmenu=1");
+    }
+    else {
+        header("Location: incident.php?id=$id&edit=$edit");
+    }
     exit;
 }
 
@@ -520,7 +537,13 @@ if ($action == 'editincident')
 			
 	}	
     
-	header("Location: incident.php?id=$incident_id&edit=$edit");
+    if(intval(POST('nohmenu')) == 1) {
+        header("Location: incident.php?id=$incident_id&edit=$edit&nohmenu=1");
+    }
+    else {
+        header("Location: incident.php?id=$incident_id&edit=$edit");
+    }
+    
     exit;
 }
 
@@ -803,8 +826,14 @@ if ($action == 'newincident')
     
 	if( intval($from_vuln) == 1 )
         header("Location: index.php?hmenu=Tickets&smenu=Tickets"); 
-    else
-        header("Location: incident.php?id=$incident_id&edit=$edit");
+    else {
+        if(intval(POST('nohmenu')) == 1) {
+            header("Location: incident.php?id=$incident_id&edit=$edit&nohmenu=1");
+        }
+        else {
+            header("Location: incident.php?id=$incident_id&edit=$edit");
+        }
+    }
     exit;
 }
 ?>

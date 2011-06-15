@@ -193,7 +193,7 @@ class Host {
 		// User NETWORK filtering
 		$network_where = Host::get_network_where($conn);
 		
-		$perms_where = ($sensor_where != "") ? " AND ".$sensor_where : "";
+		$perms_where = ($sensor_where != "") ? " AND (".$sensor_where.")" : "";
 		$perms_where .= ($network_where != "") ? " AND (".$network_where.")" : "";
 		
 		if ($perms_where != "") {
@@ -239,6 +239,8 @@ class Host {
 					$sensor_str .= (($sensor_str != "") ? "," : "")."'".$user_sensor."'";
 			}
 			$sensor_where = ($ntoa ? "inet_ntoa($alias.ip)" : "$alias.ip")." in (select hs.host_ip FROM host_sensor_reference hs,sensor s WHERE hs.sensor_name=s.name AND s.ip in (" . $sensor_str . "))";
+			// sensor exceptions as a host
+    		$sensor_where .= " OR ".($ntoa ? "inet_ntoa($alias.ip)" : "$alias.ip")." in ('".str_replace(",","','",Session::allowedSensors())."')";
 		}
 		return $sensor_where;
     }
@@ -259,10 +261,6 @@ class Host {
 		            		$network_where .= " OR ($alias.ip >= ".$rs->fields["begin"]." AND $alias.ip <= ".$rs->fields["end"].")"; 
 		            }
 		        }
-    		}
-    		// sensor exceptions as host
-    		if (Session::allowedSensors()!="") {
-    			$network_where .= " OR $alias.ip in ('".str_replace(",","','",Session::allowedSensors())."')";
     		}
             $network_where = preg_replace("/^ OR /","",$network_where);
 		}
@@ -1082,7 +1080,7 @@ class Host {
 		// User NETWORK filtering
 		$network_where = Host::get_network_where($conn);
 		
-		$perms_where = ($sensor_where != "") ? " AND ".$sensor_where : "";
+		$perms_where = ($sensor_where != "") ? " AND (".$sensor_where.")" : "";
 		$perms_where .= ($network_where != "") ? " AND (".$network_where.")" : "";
 		
         $list = array();

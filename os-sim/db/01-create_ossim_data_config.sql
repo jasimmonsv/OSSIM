@@ -197,5 +197,5 @@ INSERT INTO `config` (`conf`, `value`) VALUES
 ('customize_subtitle_foreground_color', '#FFFFFF'),
 ('customize_wizard', '0');
 
-INSERT INTO config (conf, value) VALUES ('last_update', '2011-06-08');
-INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.31');
+INSERT INTO config (conf, value) VALUES ('last_update', '2011-06-13');
+INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.32');

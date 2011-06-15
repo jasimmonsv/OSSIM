@@ -6,6 +6,7 @@
 # USE: perl ossim_check_creates.pl [ossim|snort|datawarehouse|jasperserver|ossim_acl]
 # Database parameter is optional. If empty it will check all database creates
 # 2011-02-21 Pablo Vargas
+use lib "/usr/share/ossim/include";
 use ossim_conf;
 use DBI;
 use POSIX;
