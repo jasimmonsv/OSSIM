@@ -158,7 +158,7 @@ sub get_taxonomy_filter {
 			}
 			$sth_sel->finish;
 		    disconn_db($dbh);
-		} elsif ($#plugin_ids > 0) {
+		} elsif ($#plugin_ids >= 0) {
 			$onlyid = true;
 			foreach $plugin_id (@plugin_ids) {
 				$has_results = 1;

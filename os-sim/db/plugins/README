@@ -123,6 +123,7 @@
  |      1640 | usbudev            | detector |
  |      1641 | airlock            | detector |
  |      1642 | bluecoat           | detector |
+ |      1643 | Stonegate IPS      | detector |
  +-----------+--------------------+----------+
  |      1801 | forensics-db-1     | detector |
  +-----------+--------------------+----------+
