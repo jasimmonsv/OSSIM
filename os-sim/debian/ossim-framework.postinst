@@ -190,7 +190,7 @@ if [ ! -e "/var/log/php-ids.log" ]; then
 fi
 touch "/tmp/default_filter.cache"
 chown www-data.www-data "/tmp/default_filter.cache"
-
+chmod 666 "/tmp/default_filter.cache"
 
 #This is to fix people with an old version, where /var/ossim/sessions was a file
 if [ -f /var/ossim/sessions ]; then

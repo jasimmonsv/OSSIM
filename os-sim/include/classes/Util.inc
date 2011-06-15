@@ -932,7 +932,7 @@ class Util {
 		
 		if ( file_exists("/etc/ossim/framework/db_encryption_key") )
 		{
-			exec("grep \"key\" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = \"=\" } ; {print $2}'", $output);
+			exec("grep \"^key=\" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = \"=\" } ; {print $2}'", $output);
 			$uuid = $output[0];
 		}
 		else

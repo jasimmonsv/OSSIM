@@ -193,7 +193,7 @@ my $dbpass = `grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($d
 
 my $uuid = "";
 if (-e "/etc/ossim/framework/db_encryption_key") {
-	$uuid = `grep "key" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = "=" } ; {print \$2}'`; chomp($uuid);
+	$uuid = `grep "^key=" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = "=" } ; {print \$2}'`; chomp($uuid);
 } else {
 	$uuid = `dmidecode -s system-uuid`; chomp($uuid);
 }
