@@ -118,7 +118,7 @@ my $dbpass = `grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($d
 
 my $uuid = "";
 if (-e "/etc/ossim/framework/db_encryption_key") {
-	$uuid = `grep "key" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = "=" } ; {print \$2}'`; chomp($uuid);
+	$uuid = `grep "^key=" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = "=" } ; {print \$2}'`; chomp($uuid);
 } else {
 	$uuid = `dmidecode -s system-uuid`; chomp($uuid);
 }
@@ -150,7 +150,7 @@ $dbh->do( $tmp_sql );
 };
 
 #print "Tables not created yet, please upgrade from the web interface and run again.\n"; 
-#exit(0);
+#;
 
 
 

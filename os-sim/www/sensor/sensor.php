@@ -49,19 +49,17 @@ $active_sensors = 0;
 $total_sensors = 0;
 $sensor_stack = array();
 $sensor_stack_on = array();
-$sensor_stack_off = array();
 $sensor_configured_stack = array();
 $db = new ossim_db();
 $conn = $db->connect();
 list($sensor_list, $err) = server_get_sensors($conn);
 if ($err != "") echo $err;
-foreach($sensor_list as $sensor_status) {
-    if ($sensor_status["state"] = "on") {
-        array_push($sensor_stack_on, $sensor_status["sensor"]);
-        $sensor_stack[$sensor_status["sensor"]] = 1;
-    } else {
-        array_push($sensor_stack_off, $sensor_status["sensor"]);
-    }
+if ($sensor_list) {
+	$_SESSION["_sensor_list"] = $sensor_list;
+	foreach($sensor_list as $sensor => $plugins) {
+	    array_push($sensor_stack_on, $sensor);
+	    $sensor_stack[$sensor] = 1;
+	}
 }
 if ($sensor_list = Sensor::get_all($conn, "")) {
     $total_sensors = count($sensor_list);
