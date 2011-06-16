@@ -80,16 +80,18 @@ $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
 $db = new ossim_db();
 $conn = $db->connect();
-list($sensor_list, $err) = server_get_sensors($conn);
+if (is_array($_SESSION["_sensor_list"])) 
+	$sensor_list = $_SESSION["_sensor_list"];
+else
+	list($sensor_list, $err) = server_get_sensors($conn);
 $sensor_stack = array();
 $sensor_stack_off = array();
 $sensor_configured_stack = array();
 
 if ($sensor_list) {
-    foreach($sensor_list as $sensor_status) {
-        if (in_array($sensor_status["sensor"], $sensor_stack)) continue;
-        if ($sensor_status["state"] = "on") array_push($sensor_stack, $sensor_status["sensor"]);
-        else array_push($sensor_stack_off, $sensor_status["sensor"]);
+    foreach($sensor_list as $sensor => $plugins) {
+        if (in_array($sensor, $sensor_stack)) continue;
+        array_push($sensor_stack, $sensor);
     }
 }
 $active_sensors = 0;
