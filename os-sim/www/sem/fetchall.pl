@@ -116,7 +116,7 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 			elsif ($filter =~ /^plugingroup=(.*)/i) { # plugin group preprocess
 				$filter = "taxonomy=".get_plugingroup_filter($1);
 			}
-			elsif ($filter =~ /^plugin_list=([\d\|\:\,]+)/i) { # plugin list preprocess
+			elsif ($filter =~ /^plugin_list=([\d\|\:\,\;]+)/i) { # plugin list preprocess
 				$idsids = $1;
 				$idsids =~ s/\,/|/g;
 				$filter = "taxonomy=".$idsids;
@@ -124,7 +124,7 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 			$param .= ",$filter" if ($filter ne "");
 		}
 	}
-	# print "$param\n"; die;
+	print "$param\n"; die;
 	# limits and order
 	$param .= ",count=$num_lines,first=$start_line";
 	$param .= ($order_by eq "date") ? ",order_first" : ",order_last";
