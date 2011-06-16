@@ -116,7 +116,7 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 			elsif ($filter =~ /^plugingroup=(.*)/i) { # plugin group preprocess
 				$filter = "taxonomy=".get_plugingroup_filter($1);
 			}
-			elsif ($filter =~ /^plugin_list=([\d\|\:\,]+)/i) { # plugin list preprocess
+			elsif ($filter =~ /^plugin_list=([\d\|\:\,\;]+)/i) { # plugin list preprocess
 				$idsids = $1;
 				$idsids =~ s/\,/|/g;
 				$filter = "taxonomy=".$idsids;

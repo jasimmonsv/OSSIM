@@ -210,20 +210,56 @@ class Host_os {
     * Return list of all ips (group by os)
     */
     function get_os_list($conn, $hosts, $filter = "") {
-        $list = array();
-        $sql = "SELECT inet_ntoa(ip) as ip_addr,os from host_os";
-        if (!$aux = & $conn->Execute($sql, $params)) {
+        
+		$list    = array();
+		        
+		$sql = "SELECT ip,date,os,anom 
+				FROM (
+					SELECT ip, max( date ) AS date, value AS os, anom 
+						FROM host_properties                                
+					WHERE property_ref = 3 AND anom = 0 GROUP BY ip                                
+					UNION                                
+					SELECT ip, max( date ) AS date, value AS os, anom                                
+					FROM host_properties                                
+					WHERE property_ref = 3 AND anom = 1                                
+					GROUP BY ip                                
+					UNION                                
+					SELECT inet_ntoa( ip ) AS ip, max( date ) AS date, os, anom                                
+					FROM host_os                                
+					WHERE anom = 0                                
+					GROUP BY ip                                
+					UNION                                
+					SELECT inet_ntoa( ip ) AS ip, max( date ) AS date, os, anom                                
+					FROM host_os                               
+					WHERE anom = 1                                
+					GROUP BY ip                                
+					ORDER BY ip, anom, date
+					) 
+				AS s WHERE os <> '' GROUP BY ip";
+		
+		if (!$res = & $conn->Execute($sql, $params)) 
+		{
             print $conn->ErrorMsg();
             return $list;
         }
-        do {
-            $os = $aux->fields["os"];
-            $ip = $aux->fields["ip_addr"];
-            $name = ($hosts[$ip] != "") ? $hosts[$ip] : $ip;
-            if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $ip) || preg_match("/$filter/i", $name)))) $list[$os][$ip] = $name;
-            $aux->MoveNext();
-        }
-        while (!$aux->EOF);
+		else
+		{
+			while (!$res->EOF)
+			{
+				$os       = $res->fields["os"];
+				$os       = ( empty($os) ) ? _("Unknown OS") : $os;
+				$ip       = $res->fields["ip"];
+				
+				if ( $filter == "" || ( $filter != "" && (preg_match("/$filter/i", $ip) || preg_match("/$filter/i", $hostname)) ) ) 
+				{
+					$hostname       = ($hosts[$ip] != "") ? $hosts[$ip] : $ip;
+					$list[$os][$ip] = $hostname;
+				}
+					
+				$res->MoveNext();
+			}
+		}
+	
         return $list;
     }
     /*

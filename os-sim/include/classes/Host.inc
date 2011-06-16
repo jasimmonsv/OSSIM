@@ -373,7 +373,7 @@ class Host {
         }
         // OS and Mac
         foreach($sensors as $sensor) {
-            if ($os != "Unknown") {
+            if ($os != "Unknown" && trim($os)!="") {
                 //$sql = "INSERT INTO host_os (ip, os, date, anom, sensor)
                 //    VALUES (inet_aton(?), ?, CURRENT_TIMESTAMP, '0', inet_aton(?))";
                 $sql = "INSERT INTO host_properties (ip, sensor, date, property_ref, source_id,value,extra,anom,tzone)
@@ -470,7 +470,7 @@ class Host {
             }
         }
         foreach($sensors as $sensor) {
-            if ($os != "Unknown") {
+            if ($os != "Unknown" && trim($os)!="") {
                 $sql = "INSERT INTO host_os (ip, os, date, anom, sensor) VALUES 
                         (inet_aton(?), ?, CURRENT_TIMESTAMP, '0', inet_aton(?))";
                 $params = array(
@@ -480,7 +480,7 @@ class Host {
                 );
                 $conn->Execute($sql, $params);
             }
-            if ($mac != "") {
+            if (trim($mac) != "") {
                 $sql = "INSERT INTO host_mac (ip, mac, date, vendor, anom, sensor) VALUES
                         (inet_aton(?), ?, CURRENT_TIMESTAMP, ?, '0', inet_aton(?))";
                 $params = array(
@@ -1165,6 +1165,8 @@ class Host {
 	{
 		if ( Session::hostAllowed($conn, $ip) )
 		{
+			if (trim($value)=="") return true; // avoid empty values
+			
 			$sql = "INSERT INTO host_properties (id, ip, sensor, date, property_ref, source_id, value, extra, anom) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			
 			$id   = null;

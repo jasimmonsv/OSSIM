@@ -485,9 +485,9 @@ class RemoteScan {
 		// Check if this network sensor is available for remote scan
 	    $sa = (Session::allowedSensors()=="") ? array_keys($names) : explode(",",Session::allowedSensors());
 				
-		$related_sensors = (preg_match("/\//",$this->network)) 
+		$related_sensors = (preg_match("/\/(\d+)/",$this->network,$fnd) && $fnd[1]!="32") 
 	    				? Net::get_related_sensors($conn,Net::get_name_by_ip($conn,$this->network))
-	    				: (($this->network!="") ? Host::get_related_sensors($conn,$this->network) : $sa);
+	    				: (($this->network!="") ? Host::get_related_sensors($conn,preg_replace("/\/\d+/","",$this->network)) : $sa);
 		
 		$sensors = array_intersect($related_sensors,array_keys($names));
 		
