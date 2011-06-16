@@ -47,7 +47,6 @@ $data_dir = $conf->get_conf("data_dir");
 $backup_dir = $conf->get_conf("backup_dir");
 $version = $conf->get_conf("ossim_server_version", FALSE);
 //$backup_dir = "/root/pruebas_backup";
-$isDisabled = Backup::running_restoredb();
 $perform = POST("perform");
 $nomerge = (POST("nomerge") != "") ? POST("nomerge") : "merge";
 $filter_by = (POST('user') != "") ? POST('user') : (POST('entity') != "" ? POST('entity') : "");
@@ -107,34 +106,21 @@ a {
 <body>
 <div id="loading" style="position:absolute;top:0;left:30%">
 	<table class="noborder" style="background-color:white">
-		<tr><td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Launching backup...")?></td></tr>
-		<tr>
-			<td class="nobborder" style="text-align:center">
-				<span class="progressBar" id="pbar"></span>
-			</td>
-		</tr>
+<?php
+if ($perform == "insert" && is_array(POST("insert"))) {
+   	$insert = POST("insert");
+   	$bid = rand();
+    $message = Backup::Insert($insert,$filter_by,$nomerge,$bid);
+} elseif ($perform == "delete") {
+    $delete = POST("delete");
+    $bid = rand();
+    Backup::Delete($delete,$bid);
+    $message = _("Remove action is running, please wait a few seconds...");
+}
+// Get STATUS for all current backups. Void if none is running
+Backup::print_backup_process();
+?>
 	</table>
 </div>
-<script type="text/javascript">
-	$("#pbar").progressBar();
-	$("#pbar").progressBar(0);
-</script>
-<?php
-if (!$isDisabled) {
-    if ($perform == "insert" && is_array(POST("insert"))) {
-    	$insert = POST("insert");
-        $message = Backup::Insert($insert,$filter_by,$nomerge);
-        if($message=="")
-            $message = _("Insert action is running, please wait a few seconds...");
-    } elseif ($perform == "delete") {
-        $delete = POST("delete");
-        Backup::Delete($delete);
-        $message = _("Remove action is running, please wait a few seconds...");
-    }
-}
-else {
-    $message = _("Remove or insert action is running, please wait a few seconds...");
-}
-?>
 </body>
 </html>

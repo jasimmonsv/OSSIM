@@ -211,7 +211,7 @@ if (count($delete) > 0) {
   		<input type="hidden" name="perform" value="">
   		</form>
   		<table class="transparent">
-  			<tr><td class="nobborder"><iframe name="process_iframe" src="" height="50" frameborder="0"></iframe></td></tr>
+  			<tr><td class="nobborder"><iframe name="process_iframe" id="process_iframe" src="launch.php" height="50" frameborder="0"></iframe></td></tr>
   		</table>
 		<table align="center">
 			<tr>
@@ -233,7 +233,7 @@ echo gettext("Percent"); ?></th>
 <?php
 $db1 = new ossim_db();
 $conn1 = $db1->connect();
-$cmd = "ps ax | grep restore_db.pl | grep -v grep";
+$cmd = "ps ax | grep restoredb.pl | grep -v grep";
 $output = explode("\n",`$cmd`);
 if (count($output) == 1 && $output[0] == "") {
 	// Posibily failed
@@ -260,7 +260,7 @@ foreach ($results as $rs1) {
 			<tr>
 				<td><?php echo $rs1["users"] ?></td>
 				<td><?php echo Util::timestamp2date($rs1["date"]) ?></td>
-				<td><?php echo $rs1["data"] ?></td>
+				<td><?php echo str_replace(",",", ",$rs1["data"]) ?></td>
 	<?php
     if ($rs1["status"] == 1) { ?>
 				<td><font color="orange"><b><?php
