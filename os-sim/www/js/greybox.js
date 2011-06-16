@@ -14,7 +14,7 @@ var GB_HEIGHT = 400;
 var GB_WIDTH  = 400;
 var GB_SCROLL_DIFF = (navigator.appVersion.match(/MSIE/)) ? 1 : ((navigator.appCodeName.match(/Mozilla/)) ? 17 : 17 );
 //var GB_HDIFF = (navigator.appVersion.match(/MSIE/)) ? 12 : ((navigator.appCodeName.match(/Mozilla/)) ? 42 : 18 );
-var GB_HDIFF = 10;
+var GB_HDIFF = 5;
 var GB_SLEEP = (navigator.appVersion.match(/MSIE/)) ? 1000 : 0;
 var GB_URL_AUX = "";
 
