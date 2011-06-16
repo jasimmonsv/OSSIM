@@ -77,136 +77,138 @@ require_once ('ossim_conf.inc');
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html>
 <head>
-  <title> <?php echo gettext("Vulnmeter"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/tree.css" />
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.cookie.js"></script>
-  <script type="text/javascript" src="../js/jquery.dynatree.js"></script>
-  <script type="text/javascript" src="../js/utils.js"></script>
-  <script type="text/javascript" src="../js/vulnmeter.js"></script>
-  <? include ("../host_report_menu.php") ?>
-  <script type="text/javascript">
-	function postload() {
-		var filter = "";
-		$("#htree").dynatree({
-			initAjax: { url: "draw_tree.php", data: {filter: filter} },
-			clickFolderMode: 2,
-			onActivate: function(dtnode) {
-				dtnode.deactivate();
-				dtnode.data.url = html_entity_decode(dtnode.data.url);
-				var ln = ($('#ip_list').val()!='') ? '\n' : '';
-				var inside = 0;
-				if(dtnode.data.url.match(/AllAssets/)) {
-                    $('#lassets').show();
-                     $.ajax({
-                        type: "GET",
-                        url: "draw_tree.php",
-                        data: { key: dtnode.data.key },
-                        success: function(msg) {
-							var ln = ($('#ip_list').val()!='') ? '\n' : '';
-							$('#ip_list').val($('#ip_list').val() + ln + msg)
-                            $('#lassets').hide();
-                        }
-                    });
-                }
-                else if (dtnode.data.url.match(/NODES/)) {
-					// add childrens if is a C class
-					var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
-					for (c=0;c<children.length; c++) {
-						if (children[c].data.url != '') {
-							var ln = ($('#ip_list').val()!='') ? '\n' : '';
-							$('#ip_list').val($('#ip_list').val() + ln + children[c].data.url)
-							inside = true;
-						}
-					}
-					if (inside==0 && dtnode.data.key.match(/^hostgroup_/)) {
-						dtnode.appendAjax({
-					    	url: "draw_tree.php",
-					    	data: {key: dtnode.data.key, page: dtnode.data.page},
-			                success: function(msg) {
-			                    dtnode.expand(true);
-			                    var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
-								for (c=0;c<children.length; c++) {
-									if (children[c].data.url != '') {
-										var ln = ($('#ip_list').val()!='') ? '\n' : '';
-										$('#ip_list').val($('#ip_list').val() + ln + children[c].data.url)
-									}
-								}
-			                }
+	<title> <?php echo gettext("Vulnmeter"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/tree.css" />
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.cookie.js"></script>
+	<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
+	<script type="text/javascript" src="../js/utils.js"></script>
+	<script type="text/javascript" src="../js/vulnmeter.js"></script>
+	<?php include ("../host_report_menu.php") ?>
+	<script type="text/javascript">
+		function postload() {
+			var filter = "";
+			$("#htree").dynatree({
+				initAjax: { url: "draw_tree.php", data: {filter: filter} },
+				clickFolderMode: 2,
+				onActivate: function(dtnode) {
+					dtnode.deactivate();
+					dtnode.data.url = html_entity_decode(dtnode.data.url);
+					var ln = ($('#ip_list').val()!='') ? '\n' : '';
+					var inside = 0;
+					if(dtnode.data.url.match(/AllAssets/)) {
+						$('#lassets').show();
+						 $.ajax({
+							type: "GET",
+							url: "draw_tree.php",
+							data: { key: dtnode.data.key },
+							success: function(msg) {
+								var ln = ($('#ip_list').val()!='') ? '\n' : '';
+								$('#ip_list').val($('#ip_list').val() + ln + msg)
+								$('#lassets').hide();
+							}
 						});
 					}
-				} else {
-					if (dtnode.data.url != '') {
-                        if(dtnode.data.url.match(/.*,.*/)) {
-                            var cidrs=new Array();
-                            cidrs = dtnode.data.url.split(",");
-                            var fc = '';
-                            if(dtnode.data.url.match(/^!/)) { fc = '!'; }
+					else if (dtnode.data.url.match(/NODES/)) {
+						// add childrens if is a C class
+						var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
+						for (c=0;c<children.length; c++) {
+							if (children[c].data.url != '') {
+								var ln = ($('#ip_list').val()!='') ? '\n' : '';
+								$('#ip_list').val($('#ip_list').val() + ln + children[c].data.url)
+								inside = true;
+							}
+						}
+						if (inside==0 && dtnode.data.key.match(/^hostgroup_/)) {
+							dtnode.appendAjax({
+								url: "draw_tree.php",
+								data: {key: dtnode.data.key, page: dtnode.data.page},
+								success: function(msg) {
+									dtnode.expand(true);
+									var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
+									for (c=0;c<children.length; c++) {
+										if (children[c].data.url != '') {
+											var ln = ($('#ip_list').val()!='') ? '\n' : '';
+											$('#ip_list').val($('#ip_list').val() + ln + children[c].data.url)
+										}
+									}
+								}
+							});
+						}
+					} else {
+						if (dtnode.data.url != '') {
+							if(dtnode.data.url.match(/.*,.*/)) {
+								var cidrs=new Array();
+								cidrs = dtnode.data.url.split(",");
+								var fc = '';
+								if(dtnode.data.url.match(/^!/)) { fc = '!'; }
 
-                            for(var i=0; i< cidrs.length; i++) {
-                                var ln = ($('#ip_list').val()!='') ? '\n' : '';
-                                if(i==0)     $('#ip_list').val($('#ip_list').val() + ln + cidrs[i])
-                                else        $('#ip_list').val($('#ip_list').val() + ln + fc + cidrs[i])
-                            }
-                            
-                        }
-                        else
-                            $('#ip_list').val($('#ip_list').val() + ln + dtnode.data.url)
-                    }
+								for(var i=0; i< cidrs.length; i++) {
+									var ln = ($('#ip_list').val()!='') ? '\n' : '';
+									if(i==0)     $('#ip_list').val($('#ip_list').val() + ln + cidrs[i])
+									else        $('#ip_list').val($('#ip_list').val() + ln + fc + cidrs[i])
+								}
+								
+							}
+							else
+								$('#ip_list').val($('#ip_list').val() + ln + dtnode.data.url)
+						}
+					}
+													
+				},
+				onDeactivate: function(dtnode) {},
+				onLazyRead: function(dtnode){
+					dtnode.appendAjax({
+						url: "draw_tree.php",
+						data: {key: dtnode.data.key, page: dtnode.data.page}
+					});
 				}
-												
-			},
-			onDeactivate: function(dtnode) {},
-            onLazyRead: function(dtnode){
-                dtnode.appendAjax({
-                    url: "draw_tree.php",
-                    data: {key: dtnode.data.key, page: dtnode.data.page}
-                });
-            }
-		});
-	}
-    function switch_user(select) {
-        if(select=='entity' && $('#entity').val()!=''){
-            $('#user').val('');
-        }
-        else if (select=='user' && $('#user').val()!=''){
-            $('#entity').val('');
-        }
-    }
-    var loading = '<img width="16" align="absmiddle" src="images/loading.gif">';
-    function simulation() {
-        var targets = $('#ip_list').val();
-        if (typeof(targets) != "undefined" && targets!="") {
-            $('#ld').html(loading);
-            //$('#sresult').toggle();
-            $.ajax({
-                type: "GET",
-                url: "simulate.php",
-                data: { 
-                    hosts_alive: $('input[name=hosts_alive]').is(':checked') ? 1 : 0,
-                    scan_locally: $('input[name=scan_locally]').is(':checked') ? 1 : 0,
-                    not_resolve: $('input[name=not_resolve]').is(':checked') ? 1 : 0,
-                    scan_server: $('select[name=SVRid]').val(),
-                    targets: targets
-                },
-                success: function(msg) {
-                    $('#sresult').html(msg);
-                    $('#ld').html('');
-                    //$('#sresult').toggle();
-                }
-            });
-        } else {
-            alert("<?=_("At least one target needed!")?>");
-        }
-    }
-  </script>
+			});
+		}
+		function switch_user(select) {
+			if(select=='entity' && $('#entity').val()!=''){
+				$('#user').val('');
+			}
+			else if (select=='user' && $('#user').val()!=''){
+				$('#entity').val('');
+			}
+		}
+		var loading = '<img width="16" align="absmiddle" src="images/loading.gif">';
+		function simulation() {
+			var targets = $('#ip_list').val();
+			if (typeof(targets) != "undefined" && targets!="") {
+				$('#ld').html(loading);
+				//$('#sresult').toggle();
+				$.ajax({
+					type: "GET",
+					url: "simulate.php",
+					data: { 
+						hosts_alive: $('input[name=hosts_alive]').is(':checked') ? 1 : 0,
+						scan_locally: $('input[name=scan_locally]').is(':checked') ? 1 : 0,
+						not_resolve: $('input[name=not_resolve]').is(':checked') ? 1 : 0,
+						scan_server: $('select[name=SVRid]').val(),
+						targets: targets
+					},
+					success: function(msg) {
+						$('#sresult').html(msg);
+						$('#ld').html('');
+						//$('#sresult').toggle();
+					}
+				});
+			} else {
+				alert("<?=_("At least one target needed!")?>");
+			}
+		}
+	</script>
+	<style type='text/css'>
+		#user,#entity { width: 220px;}
+	</style>
 </head>
 
 <body>
@@ -1492,7 +1494,7 @@ EOT;
             </table>
 			</td>
 			<td valign="top" style="text-align:left" class="noborder">
-				<div id="htree" style="width:300px"></div>
+				<div id="htree" style="width:450px"></div>
 			</td>
 			</tr></table>
           </div>

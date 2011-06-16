@@ -563,7 +563,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 		.ptab   { font-weight:bold;font-size:12px;}
 		.size10 {font-size:10px;}
 		.tab_table {margin: auto;}
-		.container_ptree {width:350px; padding-top:5px;}
+		.container_ptree {width:450px; padding-top:5px;}
 		textarea { height: 45px; width:100%;}
 		#p_conseq {width: 350px;}
 		#p_conseq th {width: 130px;}
