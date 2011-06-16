@@ -45,7 +45,7 @@ require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
 require_once ('classes/Log_action.inc');
 class Backup {
-    function Insert($insert, $filter_by = "", $nomerge = "merge") {
+    function Insert($insert, $filter_by = "", $nomerge = "merge", $bid) {
         $newfiles = array();
         $oldfiles = array();
         $message = "";
@@ -103,12 +103,13 @@ class Backup {
         else if (count($newfiles)>0) {
         	$total = count($newfiles);
         	if ($total < 1) { $total = 1; }
-        	$inc = 100/$total;
         	$files = Backup::array2str($newfiles);
             $files = escapeshellcmd($files);
-            //echo "Launching: $data_dir/scripts/restoredb.pl insert $files $user $nomerge $filter_by\n";exit;
-            //shell_exec("nohup perl $data_dir/scripts/restoredb.pl insert $files $user $filter_by > /tmp/restoredb.log 2>&1 &");
-        	?><script type="text/javascript">$("#pbar").progressBar(0);$("#progressText").html('<?php echo _("Executing insert script") ?>...');</script><?php
+        	$logfile = "/tmp/backup_process_".$total."_".$bid.".log";
+        	$f = fopen($logfile,"w");fputs($f,"\n");fclose($f); // Touch file by apache
+			//echo "Launching: perl $data_dir/scripts/restoredb.pl insert $files $user $nomerge $bid $filter_by > $logfile 2>&1 &";
+        	shell_exec("nohup perl $data_dir/scripts/restoredb.pl insert $files $user $nomerge $bid $filter_by > $logfile 2>&1 &");
+        	/*
             $fp = popen("nohup perl $data_dir/scripts/restoredb.pl insert $files $user $nomerge $filter_by 2>>/dev/null", "r");
             $perc = 0;
             $error = "";
@@ -130,6 +131,7 @@ class Backup {
             } else {
             	?><script type="text/javascript">parent.reload_backup()</script><?php
             }
+            */
         }
         
         $infolog = array(
@@ -138,7 +140,7 @@ class Backup {
         Log_action::log(44, $infolog);
         return $message;
     }
-    function Delete($delete) {
+    function Delete($delete,$bid) {
         $conf = $GLOBALS["CONF"];
         $data_dir = $conf->get_conf("data_dir");
         $backup_dir = $conf->get_conf("backup_dir");
@@ -153,8 +155,11 @@ class Backup {
             //$res = popen("$data_dir/scripts/restoredb.pl delete $files $user &", "r");
             //echo "<br><br><br>nohup perl $data_dir/scripts/restoredb.pl remove $files $user";exit;
             //shell_exec("nohup perl $data_dir/scripts/restoredb.pl remove $files $user >/tmp/restoredb.log 2>&1 &");
-            ?><script type="text/javascript">$("#pbar").progressBar(2);$("#progressText").html('<?php echo _("Executing remove script") ?>...');</script><?php
-            $fp = popen("nohup perl $data_dir/scripts/restoredb.pl remove $files $user null 2>>/dev/null", "r");
+        	$logfile = "/tmp/backup_process_".$total."_".$bid.".log";
+        	$f = fopen($logfile,"w");fputs($f,"\n");fclose($f); // Touch file by apache
+            shell_exec("nohup perl $data_dir/scripts/restoredb.pl remove $files $user null $bid > $logfile 2>&1 &");
+            /*
+        	$fp = popen("nohup perl $data_dir/scripts/restoredb.pl remove $files $user null 2>>/dev/null", "r");
             $perc = 0;
             $error = "";
             while (!feof($fp)) {
@@ -174,7 +179,7 @@ class Backup {
     			echo _("An error has occured executing")." '<b>$data_dir/scripts/restoredb.pl</b>':<br><b>'$error'</b>";
             } else {
             	?><script type="text/javascript">parent.reload_backup()</script><?php
-            }
+            }*/
         }
         $infolog = array(
             $files
@@ -200,6 +205,87 @@ class Backup {
             return 1;
         } else {
             return 0;
+        }
+    }
+	function is_running($bid) {
+		$cmd = "ps ax | grep restoredb.pl | grep -v grep | grep $bid";
+		$output = explode("\n",`$cmd`);
+		if (count($output) == 1 && $output[0] == "") {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+    // Get List with $backupID => $TmpLogFile
+    // Delete LogFile if finished
+    function get_current_processes() {
+    	$list = array();
+    	if ($handle = opendir('/tmp')) {
+		    while (false !== ($file = readdir($handle))) {
+		        if (preg_match("/backup\_process\_\d+\_(\d+)\.log/",$file,$found)) {
+		        	$bid = $found[1]; // rand number as ID
+		            if (Backup::is_running($bid)) {
+		            	$list[$bid] = "/tmp/$file";
+		            } else {
+		            	unlink("/tmp/$file");
+		            }
+		        }
+		    }
+		    closedir($handle);
+		}
+		return $list;
+    }
+    function print_backup_process() {
+        $error = "";
+    	$reloc = false;
+    	$pfiles = Backup::get_current_processes();
+		if (count($pfiles) > 0) {
+		foreach ($pfiles as $bid=>$pfile) { ?>
+		<tr><td class="nobborder" id="progressText_<?php echo $bid ?>" style="text-align:center;padding-left:5px"><?=gettext("Launching backup...")?></td></tr>
+		<tr>
+			<td class="nobborder" style="text-align:center">
+				<span class="progressBar" id="pbar_<?php echo $bid ?>"></span>
+			</td>
+		</tr>
+		<script type="text/javascript">
+			$("#pbar_<?php echo $bid ?>").progressBar();
+			$("#pbar_<?php echo $bid ?>").progressBar(0);
+		</script>
+		<?php }
+		session_write_close();
+    	while (count($pfiles = Backup::get_current_processes()) > 0) {
+        	$reloc = true;
+    		foreach ($pfiles as $bid => $file) {
+    			ob_flush();
+	    		flush();
+	    		$ndates = 1;
+	    		if (preg_match("/backup\_process\_(\d+)\_\d+\.log/",$file,$found)) {
+	    			if ($found[1] > 0) $ndates = $found[1];
+	    		}
+	    		$inc = 100/$ndates;
+	            $lines = file($file);
+	            $line = ""; // Last line of process: currently launching
+	            $perc = 0;
+	            foreach ($lines as $l) {
+	            	if (trim($l) != "") {
+	            		$line = trim($l);
+	            		if (preg_match("/^Launching/",$line)) {
+	            			$perc += $inc;
+	            		} else {
+	            			$error .= $line."<br>";
+	            		}
+	            	}
+	            }
+	    		?><script type="text/javascript">$("#pbar_<?php echo $bid ?>").progressBar(<?php echo floor($perc) ?>);$("#progressText_<?php echo $bid ?>").html('<?php echo $line ?>...');</script><?php
+        	}
+    		sleep(3);
+        }
+		}
+        if ($error != "") {
+        	?><script type="text/javascript">$("#loading").hide();</script><?php
+    		echo _("An error has occured executing")." '<b>$data_dir/scripts/restoredb.pl</b>':<br><b>'$error'</b>";
+        } elseif ($reloc) {
+        	?><script type="text/javascript">parent.location.href="index.php";</script><?php
         }
     }
 } //class backup

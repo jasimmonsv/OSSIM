@@ -41,7 +41,7 @@ my $today = getCurrentTimestamp();
 
 my $nomerge = ($ARGV[3] eq "nomerge") ? 1 : 0;
 
-my $filter_by = ($ARGV[4]) ? $ARGV[4] : "";
+my $filter_by = ($ARGV[5]) ? $ARGV[5] : "";
 if ($filter_by ne "" && $filter_by !~ /^[a-zA-Z0-9\-\_\.]+$/) {
 	print "Parameters error\n";
 }
@@ -50,10 +50,11 @@ my $pidfile = "/tmp/ossim-restoredb.pid";
 
 my $pid = $$;
 
-if (-e $pidfile) {
-    print "The file: $pidfile exist (remove it)\n";
-    exit;
-}
+# Now we can launch various paralel executions
+#if (-e $pidfile) {
+#    print "The file: $pidfile exist (remove it)\n";
+#    exit;
+#}
 
 open(PID, ">$pidfile") or die "Unable to open $pidfile\n";
 print PID $$;
@@ -167,6 +168,7 @@ sub main {
     my $list = shift;
     my $user = shift;
     my $nomerge_param = shift;
+    my $bid = shift;
     my $filtered_by = shift;
     $filtered_by = "" if (!defined $filtered_by);
 
