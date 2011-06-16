@@ -124,7 +124,7 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 			$param .= ",$filter" if ($filter ne "");
 		}
 	}
-	print "$param\n"; die;
+	# print "$param\n"; die;
 	# limits and order
 	$param .= ",count=$num_lines,first=$start_line";
 	$param .= ($order_by eq "date") ? ",order_first" : ",order_last";
