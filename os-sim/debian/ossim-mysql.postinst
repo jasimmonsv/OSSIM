@@ -31,10 +31,10 @@ case "$1" in
 		find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname \*.sql.gz -printf 'INSERT %f \n' -exec sh -c 'zcat {}| ossim-db' \; || true
 	fi
 	
-	srdpi="/var/lib/dpkg/info/snort-rules-default.postinst configure"
+	srdpi="/var/lib/dpkg/info/snort-rules-default.postinst"
 	if [ -f "$srdpi" ]; then
 	#        echo -e "\nsnort-rules-default found (updating)..."
-	            /bin/bash "$srdpi"
+	            /bin/bash "$srdpi" configure
 	fi
 
 	otpi="/var/lib/dpkg/info/ossim-taxonomy.postinst"
