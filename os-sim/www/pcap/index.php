@@ -354,14 +354,14 @@ if ( $message_info !="")
         echo $message_info;
 ?>
 
-<table cellspacing="0" align="center" cellpadding="0" border="0" width="70%">
+<table cellspacing="0" align="center" cellpadding="0" border="0" width="80%">
     <tr><td class="headerpr" style="border:0;"><?php echo gettext("Sensors Status") ?></td></tr>
 </table>
 <?php
 
 if(count($sensors_status)==0) {
 ?>
-    <table width="70%" align="center">
+    <table width="80%" align="center">
         <tr>
             <td class="nobborder" style="text-align:center"><?php echo _("No available sensors")?></td>
         </tr>
@@ -370,7 +370,7 @@ if(count($sensors_status)==0) {
 }
 else {
 ?>
-    <table width="70%" align="center">
+    <table width="80%" align="center">
         <tr>
             <th width="30%"><?php echo _("Sensor Name")?>     </th>
             <th width="30%"><?php echo _("Sensor IP")?>       </th>
@@ -441,7 +441,7 @@ else {
 
 <br />
 
-<table width="70%" align="center" class="transparent" cellspacing="0" cellpadding="0">
+<table width="80%" align="center" class="transparent" cellspacing="0" cellpadding="0">
     <tr>
         <td style="text-align:left" class="nobborder">
             <a href="javascript:;" onclick="$('.tscans').toggle();$('#message_show').toggle();$('#message_hide').toggle();" colspan="2"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0">
@@ -454,10 +454,10 @@ else {
 
 <form method="get">
     <br />
-    <table cellspacing="0" align="center" cellpadding="0" border="0" width="70%" class="tscans" <?php echo (count($info_error)>0 || $soptions==1 )? "":"style=\"display:none;\""?>>
+    <table cellspacing="0" align="center" cellpadding="0" border="0" width="80%" class="tscans" <?php echo (count($info_error)>0 || $soptions==1 )? "":"style=\"display:none;\""?>>
         <tr><td class="headerpr" style="border:0;"><?php echo gettext("Scan Options") ?></td></tr>
     </table>
-	<table border="0" width="70%" align="center" class="tscans" <?php echo (count($info_error)>0 || $soptions==1 )? "":"style=\"display:none;\""?>>
+	<table border="0" width="80%" align="center" class="tscans" <?php echo (count($info_error)>0 || $soptions==1 )? "":"style=\"display:none;\""?>>
 		<tr>
            <td class="nobborder">
                 <table align="center" class="nobborder">
@@ -490,7 +490,7 @@ else {
                         <th><?php echo _("Destination");?></th>
                     </tr>
 					<tr>
-						<td width="33%" valign="top" style="padding:4px;" class="nobborder">
+						<td valign="top" style="padding:4px;" class="nobborder">
                         <?php
                         $sensor_list = $scan->get_sensors();
                         if(count($sensor_list)==0) { echo _("No available sensors"); }
