@@ -157,7 +157,9 @@ foreach my $file (@files) {
                 $pre_filter =~ s/=/\[^=]*=\[^=]*/g; # create the grep filter
                 $pre_filter =~ s/\./\\./g;
                 $pre_filter =~ s/#/\|/g;
-                $pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\" |egrep -l \"$pre_filter\"|" : "$order_by \"$file\" |egrep -l \"$pre_filter\"|"; # -l stops on the first match
+                #$pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\" |egrep -l \"$pre_filter\"|" : "$order_by \"$file\" |egrep -l \"$pre_filter\"|"; # -l stops on the first match
+                # Temporary removed
+                $pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\"|" : "$order_by \"$file\" |";
             } else {
                 $pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\"|" : "$order_by \"$file\" |";
             }
