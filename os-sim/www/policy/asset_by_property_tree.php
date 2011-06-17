@@ -35,7 +35,7 @@
 * - cmpf()
 * Classes list:
 */
-require_once 'classes/Security.inc';
+require_once ('classes/Security.inc');
 require_once ('classes/Host.inc');
 require_once ('classes/Host_os.inc');
 require_once ('classes/Host_services.inc');
@@ -48,7 +48,6 @@ function cmpf($a, $b) {
     return (count($a) < count($b));
 }
 
-// check cache file
 
 $from = GET('from');
 ossim_valid($from, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("From"));
@@ -56,22 +55,31 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
-$buffer = "";
+$buffer      = "";
 $ossim_hosts = array();
-$db = new ossim_db();
-$conn = $db->connect();
+$db          = new ossim_db();
+$conn        = $db->connect();
 
-if ($from!="") {
-
-	if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_list as $host) {
-	    $ossim_hosts[$host->get_ip() ] = $host->get_hostname();
+if ($from!="") 
+{
+	$length_hn = 50;
+	
+	if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) 
+	{
+		foreach($host_list as $host) 
+		{
+		   $hostname = ( strlen($host->get_hostname()) > $length_hn ) ? substr($host->get_hostname(), 0, $length_hn)."..." :$host->get_hostname();
+		   $ossim_hosts[$host->get_ip() ] = $hostname;
+		}
 	}
 
 	// Json properties data
 	$props = Host::get_latest_properties($conn,date("Y-m-d H:i:s",$from),20);
-	foreach ($props as $prop) {
+	foreach ($props as $prop) 
+	{
 		$prop["value"] = str_replace("'","\'",$prop["value"]);
 		$prop["extra"] = str_replace("'","\'",$prop["extra"]);
+		
 		$buffer .= "{
 			ip:'".$prop["ip"]."',
 			ref:'p".$prop["property_ref"]."',
@@ -81,46 +89,43 @@ if ($from!="") {
 			name:'".(($ossim_hosts[$prop["ip"]]!="") ? $prop["ip"]." <font style=\"font-size:80%\">(" . $ossim_hosts[$prop["ip"]] . ")</font>" : $host_ip)."'
 		},";
 	}
+	
 	$buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
-} else {
+} 
+else 
+{
 	// Default tree
-	$props = Host::get_properties_types($conn);
+	$props   = Host::get_properties_types($conn);
     $buffer .= "[ {title: '"._("Asset by Property")." <img src=\"../pixmaps/sem/loading.gif\" style=\"display:none\" id=\"refreshing\" border=0>', isFolder: true, key:'main', icon:'../../pixmaps/theme/any.png', expand:true, children:[\n";
-    foreach ($props as $prop) {
-    	switch (strtolower($prop["name"])) {
-    		case "software": $png = "software";
-    		break;
-    		case "operating-system": $png = "host_os";
-    		break;
-    		case "cpu": $png = "cpu";
-    		break;
-    		case "service": $png = "ports";
-    		break;
-    		case "memory": $png = "ram";
-    		break;
-    		case "department": $png = "host_group";
-    		break;
-    		case "macaddress": $png = "mac";
-    		break;
-    		case "workgroup": $png = "net_group";
-    		break;
-    		case "role": $png = "server_role";
-    		break;
-            case "acl": $png = "acl";
-            break;
-            case "storage": $png = "storage";
-            break;
-            case "route": $png = "route";
-            break;    		
-    	}
+    
+	$icons = array (
+		"software" 		   => "software",
+		"operating-system" => "host_os",
+		"cpu" 			   => "cpu",
+		"service" 		   => "ports",
+		"memory" 		   => "ram",
+		"department" 	   => "host_group",
+		"macaddress"       => "mac",
+		"workgroup" 	   => "net_group",
+		"role" 		       => "server_role",
+		"acl" 		       => "acl",
+		"storage"	       => "storage",
+		"route" 		   => "route"
+	);
+			
+	foreach ($props as $prop) 
+	{
+    	$png     = $icons[strtolower($prop["name"])];
+		$png     = ( empty($png) ) ? "folder" : $png;
     	$buffer .= "{ key:'p".$prop["id"]."', isFolder:true, expand:true, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["description"])."' },\n";
     }
-    $buffer .= "{ key:'all', expand:false, icon:'../../pixmaps/theme/host_add.png', title:'"._("All Hosts")."' }\n";
+    
+	$buffer .= "{ key:'all', expand:false, icon:'../../pixmaps/theme/host_add.png', title:'"._("All Hosts")."' }\n";
     $buffer .= "] } ]";
 }
 
-if ($buffer=="" || $buffer=="[  ]")
-    $buffer = "[{title:'"._("No Properties found")."'}]";
+if ( $buffer == "" || $buffer == "[  ]" )
+    $buffer = "[{title:'"._("No Properties found").", noLink:true'}]";
     
 echo $buffer;
 $db->close($conn);
