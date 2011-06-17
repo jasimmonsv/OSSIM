@@ -50,10 +50,6 @@ case "$1" in
 			echo -e "/etc/init.d/ossim-server not found or not executable.\nDid you install from AV OSSIM installer?"
 		fi
 	fi
-
-
-	exit 0
-
     ;;
     abort-upgrade|abort-remove|abort-deconfigure)
     ;;
@@ -63,5 +59,6 @@ case "$1" in
     ;;
 esac
 
+exit 0
 #DEBHELPER#
 
