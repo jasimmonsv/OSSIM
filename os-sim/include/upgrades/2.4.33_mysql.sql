@@ -2,6 +2,20 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
+DROP TABLE IF EXISTS plugin_sid_changes;
+CREATE TABLE plugin_sid_changes (
+  `plugin_id` int(11) NOT NULL,
+  `sid` int(11) NOT NULL,
+  `category_id` int(11) DEFAULT NULL,
+  `class_id` int(11) DEFAULT NULL,
+  `reliability` int(11) DEFAULT '1',
+  `priority` int(11) DEFAULT '1',
+  `name` varchar(255) NOT NULL,
+  `aro` decimal(11,4) NOT NULL DEFAULT '0.0000',
+  `subcategory_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`plugin_id`,`sid`)
+);
+
 REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES
 (101, 'Summarized Status', 'Asset', 'Asset/AssetStatus.php', '', '', 1),
 (102, 'Tickets', 'Asset', 'Asset/AssetTickets.php', 'Number of Tickets:top:text:OSS_DIGIT:5:20', '', 1),
@@ -565,7 +579,7 @@ REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql
 
 -- ATENCION! Keep this at the end of this file
 use ossim;
-REPLACE INTO config (conf, value) VALUES ('last_update', '2011-06-13');
+REPLACE INTO config (conf, value) VALUES ('last_update', '2011-06-17');
 REPLACE INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.33');
 COMMIT;
 -- NOTHING BELOW THIS LINE / NADA DEBAJO DE ESTA LINEA
