@@ -38,6 +38,7 @@ require_once ('ossim_conf.inc');
 require_once ('classes/Upgrade.inc');
 require_once ('classes/Session.inc');
 require_once ('classes/Util.inc');
+require_once ('classes/Sensor.inc');
 
 $conf           = $GLOBALS["CONF"];
 $version        = $conf->get_conf("ossim_server_version", FALSE);

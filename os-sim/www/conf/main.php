@@ -370,13 +370,13 @@ $CONFIG = array(
                 "desc" => gettext("Resolve IPs") ,
                 "section" => "alarms",
                 "advanced" => 1
-            ) ,
+            ) ,/*
             "ntop_link" => array(
                 "type" => "text",
                 "help" => "" ,
                 "desc" => gettext("Default Ntop Link") ,
                 "advanced" => 1
-            ) ,
+            ) ,*/
             "nagios_link" => array(
                 "type" => "text",
                 "help" => "" ,
@@ -412,7 +412,7 @@ $CONFIG = array(
                 "help" => "" ,
                 "desc" => gettext("OVCP Link") ,
                 "advanced" => 1
-            ) ,*/
+            ) ,
             "use_ntop_rewrite" => array(
                 "type" => array(
                     "0" => gettext("No") ,
@@ -421,7 +421,7 @@ $CONFIG = array(
                 "help" => "" ,
                 "desc" => gettext("Apache-rewrite ntop") ,
                 "advanced" => 1
-            ) ,
+            ) ,*/
             "use_munin" => array(
                 "type" => array(
                     "0" => gettext("No") ,

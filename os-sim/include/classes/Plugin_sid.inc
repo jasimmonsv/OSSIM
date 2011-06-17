@@ -125,7 +125,7 @@ class Plugin_sid {
         if ($name!='') {
            $sql[] = "UPDATE plugin_sid SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ?, name = ? WHERE plugin_id = ? AND sid = ?";
            $params[] = array( $category_id, $subcategory_id, $priority, $reliability, $name, $id, $sid );
-           $sql[] = "REPLACE INTO plugin_sid_changes (plugin_id,sid,name,reliability,priority,category_id,subcategory_id) SELECT plugin_id,sid,name,reliability,priority,category_id,subcategory_id FROM plugin_sid WHERE plugin_id = ? AND sid = ?";
+           $sql[] = "REPLACE INTO plugin_sid_changes SELECT * FROM plugin_sid WHERE plugin_id = ? AND sid = ?";
            $params[] = array( $id, $sid );
            $sql[] = "UPDATE plugin_sid_changes SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ?, name = ? WHERE plugin_id = ? AND sid = ?";
            $params[] = array( $category_id, $subcategory_id, $priority, $reliability, $name, $id, $sid );
@@ -133,7 +133,7 @@ class Plugin_sid {
         } elseif ($category_id!=NULL) {
            $sql[] = "UPDATE plugin_sid SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
            $params[] = array( $category_id, $subcategory_id, $priority, $reliability, $id, $sid );
-           $sql[] = "REPLACE INTO plugin_sid_changes (plugin_id,sid,name,reliability,priority,category_id,subcategory_id) SELECT plugin_id,sid,name,reliability,priority,category_id,subcategory_id FROM plugin_sid WHERE plugin_id = ? AND sid = ?";
+           $sql[] = "REPLACE INTO plugin_sid_changes SELECT * FROM plugin_sid WHERE plugin_id = ? AND sid = ?";
            $params[] = array( $id, $sid );
            $sql[] = "UPDATE plugin_sid_changes SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
            $params[] = array( $category_id, $subcategory_id, $priority, $reliability, $id, $sid );
@@ -141,7 +141,7 @@ class Plugin_sid {
         } else {
            $sql[] = "UPDATE plugin_sid SET priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
            $params[] = array( $priority, $reliability, $id, $sid );
-           $sql[] = "REPLACE INTO plugin_sid_changes (plugin_id,sid,name,reliability,priority,category_id,subcategory_id) SELECT plugin_id,sid,name,reliability,priority,category_id,subcategory_id FROM plugin_sid WHERE plugin_id = ? AND sid = ?";
+           $sql[] = "REPLACE INTO plugin_sid_changes SELECT * FROM plugin_sid WHERE plugin_id = ? AND sid = ?";
            $params[] = array( $id, $sid );
            $sql[] = "UPDATE plugin_sid_changes SET priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
            $params[] = array( $priority, $reliability, $id, $sid );

@@ -85,7 +85,7 @@ if ( $opensource )
 						initAjax: { url: "asset_by_property_tree_wl.php" },
 						onActivate: function(dtnode) {
 							if(dtnode.data.url!='' && typeof(dtnode.data.url)!='undefined') {
-								GB_edit(dtnode.data.url+'&withoutmenu=1', '');
+								GB_edit(dtnode.data.url+'&withoutmenu=1', dtnode.data.h);
 							}
 						},
 						onLazyRead: function(dtnode){

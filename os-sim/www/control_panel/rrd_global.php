@@ -36,6 +36,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+
 Session::logcheck("MenuEvents", "EventsAnomalies");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -72,7 +73,12 @@ $conf = $GLOBALS["CONF"];
 $graph_link = $conf->get_conf("graph_link");
 $acid_link = $conf->get_conf("acid_link");
 $acid_prefix = $conf->get_conf("event_viewer");
-$ntop_link = $conf->get_conf("ntop_link");
+//$ntop_link = $conf->get_conf("ntop_link");
+$ntop_links = Sensor::get_ntop_link("127.0.0.1");
+$ntop_link   = $ntop_links["ntop"];
+
+$ntop_link = preg_replace("/\/$/", "", $ntop_link);
+
 $nagios_link = $conf->get_conf("nagios_link");
 /* connect to db */
 $db = new ossim_db();

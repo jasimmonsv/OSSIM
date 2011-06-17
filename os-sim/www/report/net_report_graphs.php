@@ -33,11 +33,24 @@
 * Function list:
 * Classes list:
 */
-require_once 'ossim_conf.inc';
-$conf = $GLOBALS["CONF"];
-$ntop_link = $conf->get_conf("ntop_link", FALSE);
+require_once ("ossim_conf.inc");
+require_once ("ossim_db.inc");
+require_once ('classes/Sensor.inc');
+
+$db = new ossim_db();
+$conn = $db->connect();
+
+$net = GET('net');
+
+ossim_valid($net, OSS_IP_ADDRCIDR, 'illegal:' . _("host"));
+
+if (ossim_error()) {
+    die(ossim_error());
+}
 
 error_reporting(0);
+
+$ntop_link = Sensor::get_net_sensor_link($conn, $net);
 
 $source1 = $ntop_link."/ipProtoDistribution.png";
 
@@ -47,19 +60,23 @@ $salida1 = get_headers($source1);
 $salida2 = get_headers($source2);
 ?>
 <table>
+	<? if (!preg_match("/Not Found/",$salida1[0]) && $salida1 != null) { ?>
 	<tr>
 		<td>
-		<? if (!preg_match("/Not Found/",$salida1[0]) && $salida1 != null) { ?>
 		<iframe frameborder="0" src="<?=$source1?>" width="400" height="250"></iframe>
-		<? } ?>
 		</td>
 	</tr>
+		<? }
+   if (!preg_match("/Not Found/",$salida2[0]) && $salida2 != null) { ?>
 	<tr>
 		<td>
-		<? if (!preg_match("/Not Found/",$salida2[0]) && $salida2 != null) { ?>
 		<img src="<?=$source2?>">
-		<? } ?>
 		</td>
 	</tr>
+    <?php
+    }
+    ?>
 </table>
-
+<?php
+    $db->close($conn);
+?>
