@@ -50,23 +50,25 @@ $key    = GET('key');
 $page   = intval(GET('page'));
 
 ossim_valid($filter, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, 'illegal:' . _("Filter"));
-ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("key"));
-ossim_valid($page, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("page"));
+ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("Key"));
+ossim_valid($page, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("Page"));
 
 if (ossim_error()) {
     die(ossim_error());
 }
 
-if ($filter == "undefined") 
+if ( $filter == "undefined" ) 
 	$filter = "";
 	
-if ($page == "" || $page<=0) 
+if ( $page == "" || $page<=0 ) 
 	$page = 1;
 	
-$maxresults = 200;
-$to         = $page * $maxresults;
-$from       = $to - $maxresults;
-$nextpage   = $page + 1;
+$maxresults   = 200;
+$to           = $page * $maxresults;
+$from         = $to - $maxresults;
+$nextpage     = $page + 1;
+
+$length_name  = 45;
 
 require_once ('classes/Host.inc');
 require_once ('classes/Net.inc');
@@ -100,24 +102,30 @@ if ($key == "" || preg_match("/^(hosts)/",$key))
 
 if ( $key == "hosts" )
 {
-    $buffer .= "[";
     $j = 0;
-
+	
+	$buffer .= "[";
     foreach($all_cclass_hosts as $cclass => $hg) 
 	{
-        if ($j>=$from && $j<$to) {
-            $li = "key:'hosts_$cclass', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>'\n";
+        if ($j>=$from && $j<$to) 
+		{
+            $title   = "$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>";
+			$li      = "key:'hosts_$cclass', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$title'\n";
             $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
         }
         $j++;
     }
     
-	if ($j>$to) {
+	if ($j>$to) 
+	{
         $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("c-class")."'";
         $buffer .= ",{ $li }\n";
     }
     
 	$buffer .= "]";
+	
+	if ( $buffer == "[]" )
+		$buffer = "[{title:'"._("No Hosts Found")."', noLink:true}]";
 
 }
 else if ( preg_match("/hosts_(.*)/",$key,$found) ) 
@@ -127,26 +135,42 @@ else if ( preg_match("/hosts_(.*)/",$key,$found) )
     $j = 1;
     $i = 0;
     
-    foreach($all_cclass_hosts as $cclass => $hg) if ($found[1]==$cclass) 
+    foreach($all_cclass_hosts as $cclass => $hg) 
 	{
-        foreach($hg as $ip) 
+	if ($found[1]==$cclass) 
 		{
-                if ($i>=$from && $i<$to) {
-                    $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
-                    
-					$hname = utf8_encode($hname);
-				    $html .= "{ key:'HOST:".$ip."', asset_data:'$ip/32', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
-                }
-            $i++;
-        }
-		
-        $j++;
-    }
-    if ($i>$to) {
+			foreach($hg as $ip) 
+			{
+				if ($i>=$from && $i<$to) 
+				{
+					$host_key   = "HOST:".$ip;
+					$host_name  = ( $ossim_hosts[$ip] != '' && $ossim_hosts[$ip] != $ip ) ? utf8_encode($ossim_hosts[$ip]) : "" ;
+							   
+					$aux_hname  = ( strlen($host_name) > $length_name ) ? substr($host_name, 0, $length_name)."..." : $host_name;
+									
+					$title      = ( $host_name == "" ) ? $ip : "$ip <font style=\"font-size:80%\">(".Util::htmlentities($aux_hname).")</font>";
+					$tooltip    = ( $host_name == "" ) ? $ip : $ip." (".Util::htmlentities($host_name).")";
+									
+					$html .= "{ key:'$host_key', asset_data:'$ip/32', icon:'../../pixmaps/theme/host.png', title:'$title', tooltip:'$tooltip' },\n";
+				}
+				$i++;
+			}
+			
+			$j++;
+		}
+	}
+    
+	if ($i>$to) {
         $html .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("next")." $maxresults "._("hosts")."' },";
     }
-    if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
-    $buffer .= "]";
+    
+	if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
+    
+	$buffer .= "]";
+	
+	if ( $buffer == "[]" )
+		$buffer = "[{title:'"._("No Hosts Found")."', noLink:true}]";
+	
 }
 elseif ( $key == "host_group" ) 
 {
@@ -154,20 +178,27 @@ elseif ( $key == "host_group" )
 	
     if (count($hg_list)>0) 
 	{
-        $buffer .= "[";
         $j = 0;
+		
+		$buffer .= "[";
         foreach($hg_list as $hg) 
 		{
             if($j>=$from && $j<$to) 
 			{
-                $hg_name = $hg->get_name();
-				$hg_key  = utf8_encode("HOSTGROUP:".$hg_name);
+                $hg_name  = $hg->get_name();
+				$hg_title = Util::htmlentities(utf8_encode($hg_name));
+				
+				$hg_key   = utf8_encode("HOSTGROUP:".$hg_name);
 				
 				$asset_data = array();
 				foreach ($hg->get_hosts($conn, $hg_name) as $k => $v)
 					$asset_data[] = $v->get_host_ip()."/32"; 
-								
-                $li      = "key:'".$hg_key."', asset_data:'".implode(" ", $asset_data)."', icon:'../../pixmaps/theme/host_group.png', title:'".Util::htmlentities($hg->get_name())."'\n";
+				
+				$title    = ( strlen($hg_name) > $length_name ) ? substr($hg_name, 0, $length_name)."..." : $hg_name;	
+				$title    = Util::htmlentities(utf8_encode($title));
+				$tooltip  = $hg_title;
+													
+                $li      = "key:'$hg_key', asset_data:'".implode(" ", $asset_data)."', icon:'../../pixmaps/theme/host_group.png', title:'$title', tooltip:'$tooltip'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
             }
             $j++;
@@ -181,80 +212,125 @@ elseif ( $key == "host_group" )
 		$buffer .= "]";
     }
 	
+	if ( $buffer == "[]" || $buffer == "" )
+		$buffer = "[{title:'"._("No Host Groups Found")."', noLink:true}]";
+	
 }
 elseif ( $key == "nets" )
 {
 	$wherenet = ($filter!="") ? "ips like '%$filter%'" : "";
-    if ($net_list = Net::get_list($conn, $wherenet)) {
+    
+	if ($net_list = Net::get_list($conn, $wherenet)) 
+	{
         $buffer .= "[";
         $j = 0;
         foreach($net_list as $net) 
 		{
             if ($j>=$from && $j<$to) 
 			{
-                $net_name = $net->get_name();
-				$net_key  = utf8_encode("NET:".$net_name);
-				$ips      = trim($net->get_ips());
-				$li       = "key:'".$net_key."', asset_data:'".$ips."', icon:'../../pixmaps/theme/net.png', title:'".Util::htmlentities($net_name)." <font style=\"font-size:80%\">(".$ips.")</font>'\n";
+                $net_name  = $net->get_name();
+				$net_title = Util::htmlentities(utf8_encode($net_name));
+				
+				$net_key   = utf8_encode("NET:".$net_name);
+				
+				$ips_data  = $net->get_ips();				
+				$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
+				
+				
+        		$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
+				$title     = Util::htmlentities(utf8_encode($title))." ".$ips;
+				
+				$tooltip   = $net_title." (".$ips_data.")";
+								
+				$li        = "key:'$net_key', asset_data:'$ips_data', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip'\n";
                 
 				$buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
             }
             $j++;
         }
         
-		if ($j>$to) {
-            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."'";
+		if ($j>$to) 
+		{
+            $li      = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."'";
             $buffer .= ",{ $li }\n";
         }
         
 		$buffer .= "]";
     }
+	
+	if ( $buffer == "[]" || $buffer == "" )
+		$buffer = "[{title:'"._("No Networks Found")."', noLink:true}]";
 }
-else if ( $key=="netgroup" )
+else if ( $key == "netgroup" )
 {
     $whereng = ( $filter=="" ) ? "" : "name like '%$filter%'";
    
     if ($net_group_list = Net_group::get_list($conn, $whereng)) 
 	{
-        $buffer .= "[";
+       
         $j = 0;
+		
+		$buffer .= "[";
         foreach($net_group_list as $net_group) 
 		{
-            if ($j>=$from && $j<$to) {
-               	$ng_key   = base64_encode($net_group->get_name());
-				$ng_title = utf8_encode($net_group->get_name());
-                
-                $li = "key:'netgroup_$ng_key', isLazy:true , icon:'../../pixmaps/theme/net_group.png', title:'$ng_title'\n";
+            if ($j>=$from && $j<$to) 
+			{
+                $ng_name  = $net_group->get_name();
+				$ng_title = Util::htmlentities(utf8_encode($ng_name));
+				
+				$ng_key   = "netgroup_". base64_encode($ng_name);
+				
+				$title    = ( strlen($ng_name) > $length_name ) ? substr($ng_name, 0, $length_name)."..." : $ng_name;
+				$title    = Util::htmlentities(utf8_encode($title));				
+				$tooltip  = $ng_title;
+								
+                $li = "key:'$ng_key', isLazy:true , icon:'../../pixmaps/theme/net_group.png', title:'$title', tooltip:'$tooltip'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
             }
             $j++;
         }
 		
-        if ($j>$to) {
-            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("net group")."'";
+        if ($j>$to) 
+		{
+            $li 	 = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("net group")."'";
             $buffer .= ",{ $li }\n";
         }
         
 		$buffer .= "]";
     }
+	
+	if ( $buffer == "[]" || $buffer == "" )
+		$buffer = "[{title:'"._("No Network Groups Found")."', noLink:true}]";
 }
 else if (preg_match("/netgroup_(.*)/",$key,$found)){
-    $buffer .= "[";
+   
     
 	$html = "";
-    $nets = Net_group::get_networks($conn, base64_decode($found[1]));
-    $k = 1;
-    $j = 0;
+    $k    = 1;
+    $j    = 0;
 	
-    foreach($nets as $net) 
+	$nets = Net_group::get_networks($conn, base64_decode($found[1]));
+	
+	$buffer .= "[";
+	foreach($nets as $net) 
 	{
-        $net_name = $net->get_net_name();
+        
         if ($j>=$from && $j<$to) 
 		{
-            $net_key  = utf8_encode("NET:".$net_name);
-			$ips      = Net::get_ips_by_name($conn,$net_name);
+           	$net_name  = $net->get_net_name();
+			$net_title = Util::htmlentities(utf8_encode($net_name));
 			
-			$html    .= "{ key:'$net_key', asset_data:'".trim($ips)."', icon:'../../pixmaps/theme/net.png', title:'$net_name <font style=\"font-size:80%\">(".trim($ips).")</font>' },\n";
+			$net_key   = utf8_encode("NET:".$net_name);
+			
+			$ips_data  = Net::get_ips_by_name($conn,$net_name);
+			$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
+						
+			$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
+			$title     = Util::htmlentities(utf8_encode($title))." ".$ips;
+			
+			$tooltip   = $net_title." (".$ips_data.")";
+						
+			$html     .= "{ key:'$net_key', asset_data:'".trim($ips_data)."', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip: '$tooltip' },\n";
             $k++;  
         }
         $j++;
@@ -262,12 +338,16 @@ else if (preg_match("/netgroup_(.*)/",$key,$found)){
 	
     if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
     
-	if ($j>$to) {
-        $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("net")."'";
+	if ($j>$to) 
+	{
+        $li      = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."'";
         $buffer .= ",{ $li }\n";
     }
     
 	$buffer .= "]";
+	
+	if ( $buffer == "[]" || $buffer == "" )
+		$buffer = "[{title:'"._("No Networks Found")."', noLink:true}]";
 }
 
 else if ( $key=="sensor" ) 
@@ -276,29 +356,40 @@ else if ( $key=="sensor" )
 	{
         $buffer .= "[";
         $j = 0;
-        foreach($sensor_list as $sensor) 
+        
+		foreach($sensor_list as $sensor) 
 		{
             if ($j>=$from && $j<$to) 
 			{
-              	$sensor_key  = utf8_encode("SENSOR:".$sensor->get_name());
+              	$sensor_name = $sensor->get_name();
+				$s_title     = Util::htmlentities(utf8_encode($sensor_name));
+				$sensor_key  = utf8_encode("SENSOR:".$sensor_name);
 				
-				$li = "key:'".$sensor_key."', asset_data:'".$sensor->get_ip()."/32', icon:'../../pixmaps/theme/host.png', title:'".Util::htmlentities($sensor->get_name())."'\n";
+				$title    = ( strlen($sensor_name) > $length_name ) ? substr($sensor_name, 0, $length_name)."..." : $sensor_name;	
+				$title    = Util::htmlentities(utf8_encode($title));
+				$tooltip  = $s_title;
+								
+				$li = "key:'$sensor_key', asset_data:'".$sensor->get_ip()."/32', icon:'../../pixmaps/theme/host.png', title:'$title', tooltip:'$tooltip'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
             }
             $j++;
         }
 		
-        if ($j>$to) {
-            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("net groups")."'";
+        if ($j>$to) 
+		{
+            $li      = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("sensors")."'";
             $buffer .= ",{ $li }\n";
         }
         $buffer .= "]";
     }
+	
+	if ( $buffer == "[]" || $buffer == "" )
+		$buffer = "[{title:'"._("No Sensors Found")."', noLink:true}]";
 }
 else if ( $key !="hosts" ) 
 {
     $buffer .= "[ { key:'hosts',      page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host.png', title:'"._("Hosts")." <font style=\"font-weight:normal;font-size:80%\">(" . $total_hosts . " "._("hosts").")</font>'},\n";
-	$buffer .= "  { key:'host_group', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("Host Group")."'},\n";
+	$buffer .= "  { key:'host_group', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("Host Groups")."'},\n";
     $buffer .= "  { key:'nets',       page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("Networks")."'},\n";
     $buffer .= "  { key:'netgroup',   page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("Network Groups")."'},\n";
 	$buffer .= "  { key:'sensor',     page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_os.png', title:'"._("Sensors")."'}\n";
@@ -306,8 +397,6 @@ else if ( $key !="hosts" )
 }
 
 
-if ( $buffer=="" || $buffer=="[]" )
-    $buffer = "[{title:'"._("No Assets found")."'}]";
 
 echo $buffer;
 error_reporting(0);
