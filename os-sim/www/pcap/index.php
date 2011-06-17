@@ -498,6 +498,7 @@ else {
                        
                         foreach($sensor_list as $ip => $sensor_data) {
                             $interfaces = explode(",",$sensor_data[1]);
+                            $interfaces = array_unique($interfaces);
                             if($interfaces[0]!="") $hinterfaces = true;
                             else                    $hinterfaces = false;
                             ?>
