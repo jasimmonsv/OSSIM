@@ -327,8 +327,8 @@ else if(preg_match("/all_(\d+\.\d+\.\d+)/",$key,$found))
 												
 						$url = "url:'../host/modifyhostform.php?ip=".$host_data[0]."',";
 						
-						$title     = $host_data[0]." <font style=\"font-size:80%\">(".Util::hlmlentities(utf8_encode($hname)).")</font>";
-						$tooltip   = $host_data[0]." (".Util::hlmlentities(utf8_encode($host_data[1])).")";
+						$title     = $host_data[0]." <font style=\"font-size:80%\">(".Util::htmlentities(utf8_encode($hname)).")</font>";
+						$tooltip   = $host_data[0]." (".Util::htmlentities(utf8_encode($host_data[1])).")";
 					}
 					else 
 					{
