@@ -36,10 +36,6 @@
 require_once 'classes/Host.inc';
 require_once 'classes/Host_os.inc';
 
-$conf = $GLOBALS["CONF"];
-$ntop_link = $conf->get_conf("ntop_link", FALSE);
-$sensor_ntop = parse_url($ntop_link);
-
 $net_data = '<table align="center" class="noborder" style="background-color:white" width="100%">
 <tr>
 <th>'.gettext("THR_C").'</th>

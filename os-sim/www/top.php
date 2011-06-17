@@ -44,7 +44,7 @@ if (GET("lasthour")=="1") {
 }
 require_once ('ossim_conf.inc');
 $conf      = $GLOBALS["CONF"];
-$ntop_link = $conf->get_conf("ntop_link", FALSE);
+//$ntop_link = $conf->get_conf("ntop_link", FALSE);
 ossim_set_lang();
 
 $uc_languages = array(
@@ -56,7 +56,7 @@ $uc_languages = array(
     "fr_FR",
     "pt_BR"
 );
-$sensor_ntop   = parse_url($ntop_link);
+//$sensor_ntop   = parse_url($ntop_link);
 $ocs_link      = $conf->get_conf("ocs_link", FALSE);
 $glpi_link     = $conf->get_conf("glpi_link", FALSE);
 $ovcp_link     = $conf->get_conf("ovcp_link", FALSE);

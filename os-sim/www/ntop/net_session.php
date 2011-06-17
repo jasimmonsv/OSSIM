@@ -78,12 +78,18 @@ foreach($ip_list as $host) {
     /*
     * get ntop link associated with host
     */
-    $ntop_link = Sensor::get_sensor_link($conn, $host);
-    if ($conf->get_conf("use_ntop_rewrite")) {
-        $protocol = "http";
-        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-        $ntop_link = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_$sensor";
-    }
+    //$ntop_link = Sensor::get_sensor_link($conn, $host);
+    //if ($conf->get_conf("use_ntop_rewrite")) {
+    //    $protocol = "http";
+    //    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
+    //    $ntop_link = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_$sensor";
+    //}
+    
+    $ntop_links = Sensor::get_ntop_link($sensor);
+    $ntop_link = $ntop_links["ntop"];
+    
+    $ntop_link = preg_replace("/\/$/", "", $ntop_link);
+    
     if ($fd = @fopen("$ntop_link/$host.html", "r")) {
         while (!feof($fd)) {
             $line = fgets($fd, 1024);
@@ -139,6 +145,7 @@ EOF;
             * print data, adjusting links
             */
             if ($show && $found) {
+                $ntop_link = $ntop_link."/";
                 $line = ereg_replace("<img src=\"", "<img src=\"$ntop_link", $line);
                 $line = ereg_replace("<a href=\"", "<a href=\"$ntop_link", $line);
                 echo $line;

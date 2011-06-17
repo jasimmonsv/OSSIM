@@ -63,9 +63,7 @@ $conf = $GLOBALS["CONF"];
 // /etc/ossim/framework/ossim.conf
 // a better solution ??
 //
-$url_parsed = parse_url($conf->get_conf("ntop_link"));
-$port = $url_parsed["port"];
-$proto = $url_parsed["scheme"];
+
 require_once ('ossim_db.inc');
 require_once ('classes/Sensor.inc');
 require_once ('classes/Net.inc');
@@ -75,10 +73,6 @@ $conn = $db->connect();
 
 <table align="center"><tr><td>
 <form method="GET" action="menu_session.php">
-<input type="hidden" name="proto" value="<?php
-echo $proto ?>"/>
-<input type="hidden" name="port" value="<?php
-echo $port ?>"/>
 <?php
 echo gettext("Sensor"); ?>:&nbsp;
 <select name="sensor" onChange="submit()">
@@ -128,13 +122,19 @@ $conf = $GLOBALS["CONF"];
 if (preg_match('/\d+\.\d+\.\d+\.\d+/', $sensor)) {
 ?>
 <?php
-    if (!$conf->get_conf("use_ntop_rewrite")) {
-        $ntop_link = "$proto://$sensor:$port";
-    } else { //if use_ntop_rewrite is enabled
-        $protocol = "http";
-        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-        $ntop_link = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_$sensor";
-    }
+    //if (!$conf->get_conf("use_ntop_rewrite")) {
+    //    $ntop_link = "$proto://$sensor:$port";
+    //} else { //if use_ntop_rewrite is enabled
+    //    $protocol = "http";
+    //    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
+    //    $ntop_link = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_$sensor";
+    //}
+    
+    $ntop_links = Sensor::get_ntop_link($sensor);
+    $ntop_link   = $ntop_links["ntop"];
+    
+    $ntop_link = preg_replace("/\/$/", "", $ntop_link);
+    
 ?>
 <a href="<?php
     echo $ntop_link ?>/NetNetstat.html"
