@@ -530,12 +530,12 @@ class Sensor {
             /*}
         }*/
         /* read from /etc/ossim.conf */
-        if ($sensor_ip == '') {
-            preg_match("/\D+(\d+\.\d+\.\d+\.\d+)\D+/",$conf->get_conf("ntop_link"),$found);
-            $sensor_ip = "/ntop_".$found[1];
-        }
         
-        return $sensor_ip;
+        if ($sensor_ip == '') {
+            $components = parse_url($conf->get_conf("ntop_link"));
+            if($components["host"]=="localhost")    return "/ntop_127.0.0.1";
+            else return "/ntop_".$components["host"];
+        }
     }
     function get_net_sensor_link($conn, $cidr) {
         require_once "classes/Net.inc";
@@ -570,11 +570,10 @@ class Sensor {
         }
         
         if ($sensor_ip == '') {
-            preg_match("/\D+(\d+\.\d+\.\d+\.\d+)\D+/",$conf->get_conf("ntop_link"),$found);
-            $sensor_ip = "/ntop_".$found[1];
+            $components = parse_url($conf->get_conf("ntop_link"));
+            if($components["host"]=="localhost")    return "/ntop_127.0.0.1";
+            else return "/ntop_".$components["host"];
         }
-        
-        return $sensor_ip;
     }
     function get_ntop_link($sensor) {
         $protocol = "http";
