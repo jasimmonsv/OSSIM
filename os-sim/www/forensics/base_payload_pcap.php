@@ -192,7 +192,7 @@ fclose($f);
 <script type="text/javascript" src="../js/jquery.tmpl.1.1.1.js"></script>
 <script type="text/javascript" src="../js/jquery.dynatree.js"></script>
 <script type="text/javascript">
-var loading = '<br><img src="images/ltWait.gif" border="0" align="absmiddle"><?php echo _("Loading tree")?>...';
+var loading = '<br/><img src="../pixmaps/theme/loading2.gif" border="0" align="absmiddle"><span style="margin-left:5px"><?php echo _("Loading tree")?>...</span>';
 var layer = '#container';
 var nodetree = null;
 function load_tree(filter) {

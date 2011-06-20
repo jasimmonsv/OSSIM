@@ -66,8 +66,8 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
 	<script type="text/javascript">
 		var tab_actual = 'tabs-1';
-		//var loading = '<br><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"> <?php echo _("Loading resource tree, please wait...") ?>';
-		var reloading = '<img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"> <?php echo _("Re-loading data...") ?>';
+		//var loading = '<br><img src="../pixmaps/theme/loading2.gif" border="0" align="absmiddle"> <?php echo _("Loading resource tree, please wait...") ?>';
+		var reloading = '<img src="../pixmaps/theme/loading2.gif" border="0" align="absmiddle"><span style="margin-left:5px"><?php echo _("Re-loading data...")?></span>';
 		var layer = null;
 		var nodetree = null;
 		var suf = "c";

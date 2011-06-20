@@ -94,7 +94,7 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 	</script>
 	
 	<script type="text/javascript">
-		//var loading = '<br><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"> Loading tree...';
+		
 		var layer = null;
 		var nodetree = null;
 		var i=1;
