@@ -49,6 +49,7 @@ echo gettext("OSSIM"); ?> </title>
 
 <?php
 require_once ("classes/Security.inc");
+require_once ("classes/Sensor.inc");
 $sensor = GET('sensor');
 ossim_valid($sensor, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Sensor"));
 if (ossim_error()) {
@@ -61,18 +62,26 @@ $conf = $GLOBALS["CONF"];
 // /etc/ossim/framework/ossim.conf
 // a better solution ??
 //
-if (!$conf->get_conf("use_ntop_rewrite")) {
-    $url_parsed = parse_url($conf->get_conf("ntop_link"));
-    $port = $url_parsed["port"];
-    $protocol = $url_parsed["scheme"];
-    $fr_up = "menu.php?sensor=$sensor&port=$port&proto=$protocol";
-    $fr_down = "$protocol://$sensor:$port/NetNetstat.html";
-} else { //if use_ntop_rewrite is enabled
-    $protocol = "http";
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-    $fr_up = "menu.php?sensor=$sensor";
-    $fr_down = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_$sensor/NetNetstat.html";
-}
+
+//if (!$conf->get_conf("use_ntop_rewrite")) {
+//    $url_parsed = parse_url($conf->get_conf("ntop_link"));
+//    $port = $url_parsed["port"];
+//    $protocol = $url_parsed["scheme"];
+//    $fr_up = "menu.php?sensor=$sensor&port=$port&proto=$protocol";
+//    $fr_down = "$protocol://$sensor:$port/NetNetstat.html";
+//} else { //if use_ntop_rewrite is enabled
+//    $protocol = "http";
+//    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
+//    $fr_up = "menu.php?sensor=$sensor";
+//    $fr_down = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_$sensor/NetNetstat.html";
+//}
+
+$fr_up      = "menu.php?sensor=$sensor";
+$ntop_links = Sensor::get_ntop_link($sensor);
+$ntop_links["ntop"] = preg_replace("/\/$/", "", $ntop_links["ntop"]);
+
+$fr_down    = $ntop_links["ntop"] . "/NetNetstat.html";
+
 ?>
 
 <frameset cols="18%,82%" border="0" frameborder="0">

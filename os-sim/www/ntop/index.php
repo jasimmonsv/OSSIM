@@ -52,43 +52,16 @@ require_once ("classes/Security.inc");
 $sensor = GET('sensor');
 $opc = GET('opc');
 $link_ip = GET('link_ip');
-ossim_valid($sensor, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Sensor"));
+ossim_valid($sensor, OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Sensor"));
 ossim_valid($opc, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Default option"));
 if (ossim_error()) {
     die(ossim_error());
 }
-require_once ('ossim_conf.inc');
-$conf = $GLOBALS["CONF"];
-//
-// get ntop proto and port from default ntop entry at
-// /etc/ossim/framework/ossim.conf
-// a better solution ??
-//
-if (!$conf->get_conf("use_ntop_rewrite")) {
-    $url_parsed = parse_url($conf->get_conf("ntop_link"));
-    $port = $url_parsed["port"];
-    $protocol = $url_parsed["scheme"];
-    $fr_up = "menu.php?sensor=$sensor&port=$port&proto=$protocol&opc=$opc";
-	if (preg_match("/\d+\.\d+\.\d+\.\d+/",$link_ip)) $fr_up .= "&link_ip=$link_ip";
-    #$fr_down = "$protocol://$sensor:$port/trafficStats.html";
-    #if ($opc == "services") $fr_down = "$protocol://$sensor:$port/sortDataIP.html?showL=0";
-    #if ($opc == "throughput") $fr_down = "$protocol://$sensor:$port/sortDataThpt.html?col=1&showL=0";
-    #if ($opc == "matrix") $fr_down = "$protocol://$sensor:$port/ipTrafficMatrix.html";
-    #if ($opc == "gateways") $fr_down = "$protocol://$sensor:$port/localRoutersList.html";
-    #if ($opc == "osandusers") $fr_down = "$protocol://$sensor:$port/localHostsFingerprint.html";
-    #if ($opc == "domains") $fr_down = "$protocol://$sensor:$port/domainStats.html";    
-} else { //if use_ntop_rewrite is enabled
-    $protocol = "http";
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-    $fr_up = "menu.php?sensor=$sensor&opc=$opc";
-    #$fr_down = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop".(($_SERVER['SERVER_NAME']!=$sensor) ? "-$sensor/" : "/");
-}
-//$fr_down = preg_replace("/https?:\/\/(.*?)\//","/ntop/",$fr_down);
 ?>
 <frameset rows="35,*" border="0" frameborder="0">
 	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>" scrolling='no'>
 	<frameset rows="40,*" border="0" frameborder="0">
-		<frame id="fr_up" src="<?php echo $fr_up ?>">
+		<frame id="fr_up" src="menu.php?sensor=<?php echo $sensor?>&opc=<?php echo $opc?>">
 		<frame id="fr_down" src="" name="ntop">
 	</frameset>
 </frameset>

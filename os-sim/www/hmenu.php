@@ -66,8 +66,8 @@ $hmenu = array();
 if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 	// tab url
 }else if ($menu_opc != "" && $menu_sopc != "") {
-    $ntop_link = $conf->get_conf("ntop_link", FALSE);
-    $sensor_ntop = parse_url($ntop_link);
+    //$ntop_link = $conf->get_conf("ntop_link", FALSE); 
+    //$sensor_ntop = parse_url($ntop_link);
     $ocs_link = $conf->get_conf("ocs_link", FALSE);
     $glpi_link = $conf->get_conf("glpi_link", FALSE);
     $ovcp_link = $conf->get_conf("ovcp_link", FALSE);

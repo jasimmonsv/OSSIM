@@ -285,6 +285,9 @@ class ServerConn:
         data = ""
         self.__conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            server_addr = (self.server_ip,int(self.server_port))
+            source_virtual_addr = ("192.168.2.35",35622)
+            #self.__conn = socket.create_connection(server_addr,socket.getdefaulttimeout(),source_virtual_addr)
             self.__conn.connect((self.server_ip, int(self.server_port)))
             self.__conn.send(self.MSG_CONNECT % (self.sequence))
             logger.debug("Waiting for server..")
@@ -294,6 +297,8 @@ class ServerConn:
                 % (self.server_ip, str(self.server_port)) + ": " + str(e))
             self.__conn = None
             self.__isAlive = False
+        except Exception,e:
+            logger.error("Error connection. %s" % str(e))
         else:
             if data == 'ok id="' + str(self.sequence) + '"\n':
                 logger.info("Connected to server %s:%s!" % (self.server_ip, self.server_port))
@@ -479,6 +484,10 @@ class ServerConn:
         frmk_port = ""
         frmk_hostname = ""
         data = ""
+        
+        if self.__validFrmkData:
+            return self.frmk_hostname, self.frmk_ip, self.frmk_port
+            
         if self.__conn is not None:
             try:
                 logger.info("Waiting for framework connection data from %s:%s" % (self.server_ip, self.server_port))
@@ -730,8 +739,10 @@ class FrameworkConn():
         while self.__keep_processing:
             self.send("ping\n")
             time.sleep(60)
-
-
+    def frmk_alive(self):
+        return self.__alive
+    def get_frmkip(self):
+        return self._framework_ip
     # launch new thread to manage control messages
     def frmk_control_messages(self):
         #thread.start_new_thread(self.__recv_frmk_control_messages, ())

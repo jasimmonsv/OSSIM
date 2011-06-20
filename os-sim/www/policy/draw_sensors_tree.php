@@ -35,38 +35,61 @@
 * Classes list:
 */
 set_time_limit(300);
-require_once 'classes/Security.inc';
+require_once ('classes/Security.inc');
 require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "PolicyPolicy");
+
 $cachefile = "/var/ossim/sessions/".$_SESSION["_user"]."_sensors.json";
+
 if (file_exists($cachefile)) {
     readfile($cachefile);
     exit;
 }
+
 require_once ('classes/Sensor.inc');
 require_once ('ossim_db.inc');
-$db = new ossim_db();
-$conn = $db->connect();
+
+$db      = new ossim_db();
+$conn    = $db->connect();
 $sensors = array();
-$buffer = "";
-if ($sensor_list = Sensor::get_all($conn)) {
-	foreach($sensor_list as $sensor) {
-		$sensor_name = $sensor->get_name();
-        $sensor_ip = $sensor->get_ip();
+$buffer  = "";
+
+$length_name = 30;
+
+if ($sensor_list = Sensor::get_all($conn)) 
+{
+	foreach($sensor_list as $sensor) 
+	{
+		$sensor_name         = $sensor->get_name();
+        $sensor_ip           = $sensor->get_ip();
         $sensors[$sensor_ip] = $sensor_name;
     }
 }
+
 $buffer .= "[ {title: '"._("Sensors")."', key:'key1', isFolder:true, icon:'../../pixmaps/theme/server.png', expand:true\n";
-if (count($sensors) > 0) {
+
+if (count($sensors) > 0) 
+{
     $buffer .= ", children:[";
-    $j = 1;
-    $buffer .= "{  key:'key1.1.$j', url:'ANY', icon:'../../pixmaps/theme/server.png', title:'ANY' },\n";
-    foreach($sensors as $ip => $sname) {
-        $sname = utf8_encode($sname);
-		$buffer .= (($j > 1) ? "," : "") . "{ key:'key1.1.$j', url:'$sname', icon:'../../pixmaps/theme/server.png', title:'$sname ($ip)' }\n";
+    $j       = 1;
+    $buffer .= "{  key:'key1.1.$j', url:'ANY', icon:'../../pixmaps/theme/server.png', title:'ANY', tooltip:'ANY' },\n";
+    
+	foreach($sensors as $ip => $sname) 
+	{
+        $sname       = utf8_encode($sname);
+		
+		$s_title     = Util::htmlentities(utf8_encode($sname));
+		$sensor_key  = utf8_encode("sensor;".$sname);
+		
+		$title    = ( strlen($sname) > $length_name ) ? substr($sname, 0, $length_name)."..." : $sname;	
+		$title    = Util::htmlentities(utf8_encode($title))." <font style=\"font-weight:normal;font-size:80%\">(".$ip.")</font>";
+		$tooltip  = $s_title." ($ip)";
+				
+		$buffer  .= (($j > 1) ? "," : "") . "{ key:'key1.1.$j', url:'$sname', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip' }\n";
         $j++;
     }
-    $buffer .= "]";
+    
+	$buffer .= "]";
 }
 $buffer .= "}]\n";
 echo $buffer;

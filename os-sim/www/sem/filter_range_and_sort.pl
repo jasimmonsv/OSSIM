@@ -180,7 +180,7 @@ foreach my $file (@files) {
 				LINE: while (<F>) {
 					#next LINE if ($total_lines++<$jumprow);
 					#if (/ date='(\d+)' /i) {
-					if (/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+(datalen='\d+'\s+)?data='([^']+)'(\s+sig='[^']*')?(\s+plugin_sid='[^']*')?/i) {
+					if (/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+(datalen='\d+'\s+)?data='(.*)'/i) {
 						$id = $1;
 						$currentdate = $3;
 						$plugin_id = $4;
@@ -191,12 +191,26 @@ foreach my $file (@files) {
 						$dst_port = $9;
 						$tzone = $10;
 						$data = $12;
-						$sig = $13;
-						$plugin_sid = $14;
-						if ($sig =~ /plugin\_sid/) {
-							$plugin_sid = $sig; $sig = "";
+						
+						# Clean data => $data may contains sig and/or plugin_sid
+						$plugin_sid = "";
+						if ($data =~ /' plugin_sid='(\d+)/) {
+							$plugin_sid = $1;
 						}
-						$plugin_sid =~ s/\s*plugin\_sid\='(.+)'/$1/;
+						$data =~ s/' plugin_sid=.*//;
+						$sig = "";
+						if ($data =~ /' sig='(.*)('?)/) {
+							$sig = $1;
+							$data =~ s/' sig=.*//;
+						}
+						
+						#$sig = $13;
+						#$plugin_sid = $14;
+						#if ($sig =~ /plugin\_sid/) {
+						#	$plugin_sid = $sig; $sig = "";
+						#}
+						#$plugin_sid =~ s/\s*plugin\_sid\='(.+)'/$1/;
+						
 						# applying tzone hours diff
 						my @ctime = gmtime $currentdate;
 						#print "$currentdate - $fields[7] - $ctime[2] = ".($currentdate - $sdirtime)."\n" if ($debug);

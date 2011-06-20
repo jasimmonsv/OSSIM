@@ -55,7 +55,7 @@ $interface = GET('interface');
 $proto = GET('proto');
 $opc = GET('opc');
 $link_ip = GET('link_ip');
-ossim_valid($sensor, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Sensor"));
+ossim_valid($sensor, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Sensor"));
 ossim_valid($link_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Link IP"));
 ossim_valid($interface, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("interface"));
 ossim_valid($proto, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("proto"));
@@ -68,23 +68,26 @@ $db = new ossim_db();
 $conn = $db->connect();
 require_once ('ossim_conf.inc');
 $conf = $GLOBALS["CONF"];
-$ntop_default = parse_url($conf->get_conf("ntop_link"));
+//$ntop_default = parse_url($conf->get_conf("ntop_link"));
 require_once ('classes/Sensor.inc');
-if (!$conf->get_conf("use_ntop_rewrite")) {
-    /* ntop link */
-    $scheme = $ntop_default["scheme"] ? $ntop_default["scheme"] : "http";
-    $port = $ntop_default["port"] ? $ntop_default["port"] : "3000";
-    $ntop = "$scheme://$sensor:$port";
-    if ($opc == "throughput") $ntop = "$scheme://$sensor:$port";
-    if ($opc == "matrix") $ntop = "$scheme://$sensor:$port";
-    if ($opc == "services") $ntop = "$scheme://$sensor:$port";
-    $testntop = $ntop;
-} else { //if use_ntop_rewrite is enabled
-    $protocol = "http";
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-    $ntop = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop".(($_SERVER['SERVER_NAME']!=$sensor) ? "_$sensor/" : "/");
-    $testntop = "http://" . $sensor . ":3000/";
-}
+//
+
+//$protocol = "http";
+//if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
+//$port = "";
+//if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != "80" && $_SERVER['SERVER_PORT'] != "443") $port = ":".$_SERVER['SERVER_PORT'];
+//$ntop = "$protocol://" . $_SERVER['SERVER_NAME'] . $port . "/ntop_" . $sensor. "/";
+//$testntop = "http://127.0.0.1/ntop_" . $sensor. "/"; // "http://".$sensor.":3000/";
+
+$tmp = Sensor::get_all($conn, "ORDER BY priority DESC LIMIT 1");
+
+if($sensor=="")     $sensor = $tmp[0]->get_ip();
+
+$ntop_links = Sensor::get_ntop_link($sensor);
+
+$ntop     = $ntop_links["ntop"];
+$testntop = $ntop_links["testntop"];
+
 if ($link_ip!="") {
 	$testntop .= (!preg_match("/\/$/",$testntop) ? "/" : "").$link_ip.".html";
 	$ntop .= (!preg_match("/\/$/",$ntop) ? "/" : "").$link_ip.".html";
@@ -115,16 +118,8 @@ echo gettext("Sensor"); ?>:&nbsp;
 /*
 * default option (ntop_link at configuration)
 */
-/*
-$option = "<option ";
-if ($sensor == $ntop_default["host"])
-$option .= " SELECTED ";
-$option .= ' value="'. $ntop_default["host"] . '">default</option>';
-print "$option\n";
-*/
 /* Get highest priority sensor first */
 
-$tmp = Sensor::get_all($conn, "ORDER BY priority DESC LIMIT 1");
 $first_sensor = "";
 if ($tmp[0] != "") {
 	$first_sensor = $tmp[0];
@@ -203,7 +198,8 @@ if ($sensor_list = Sensor::get_list($conn, "$sensor_where")) {
 ?> value="<?php
                     echo $s_int->get_interface(); ?>">
 <?php
-                    echo SecurityReport::Truncate($s_int->get_name() , 30, "..."); ?></option>
+                    $interface_name = ($s_int->get_name()!="") ? $s_int->get_name() : $s_int->get_interface();
+                    echo SecurityReport::Truncate( $interface_name, 30, "..."); ?></option>
 <?php
                 }
             } else {
@@ -221,6 +217,7 @@ $db->close($conn);
 ?>
 
 </select>
+
 </form>
 <!-- end interface selector -->
 </td><td valign="top" class="nobborder" style="padding:3px 0px 0px 30px">

@@ -64,7 +64,7 @@ if ( $opensource )
 					clickFolderMode: 2,
 					onActivate: function(dtnode) {
 						if(dtnode.data.url!='' && typeof(dtnode.data.url)!='undefined') {
-							GB_edit(dtnode.data.url+'&withoutmenu=1');
+							GB_edit(dtnode.data.url+'&withoutmenu=1', dtnode.data.h);
 						}
 					},
 					onDeactivate: function(dtnode) {},
@@ -85,7 +85,7 @@ if ( $opensource )
 						initAjax: { url: "asset_by_property_tree_wl.php" },
 						onActivate: function(dtnode) {
 							if(dtnode.data.url!='' && typeof(dtnode.data.url)!='undefined') {
-								GB_edit(dtnode.data.url+'&withoutmenu=1');
+								GB_edit(dtnode.data.url+'&withoutmenu=1', dtnode.data.h);
 							}
 						},
 						onLazyRead: function(dtnode){
@@ -106,7 +106,7 @@ if ( $opensource )
 						clickFolderMode: 2,
 						onActivate: function(dtnode) {
 							if(dtnode.data.url!='' && typeof(dtnode.data.url)!='undefined') {
-								GB_edit(dtnode.data.url+'&withoutmenu=1');
+								GB_edit(dtnode.data.url+'&withoutmenu=1', '');
 							}
 						},
 						onDeactivate: function(dtnode) {}
@@ -218,14 +218,17 @@ if ( $opensource )
 		//
 		
 		GB_TYPE = 'w';
+		
 		function GB_onclose() {
 			document.location.reload();
 		}
 		
-		function GB_edit(url) {
-			GB_show("Edit Asset",url,"80%","80%");
+		function GB_edit(url, h) {
+			var h = ( h != '' ) ? h : "80%";
+			GB_show("Edit Asset",url, h,"80%");
 			return false;
 		}
+		
 	</script>
 </head>
 

@@ -104,7 +104,7 @@ else {
 		    <td class="nobborder"> <?=_("Priority")?>: </td>
 		    <td class="nobborder left">
 		        <select name="prio">
-		        <? for ($i = 0; $i <= 8; $i++) { ?>
+		        <? for ($i = 0; $i <= 5; $i++) { ?>
 		        <option value="<?=$i?>" <? if ($prio == $i) echo "selected"?>><?=$i?>
 		        <? } ?>
 		        </select>

@@ -12,7 +12,6 @@ SUBDIRS= action \
 	incidents \
 	java \
 	js \
-	maps \
 	nagios \
 	net \
 	netscan \

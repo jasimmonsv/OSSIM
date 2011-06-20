@@ -56,8 +56,8 @@ function server_get_sensors($conn) {
     $list = array();
     /* connect */
     socket_set_block($socket);
-    socket_set_option( $socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 5, 'usec' => 0) );
-	socket_set_option( $socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 5, 'usec' => 0) );
+    socket_set_option( $socket,SOL_SOCKET,SO_RCVTIMEO, array('sec' => 4, 'usec' => 0) );
+	socket_set_option( $socket,SOL_SOCKET,SO_SNDTIMEO, array('sec' => 4, 'usec' => 0) );
 	    
     $result = @socket_connect($socket, $address, $port);
     if (!$result) {
