@@ -144,7 +144,7 @@ ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
 ossim_valid($offset, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("offset"));
 ossim_valid($top, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("top"));
-ossim_valid($a, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, "\!\|\%", 'illegal:' . _("a"));
+ossim_valid($a, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, "\!\|\%|\*|\+|\;", 'illegal:' . _("a"));
 ossim_valid($sort_order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("sort order"));
 ossim_valid($uniqueid, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("uniqueid"));
 if (ossim_error()) {
@@ -736,7 +736,7 @@ foreach($result as $res=>$event_date) {
                     	$onclick = (preg_match("/(&gt;)|(&lt;)/",$clean_piece)) ? ";" : "SetSearch('<b>data</b>=" . $clean_piece . "')";
                     	$cursor = "not-allowed";
                     } else {
-                    	$onclick = (preg_match("/(&gt;)|(&lt;)/",$clean_piece)) ? ";" : "SetSearch('<b>data</b>=" . $clean_piece . "')";
+                    	$onclick = (preg_match("/(&gt;)|(&lt;)/",$clean_piece)) ? ";" : "SetSearch('<b>data</b>=" . trim($clean_piece) . "')";
                     	$cursor = "pointer";
                     }
                     if ($demo) {
