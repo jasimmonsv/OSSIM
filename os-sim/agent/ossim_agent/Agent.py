@@ -40,6 +40,7 @@ import string
 import thread
 import re
 import threading
+import socket
 
 #
 # LOCAL IMPORTS
@@ -51,7 +52,7 @@ from Logger import Logger
 from Output import Output
 from Stats import Stats
 from Conn import ServerConn, FrameworkConn, ServerData
-from ConnPro import ServerConnPro
+#from ConnPro import ServerConnPro
 from Exceptions import AgentCritical
 from ParserUnifiedSnort import ParserUnifiedSnort
 from ParserDatabase import ParserDatabase
@@ -157,7 +158,7 @@ class Agent:
 
         self.detector_objs = []
         self.watchdog = None
-        self.shutdown_running = False;
+        self.shutdown_running = False
         #output server list.
         self.__outputServerList = []
         self.__outputServerConnecitonList = []
@@ -244,7 +245,22 @@ class Agent:
         Output.set_priority(0)
         self.__currentPriority = 0
 
-
+    def is_frmk_in_list(self,frmk_ip):
+        for fmk in self.__frameworkConnecitonList:
+            if fmk.get_frmkip() == frmk_ip:
+                return True
+        return False
+    def get_frmk(self,frmk_ip):
+        for fmk in self.__frameworkConnecitonList:
+            if frmk.get_frmkip() == frmk_ip:
+                return fmk
+        return None
+    def get_is_srv_in_list(self,srv_ip):
+        for srv in self.__outputServerConnecitonList:
+            if srv.get_server_ip() == srv_ip:
+                return True
+        return False
+    
     def connect_framework(self):
         '''
             Request each server connection for its framework data and try to connect it.
@@ -254,13 +270,23 @@ class Agent:
         for server_conn in self.__outputServerConnecitonList:
             if server_conn.get_priority() <= self.__currentPriority \
             and server_conn.get_is_alive() and server_conn.get_has_valid_frmkdata():
+            
                 frmk_tmp_id, frmk_tmp_ip, frmk_tmp_port = server_conn.get_framework_data()
-                tmpFrameworkConn = FrameworkConn(self.conf, frmk_tmp_id, frmk_tmp_ip, frmk_tmp_port)
-                if tmpFrameworkConn.connect(attempts=3, waittime=30):
-                    logger.debug("Control Framework (%s:%s) is now enabled!" % (frmk_tmp_ip, frmk_tmp_port))
-                    conn_counter += 1
-                    tmpFrameworkConn.frmk_control_messages()
-                    self.__frameworkConnecitonList.append(tmpFrameworkConn)
+                tmpFrameworkConn = None
+                tryConnect = False
+                if not self.is_frmk_in_list(frmk_tmp_ip):
+                    tmpFrameworkConn = FrameworkConn(self.conf, frmk_tmp_id, frmk_tmp_ip, frmk_tmp_port)
+                    tryConnect = True
+                else:
+                    tmpFrameworkConn=self.get_frmk(frmk_tmp_ip)
+                    if tmpFrameworkConn is not None and not tmpFrameworkConn.frmk_alive():
+                        tryConnect = True
+                if tryConnect:
+                    if tmpFrameworkConn.connect(attempts=3, waittime=30):
+                        logger.debug("Control Framework (%s:%s) is now enabled!" % (frmk_tmp_ip, frmk_tmp_port))
+                        conn_counter += 1
+                        tmpFrameworkConn.frmk_control_messages()
+                        self.__frameworkConnecitonList.append(tmpFrameworkConn)
         if conn_counter == 0:
             logger.warning("No Framework connections available")
         logger.info("----------------------------------- FRAMEWORK CONNECTIONS ENDS------------------------")
@@ -278,7 +304,7 @@ class Agent:
                 if serverdata.get_priority() >= tmpPrioConnectedServer and  serverdata.get_send_events():
                     tmpConnection = ServerConn(serverdata.get_ip(), serverdata.get_port(), serverdata.get_priority(), \
                                                serverdata.get_allow_frmk_data(), serverdata.get_send_events(), self.plugins)
-                    if not serverdata.get_allow_frmk_data():
+                    if serverdata.get_configured_framework():
                         tmpConnection.set_framework_data(serverdata.get_frmk_hostname(), \
                                                          serverdata.get_frmk_ip(), \
                                                          serverdata.get_frmk_port())
@@ -288,6 +314,7 @@ class Agent:
                         Output.add_server_output(tmpConnection, serverdata.get_priority(), serverdata.get_send_events())
                         self.__output_dic[serverdata.get_ip()] = 1
                         self.__connect_to_server_end = True
+                    
                     self.__outputServerConnecitonList.append(tmpConnection)
 
         logger.debug("----------------------------------- SERVER CONNECTIONS ENDS---------------------------")
@@ -454,14 +481,14 @@ class Agent:
                     parser.start()
                     self.detector_objs.append(parser)
                 elif plugin.get("config", "source") == "remote-log":
-                   if plugin_id in self.conn_plugins:
+                    if plugin_id in self.conn_plugins:
                         parser = ParserRemote(self.conf, plugin, self.conn_plugins[plugin_id])
-                   else:
+                    else:
                         parser = ParserRemote(self.conf, plugin, None)
                         logger.info("Remote Log parser.........................................")
 
-                   parser.start()
-                   self.detector_objs.append(parser)
+                    parser.start()
+                    self.detector_objs.append(parser)
 
         logger.info("%d detector rules loaded" % (self.nrules))
 
@@ -480,10 +507,10 @@ class Agent:
             Handle terminate signal
         '''
         if self.getShutDownRunning() == False:
-           logger.info("WARNING: Shutdown received! - Processing it ...!")
-           self.shutdown()
+            logger.info("WARNING: Shutdown received! - Processing it ...!")
+            self.shutdown()
         else:
-           logger.info("WARNING: Shutdown received! - We can't process it because another shutdonw process is running!")
+            logger.info("WARNING: Shutdown received! - We can't process it because another shutdonw process is running!")
 
 
     def shutdown(self):
@@ -581,13 +608,15 @@ class Agent:
                                           self.conf.get("output-server", "port"), priority=0, \
                                           sendEvents=True, allow_frmk_data=False)
                 if self.conf.has_section("control-framework"):
-                    primarySever.set_frmk_data(self.conf.get("control-framework", "id"), \
+                    primarySever.set_frmk_data(socket.gethostname(), \
                                                self.conf.get("control-framework", "ip"), \
                                                self.conf.get("control-framework", "port"))
                 self.__outputServerList.append(primarySever)
                 Stats.add_server(primarySever.get_ip())
         #Regular expression to parse the readed line
-        data_reg_expr = "(?P<server_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}));(?P<server_port>[0-9]{1,5});(?P<send_events>True|False|Yes|No);(?P<allow_frmk_data>True|False|Yes|No);(?P<server_priority>[0-5])"
+        #data_reg_expr = "(?P<server_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}));(?P<server_port>[0-9]{1,5});(?P<send_events>True|False|Yes|No);(?P<allow_frmk_data>True|False|Yes|No);(?P<server_priority>[0-5]);(?P<frmk_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}));(?P<fmrk_port>[0-9]{1,5});(?P<frmk_id>((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)([a-zA-Z])+)))"
+        #data_reg_expr ="(?P<server_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}));(?P<server_port>[0-9]{1,5});(?P<send_events>True|False|Yes|No);(?P<allow_frmk_data>True|False|Yes|No);(?P<server_priority>[0-5]);(?P<frmk_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}));(?P<fmrk_port>[0-9]{1,5});(?P<frmk_id>(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)*\.?)"
+        data_reg_expr ="(?P<server_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}));(?P<server_port>[0-9]{1,5});(?P<send_events>True|False|Yes|No);(?P<allow_frmk_data>True|False|Yes|No);(?P<server_priority>[0-5]);(?P<frmk_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}));(?P<frmk_port>[0-9]{1,5})"
         pattern = re.compile(data_reg_expr)
         if self.conf.has_section("output-server-list"):
             logger.debug("ouptut-server-list section founded! Reading it!")
@@ -599,8 +628,14 @@ class Agent:
                     server_send_events = value_groups.group('send_events')
                     allow_frmk_data = value_groups.group('allow_frmk_data')
                     server_priority = int(value_groups.group('server_priority'))
+                    fmk_ip = value_groups.group('frmk_ip')
+                    fmk_port = value_groups.group('frmk_port')
+                    fmk_id =socket.gethostname() #value_groups.group('frmk_id')
                     logger.debug("Server -> IP: %s , PORT: %s , SEND_EVENTS: %s , ALLOW_FRMK_DATA: %s, PRIORITY:%s" % (server_ip, server_port, server_send_events, allow_frmk_data, server_priority))
-                    self.__outputServerList.append(ServerData(hostname, server_ip, server_port, server_priority, server_send_events, allow_frmk_data))
+                    tmpServer = ServerData(hostname, server_ip, server_port, server_priority, server_send_events, allow_frmk_data)
+                    tmpServer.set_frmk_data(fmk_id,fmk_ip,fmk_port)
+                    self.__outputServerList.append(tmpServer)
+                    
                     Stats.add_server(server_ip)
                 else:
                     logger.warning("Invalid server output (%s = %s),please check your configuration file" % (hostname, data))
@@ -630,7 +665,7 @@ class Agent:
         for server_conn in self.__outputServerConnecitonList:
             if server_conn.get_priority () == prio:
                 if server_conn.get_is_alive():
-                    aliveServers += 1
+                    aliveServers = aliveServers + 1
                     self.__stop_server_counter_array[ server_conn.get_server_ip()] = 0
                     if not self.__output_dic.has_key(server_conn.get_server_ip()):
                         self.__output_dic[server_conn.get_server_ip()] = 1
@@ -670,6 +705,7 @@ class Agent:
                     logger.info("No server with priority %d alive" % tmpPrio)
                 if aliveServers > 0:
                     logger.info("There are %d servers with priority %d alive" % (aliveServers, tmpPrio))
+                    self.connect_framework()
                 if aliveServers == 0 and tmpPrio == 5:
                     tmpPrio = 0
                     #sleep 30 seconds before new pool
@@ -722,18 +758,18 @@ class Agent:
 
         except KeyboardInterrupt:
             if self.getShutDownRunning() == False:
-               logger.info("WARNING! Ctrl+C received! shutdowning")
-               self.shutdown()
+                logger.info("WARNING! Ctrl+C received! shutdowning")
+                self.shutdown()
             else:
-               logger.info("WARNING! Ctrl+C received! Shutdown signal ignored -- Another shutdown process running.")
+                logger.info("WARNING! Ctrl+C received! Shutdown signal ignored -- Another shutdown process running.")
 
         except AgentCritical, e:
             logger.critical(e)
             if self.getShutDownRunning() == False:
-               self.shutdown()
-               logger.info("WARNING! Exception captured, shutdowning!")
+                self.shutdown()
+                logger.info("WARNING! Exception captured, shutdowning!")
             else:
-               logger.info("WARNING! Exception captured! Shutdown signal ignored -- Another shutdown process running")
+                logger.info("WARNING! Exception captured! Shutdown signal ignored -- Another shutdown process running")
 
         except Exception, e:
             logger.error("Unexpected exception: " + str(e))
