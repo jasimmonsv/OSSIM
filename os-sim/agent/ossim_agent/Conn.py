@@ -588,7 +588,7 @@ class FrameworkConn():
 
         else:
             logger.info("Reusing control framework connection (%s:%s) ..." \
-                % (self.server_ip, self.server_port))
+                % (self._framework_ip, self._framework_port))
 
         return self.__conn
 
