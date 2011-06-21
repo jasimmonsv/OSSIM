@@ -823,7 +823,7 @@ class TrafficScan {
 	    /* get the port and IP address of the frameworkd */
 	    $this->address = $ossim_conf->get_conf("frameworkd_address");
 	    $this->port = $ossim_conf->get_conf("frameworkd_port");
-	    $this->timeout = array('sec' => 5, 'usec' => 0);
+	    $this->timeout = array('sec' => 10, 'usec' => 0);
 	    $this->get_available_sensors();
 		$this->nmap_completed_scan = ( empty($scan_path) ) ? "/tmp/nmap_completed_scan_".md5(Session::get_secure_id()).".log" : $scan_path;
     }
