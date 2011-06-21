@@ -361,12 +361,12 @@ class Incident {
         
 		$event = array(
             'src_ips' => array(
-                OSS_IP_ADDRCIDR_0,
+                OSS_SEVERAL_IP_ADDRCIDR_0,
                 OSS_NULLABLE,
                 'illegal:' . _("Source Ips")
             ) ,
             'dst_ips' => array(
-                OSS_IP_ADDRCIDR_0,
+                OSS_SEVERAL_IP_ADDRCIDR_0,
                 OSS_NULLABLE,
                 'illegal:' . _("Dest Ips")
             ) ,

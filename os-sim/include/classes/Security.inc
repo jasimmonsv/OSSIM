@@ -295,6 +295,7 @@ define('OSS_IP_ADDR_0', 'func:valid_ip_2'); //(0.0.0.0. allowed)
 define('OSS_IP_CIDR', 'func:valid_cidr');
 define('OSS_IP_ADDRCIDR', 'func:valid_ipcidr'); // is ip OR cidr format
 define('OSS_IP_ADDRCIDR_0', 'func:valid_ipcidr_2'); // is ip OR cidr format (0.0.0.0. allowed)
+define('OSS_SEVERAL_IP_ADDRCIDR_0', 'func:valid_ipcidr_3'); // several IPs OR CIDRs formats (0.0.0.0. allowed)
 define('OSS_FQDNS', 'func:valid_fqdns');
 define('OSS_QUOTES', 'func:valid_quotes');
 define('OSS_DAY', 'func:valid_day');
@@ -788,6 +789,32 @@ function valid_ipcidr_2($ip) {
     return false;
 }
 
+// Address 0.0.0.0 allowed
+
+function valid_ipcidr_3($ip) {
+    $ok   = true;
+    
+    $ips_cidrs = explode(",", $ip);
+    foreach($ips_cidrs as $data) if ($ok){
+        if ( preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', trim($data), $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] > 0 && $m[5] <= 32 ) {
+            continue;
+        }
+        else if ( preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', trim($data), $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 )  {
+            continue;
+        }
+        else {
+            $ok = false;
+        }
+    }
+    
+    if(!$ok) {
+        ossim_set_error(_("Invalid IP/CIDR address. Format allowed: nnn.nnn.nnn.nnn/nn?") . "<br/>Entered ip: '<b>$ip</b>'");
+        return false;
+    }
+    else {
+        return true;
+    }
+}
 
 function valid_mac($mac)
 {
