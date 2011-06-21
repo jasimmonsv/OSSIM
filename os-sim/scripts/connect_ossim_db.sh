@@ -20,4 +20,7 @@ then
 HOST=localhost
 fi
 
-mysql -u`grep "^user" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="` -h$HOST  -p`grep "^pass" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="` $DB
+#mysql -u`grep "^user" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="` -h$HOST  -p`grep "^pass" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="` $DB
+# Clear empty lines in gre's output, add a space between -h and $HOST
+mysql -u `grep user /etc/ossim/ossim_setup.conf | cut -f 2 -d "=" | sed '/^$/d' ` -h $HOST  -p`grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d "=" | sed '/^$/d'` $DB
+
