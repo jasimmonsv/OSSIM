@@ -829,7 +829,8 @@ elseif ($query == "copy_directive") {
     $dom->dump_file($file);
     release_file($file);
     sleep(0.5);
-    echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_id . "&action=copy_directive&id=" . $new_id . "&xml_file=" . $_GET['directive_xml'] . "'\"></body></html>";
+    echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?level=1&directive=" . $new_id . "&directive_xml=" . $_GET['directive_xml'] . "&category_mini=$mini'\"></body></html>";
+    //echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_id . "&action=copy_directive&id=" . $new_id . "&xml_file=" . $_GET['directive_xml'] . "'\"></body></html>";
     //echo "<html><body><a href=\"../index.php?directive=".$new_id."&action=copy_directive&id=".$new_id."\">test</a></body></html>";
     
 }
