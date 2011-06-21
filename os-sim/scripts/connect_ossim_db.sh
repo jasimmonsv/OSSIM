@@ -20,4 +20,4 @@ then
 HOST=localhost
 fi
 
-mysql -u`grep user /etc/ossim/ossim_setup.conf | cut -f 2 -d "="` -h$HOST  -p`grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d "="` $DB
+mysql -u`grep "^user" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="` -h$HOST  -p`grep "^pass" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="` $DB
