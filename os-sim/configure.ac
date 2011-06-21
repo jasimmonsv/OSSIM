@@ -136,7 +136,6 @@ www/feed/Makefile
 www/hids/Makefile
 www/host/Makefile
 www/incidents/Makefile
-www/maps/Makefile
 www/nagios/Makefile
 www/net/Makefile
 www/ntop/Makefile

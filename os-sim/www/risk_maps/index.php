@@ -528,7 +528,13 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
                         
 						var style = 'background-color:#EFEBDE; padding:2px 5px 2px 5px; border:1px dotted #cccccc; font-size:11px; width: 90%';
 						
-						document.getElementById('selected_msg').innerHTML = "<div style='"+style+"'<strong><?php echo _("Selected type")?></strong>: "+document.f.type.value+" - "+document.f.elem.value+"</div>";
+						var asset_text  = document.f.type.value + " - " + document.f.elem.value;
+						
+						if ( asset_text.length > 35 )
+							asset_text  = "<div style='padding-left: 10px;'>"+ asset_text + "</div>";
+						
+												
+						document.getElementById('selected_msg').innerHTML = "<div style='"+style+"'<strong><?php echo _("Selected type")?></strong>: "+ asset_text+"</div>";
                        
 					    if (document.f.type.value == "host_group" || document.f.type.value == "server") 
                             document.getElementById('linktoreport').style.display = 'none';
@@ -718,8 +724,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				   for (i = 0; i < indicators.length; i++) if (indicators[i].match(/\#\#\#\#/)) 
 				   {
 						var data = indicators[i].split("####");
-						if (data[0] != null) 
-							document.getElementById(data[0]).innerHTML = data[1];
+						var indicator = document.getElementById(data[0]);
+						if ( indicator != null )
+							indicator.innerHTML = data[1];
 						
 				   }
 				   document.getElementById('state').innerHTML = "";

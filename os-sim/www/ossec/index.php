@@ -94,7 +94,7 @@ else
 if ($error == true)
 {
 	$file_xml               = '';
-	$tree_json              = "{title:'<span>".$filename."</span>', icon:'../../../pixmaps/theme/any.png', addClass:'size12', isFolder:'true', key:'1', children:[{title: '<span>"._("No Valid XML File")."</span>', icon:'../../../pixmaps/theme/ltError.gif', addClass:'bold_red', key:'load_error'}]}";
+	$tree_json              = "{title:'<span>".$filename."</span>', icon:'../../pixmaps/theme/any.png', addClass:'size12', isFolder:'true', key:'1', children:[{title: '<span>"._("No Valid XML File")."</span>', icon:'../../pixmaps/theme/ltError.gif', addClass:'bold_red', key:'load_error'}]}";
 	$_SESSION['_tree_json'] = $tree_json;
 	$_SESSION['_tree']      = array();
 }
@@ -115,9 +115,10 @@ else
 	<!-- Dynatree libraries: -->
 	<script type="text/javascript" src="../js/jquery-ui-1.8.custom.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.cookie.js"></script>
-	<script type="text/javascript" src="dynatree/jquery.dynatree.js"></script>
-	<link type="text/css" rel="stylesheet" href="css/ui.dynatree.css" />
+	<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
 		
+	<link type="text/css" rel="stylesheet" href="../style/tree.css" />
+	
 	<!-- Autocomplete libraries: -->
 	<script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 	<link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css"/>
@@ -132,7 +133,7 @@ else
 	<script type='text/javascript'>
 			
 		var messages = new Array();
-			messages[0]  = '<div class="reload"><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"/> <?php echo _("Re-loading data...") ?></div>';
+			messages[0]  = '<div class="reload"><img src="../pixmaps/theme/loading2.gif" border="0" align="absmiddle"/> <?php echo _("Re-loading data...") ?></div>';
 			messages[1]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span><?php echo _("Loading data ... ")?></span>';
 			messages[2]  = '<?php echo _("Failure: File does not exist")?>';
 			messages[3]  = '<?php echo _("Failure to read XML file")?>';

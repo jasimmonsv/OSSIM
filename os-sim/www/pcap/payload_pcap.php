@@ -25,7 +25,7 @@ if (ossim_error()) {
         <script type="text/javascript" src="../js/jquery.dynatree.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-                var loading = '<br><img src="../forensics/images/ltWait.gif" border="0" align="absmiddle"> <?php echo _("Downloading pcap and tshark pdml tree...")?>';
+                var loading = '<br/><img src="../pixmaps/theme/loading2.gif" border="0" align="absmiddle"><span style="margin-left:5px"><?php echo _("Downloading pcap and tshark pdml tree...")?></span>';
                 load_tree('');
                 $('#loading').html(loading);
             });

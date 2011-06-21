@@ -79,7 +79,7 @@ if (ossim_error()) {
 $prev_unique_id = $_SESSION['alarms_unique_id'];
 
 // check required permissions
-if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+if (!$only_close && $move_tag=="" && !Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
 	die(ossim_error("You don't have required permissions to delete Alarms"));
 
 // check unique_id for alarms

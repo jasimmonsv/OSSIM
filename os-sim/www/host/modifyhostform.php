@@ -330,7 +330,7 @@ if ( $error_message != null )
 	<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
 	<script type="text/javascript">
 	
-		messages[6]  = '<div class="reload"><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"/> <?php echo _("Re-loading data...") ?></div>';
+		messages[6]  = '<div class="reload"><img src="../pixmaps/theme/loading2.gif" border="0" align="absmiddle"/> <?php echo _("Re-loading data...") ?></div>';
 		
 		function saveService(){
 			if($('#port').val()<0 || $('#port').val()>65535)

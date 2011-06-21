@@ -56,8 +56,12 @@ $gbw = 370;
 if (preg_match("/\/\d+/",$host)) {
     require_once "ossim_conf.inc";
     $conf = $GLOBALS["CONF"];
-    list($protocol, $ip, $port) = split(':', $conf->get_conf("ntop_link"));
-    $sensor_ip = (!$conf->get_conf("use_ntop_rewrite")) ? "$protocol:$ip:$port" : "$protocol:$ip/ntop";
+    
+    //list($protocol, $ip, $port) = split(':', $conf->get_conf("ntop_link"));
+    //$sensor_ip = (!$conf->get_conf("use_ntop_rewrite")) ? "$protocol:$ip:$port" : "$protocol:$ip/ntop";
+    
+    
+    $sensor_ip = Sensor::get_net_sensor_link($conn, $host);
     
     $source1 = "$sensor_ip/ipProtoDistribution.png";
 	$tit = $title." Service Distribution";
@@ -70,17 +74,18 @@ if (preg_match("/\/\d+/",$host)) {
 	
 	$salida1 = get_headers($source1);
 	$salida2 = get_headers($source2);
-
+    
+    
 	if ((!preg_match("/Not Found/",$salida1[0]) && $salida1 != null)
 		|| !preg_match("/Not Found/",$salida2[0]) && $salida2 != null) { ?>
 	<table align="center" class="noborder">
-		<tr><td class="nobborder" style="text-align:center"><a href="net_report_graphs.php" class="greybox" gbh="<?=$gbh?>" gbw="<?=$gbw?>" title="<?=$tit?>"><?=$tit2?><br><img src="../pixmaps/<?=$graph?>"></a></td></tr>
+		<tr><td class="nobborder" style="text-align:center"><a href="net_report_graphs.php?net=<?php echo urlencode($host);?>" class="greybox" gbh="<?=$gbh?>" gbw="<?=$gbw?>" title="<?=$tit?>"><?=$tit2?><br><img src="../pixmaps/<?=$graph?>"></a></td></tr>
 	</table>
 	<? }
 }
 // Host
 else {
-    $ntop_link = Sensor::get_sensor_link($conn,$host);
+    $ntop_link = Sensor::get_sensor_link($conn, $host);
 	if ($n == 1) {
 		$source = "$ntop_link/hostTimeTrafficDistribution-$host-65535.png?1";
 		$tit = $title." ".gettext("Traffic Sent");

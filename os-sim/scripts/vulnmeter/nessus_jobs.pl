@@ -193,7 +193,7 @@ my $dbpass = `grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($d
 
 my $uuid = "";
 if (-e "/etc/ossim/framework/db_encryption_key") {
-	$uuid = `grep "key" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = "=" } ; {print \$2}'`; chomp($uuid);
+	$uuid = `grep "^key=" /etc/ossim/framework/db_encryption_key | awk 'BEGIN { FS = "=" } ; {print \$2}'`; chomp($uuid);
 } else {
 	$uuid = `dmidecode -s system-uuid`; chomp($uuid);
 }
@@ -1139,6 +1139,7 @@ sub run_nessus {
     open(TARGET,">>$targetfile") or die "Failed to create $targetfile: $!\n";
 
     if($resolve_names eq "1") {
+        disconn_db($dbh);
         if ($meth_CRED eq "1") {
             if ($scan_locally eq "1") {
                 $targets = scan_discover($targets,"");
@@ -1146,7 +1147,7 @@ sub run_nessus {
                 $targets = scan_discover($targets,$fk_name);
             }
         }
-    
+        $dbh = conn_db();
         $targets = filter_assets($targets, $job_id);
     }
     

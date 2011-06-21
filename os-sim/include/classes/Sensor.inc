@@ -479,14 +479,20 @@ class Sensor {
         ))) {
             print $conn->ErrorMsg();
         } elseif (!$rs->EOF) {
-            if (!$conf->get_conf("use_ntop_rewrite")) {
+            /*if (!$conf->get_conf("use_ntop_rewrite")) {
                 list($protocol, $ip, $port) = split(':', $conf->get_conf("ntop_link"));
                 $sensor_ip = "$protocol://" . $rs->fields["ip"] . ":$port";
             } else { //if use_ntop_rewrite is enabled
                 $protocol = "http";
                 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
                 $sensor_ip = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_" . $rs->fields["ip"];
-            }
+            }*/
+            
+            $ntop_links = Sensor::get_ntop_link($rs->fields["ip"]);
+            $sensor_ip = $ntop_links["ntop"];
+            
+            $sensor_ip = preg_replace("/\/$/", "", $sensor_ip);
+            
             return $sensor_ip;
         }
         /* read from network table */
@@ -503,6 +509,7 @@ class Sensor {
                     ))) {
                         print $conn->ErrorMsg();
                     } elseif (!$rs->EOF) {
+                        /*
                         if (!$conf->get_conf("use_ntop_rewrite")) {
                             list($protocol, $ip, $port) = split(':', $conf->get_conf("ntop_link"));
                             $sensor_ip = "$protocol://" . $rs->fields["ip"] . ":$port";
@@ -511,18 +518,76 @@ class Sensor {
                             if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
                             $sensor_ip = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_" . $rs->fields["ip"];
                         }
+                        */
+                        $ntop_links = Sensor::get_ntop_link($rs->fields["ip"]);
+                        $sensor_ip = $ntop_links["ntop"];
+                        
+                        $sensor_ip = preg_replace("/\/$/", "", $sensor_ip);
+            
                         return $sensor_ip;
                     }
                 }
             /*}
         }*/
         /* read from /etc/ossim.conf */
+        
         if ($sensor_ip == '') {
-            $sensor_ip = $conf->get_conf("ntop_link");
+            $components = parse_url($conf->get_conf("ntop_link"));
+            if($components["host"]=="localhost")    return "/ntop_127.0.0.1";
+            else return "/ntop_".$components["host"];
+        }
+    }
+    function get_net_sensor_link($conn, $cidr) {
+        require_once "classes/Net.inc";
+    
+        $conf = $GLOBALS["CONF"];
+    
+        $netname = Net::get_name_by_ip($conn, $cidr);
+        $query = "SELECT ip
+                  FROM sensor, net_sensor_reference 
+                  WHERE name = sensor_name AND net_name = ?";
+        if (!$rs = & $conn->Execute($query, array(
+            $netname
+        ))) {
+            print $conn->ErrorMsg();
+        } elseif (!$rs->EOF) {
+            /*
+            if (!$conf->get_conf("use_ntop_rewrite")) {
+                list($protocol, $ip, $port) = split(':', $conf->get_conf("ntop_link"));
+                $sensor_ip = "$protocol://" . $rs->fields["ip"] . ":$port";
+            } else {
+                $protocol = "http";
+                if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
+                $sensor_ip = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_" . $rs->fields["ip"];
+            }
+            */
+            $ntop_links = Sensor::get_ntop_link($rs->fields["ip"]);
+            $sensor_ip = $ntop_links["ntop"];
+            
+            $sensor_ip = preg_replace("/\/$/", "", $sensor_ip);
+
+            return $sensor_ip;
         }
         
-        return $sensor_ip;
+        if ($sensor_ip == '') {
+            $components = parse_url($conf->get_conf("ntop_link"));
+            if($components["host"]=="localhost")    return "/ntop_127.0.0.1";
+            else return "/ntop_".$components["host"];
+        }
     }
+    function get_ntop_link($sensor) {
+        $protocol = "http";
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
+        $port = "";
+        if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != "80" && $_SERVER['SERVER_PORT'] != "443") $port = ":".$_SERVER['SERVER_PORT'];
+        
+        $ntop = "$protocol://" . $_SERVER['SERVER_NAME'] . $port . "/ntop_" . $sensor. "/";
+        $testntop = "http://127.0.0.1/ntop_" . $sensor. "/"; // "http://".$sensor.":3000/";
+    
+        return( array( "ntop" => $ntop, "testntop" => $testntop ) );
+    
+    }
+    
     function reorder_sensors($conn,$arr) {
 		$sensors = array();
         $sql = "SELECT v.name,v.hostname FROM vuln_nessus_servers v,sensor s WHERE s.ip=v.hostname AND v.enabled=1 order by ( v.current_scans / v.max_scans ) ASC,s.priority DESC";

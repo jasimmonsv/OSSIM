@@ -66,8 +66,8 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
 	<script type="text/javascript">
 		var tab_actual = 'tabs-1';
-		//var loading = '<br><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"> <?php echo _("Loading resource tree, please wait...") ?>';
-		var reloading = '<img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"> <?php echo _("Re-loading data...") ?>';
+		//var loading = '<br><img src="../pixmaps/theme/loading2.gif" border="0" align="absmiddle"> <?php echo _("Loading resource tree, please wait...") ?>';
+		var reloading = '<img src="../pixmaps/theme/loading2.gif" border="0" align="absmiddle"><span style="margin-left:5px"><?php echo _("Re-loading data...")?></span>';
 		var layer = null;
 		var nodetree = null;
 		var suf = "c";
@@ -563,7 +563,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 		.ptab   { font-weight:bold;font-size:12px;}
 		.size10 {font-size:10px;}
 		.tab_table {margin: auto;}
-		.container_ptree {width:350px; padding-top:5px;}
+		.container_ptree {width:450px; padding-top:5px;}
 		textarea { height: 45px; width:100%;}
 		#p_conseq {width: 350px;}
 		#p_conseq th {width: 130px;}

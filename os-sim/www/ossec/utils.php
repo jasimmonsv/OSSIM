@@ -65,7 +65,7 @@ function display_xml_error($error, $xml)
 
 function parserArray($array_xml){
 	$_level_key_name = $_SESSION['_level_key_name'];
-	$image_url = "../../../pixmaps/theme/";
+	$image_url = "../../pixmaps/theme/";
 	
 	foreach($array_xml as $key => $value)
 	{
@@ -224,7 +224,7 @@ function getTitle($key, $item)
 function array2json ($array_xml, $filename)
 {
 	$_level_key_name = $_SESSION['_level_key_name'];
-	$image_url = "../../../pixmaps/theme/";
+	$image_url = "../../pixmaps/theme/";
 	
 	$json .= "{";
 	$at = $array_xml['@attributes'];

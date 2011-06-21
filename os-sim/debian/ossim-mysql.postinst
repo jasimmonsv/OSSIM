@@ -1,67 +1,92 @@
-#!/bin/bash -e
-#set -x
-#. /usr/share/debconf/confmodule
+#!/bin/bash
+# ossim-mysql.postinst
+
 
 case "$1" in
 	configure)
 
 	prof=`cat /etc/ossim/ossim_setup.conf  | grep -v "profile=server" | grep profile | cut -d= -f2`
 	profiles="$(echo $prof | tr ',' ' ')"
-	SERVER="0"
-	DATABASE="0"
-	FRAMEWORK="0"
-	SENSOR="0"
+	SERVER="0"; DATABASE="0"; FRAMEWORK="0"; SENSOR="0"
 	for p in $profiles ; do
-		if [ "$p" == "Server" ]; then
-			SERVER="1"
-		elif [ "$p" == "Database" ]; then
-			DATABASE="1"
-		elif [ "$p" == "Framework" ]; then
-			FRAMEWORK="1"
-		elif [ "$p" == "Sensor" ]; then
-			SENSOR="1"
+		if [ "$p" == "Server" ]; then SERVER="1"
+		elif [ "$p" == "Database" ]; then DATABASE="1"
+		elif [ "$p" == "Framework" ]; then FRAMEWORK="1"
+		elif [ "$p" == "Sensor" ]; then	SENSOR="1"
 		else
-			echo -e "No profiles found.\nDid you install from AV OSSIM installer?"
+			echo -e "No profiles found."
 		fi
 	done
 
-	# Rebuild plugin info on database
+## base plugins .sql files:
 	if [ -f "/etc/ossim/ossim_setup.conf" ]; then
-		find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname \*.sql -printf 'INSERT %f \n' -exec sh -c 'cat {}| ossim-db' \; || true
-		find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname \*.sql.gz -printf 'INSERT %f \n' -exec sh -c 'zcat {}| ossim-db' \; || true
-	fi
-	
-	srdpi="/var/lib/dpkg/info/snort-rules-default.postinst configure"
-	if [ -f "$srdpi" ]; then
-	#        echo -e "\nsnort-rules-default found (updating)..."
-	            /bin/bash "$srdpi"
+		echo "Plugins update:"
+		find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname \*.sql -printf 'INSERT %f \n' -exec sh -c 'cat {} | ossim-db' \; || true
+		find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname \*.sql.gz -printf 'INSERT %f \n' -exec sh -c 'zcat {} | ossim-db' \; || true
 	fi
 
+## run original update scripts:
+# snort update:
+	srdpi="/var/lib/dpkg/info/snort-rules-default.postinst"
+	if [ -f "$srdpi" ]; then
+		echo " snort plugin additional update:"
+		/bin/bash "$srdpi" configure
+	fi
+
+# nessus update:
+	aoppi="/var/lib/dpkg/info/alienvault-openvas-plugins.postinst"
+	if [ -f "$aoppi" ]; then
+		echo " openvas plugin additional update:"
+		/bin/bash "$aoppi" configure
+	fi
+
+# ossec update: 
+# (if required)
+
+# taxonomy update:
 	otpi="/var/lib/dpkg/info/ossim-taxonomy.postinst"
 	if [ -f "$otpi" ]; then
-	#        echo -e "\nossim-taxonomy found (updating)..."
-	            /bin/bash "$otpi"
+		echo " taxonomy update:"
+		/bin/bash "$otpi" configure
 	fi
 
-	if [ "$SERVER" == "1" ]; then
-		if [ -x /etc/init.d/ossim-server ]; then
-			/etc/init.d/ossim-server restart || true
-		else
-			echo -e "/etc/init.d/ossim-server not found or not executable.\nDid you install from AV OSSIM installer?"
+## update (replace) from '_changes' tables
+# user updates:
+	minsreqchema="2.4.33"
+	currschema=`echo "select value from ossim.config where conf='ossim_schema_version';" | ossim-db | grep -v "^value"`
+	if dpkg --compare-versions "$currschema" ge "$minreqschema"; then
+		echo "show tables;"|ossim-db| grep plugin_sid_changes > /dev/null 2>/dev/null
+		if [ $? -eq 0 ]; then
+			echo -n " user changes update: "
+			(echo "REPLACE INTO plugin_sid SELECT * from plugin_sid_changes;" | ossim-db) || true
+			(echo "REPLACE INTO category SELECT * FROM category_changes;" | ossim-db) || true
+			(echo "REPLACE INTO subcategory SELECT * FROM subcategory_changes;" | ossim-db) || true
+			echo "done."
 		fi
+	else
+		echo " skipping user changes. required schema: $minsreqchema. (current: $currschema))"
 	fi
 
 
-	exit 0
-
+# restart server if profile found
+        if [ "$SERVER" == "1" ]; then
+                echo "Server profile found"
+                if [ -x /etc/init.d/ossim-server ]; then
+                        /etc/init.d/ossim-server restart || true
+                else
+                        echo " /etc/init.d/ossim-server not found or not executable."
+                fi
+        fi
     ;;
+
     abort-upgrade|abort-remove|abort-deconfigure)
     ;;
+
     *)
 	echo "postinst called with unknown argument \$1'" >&2
 	exit 1
     ;;
 esac
 
-#DEBHELPER#
 
+exit 0

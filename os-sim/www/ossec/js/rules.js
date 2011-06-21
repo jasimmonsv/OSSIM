@@ -944,10 +944,10 @@ function show_tree(draw_edit, lk, mode)
 				var status = msg.split("###");
 				var tree = status[2];	
 								
-				if ( parseInt(status[0]) != 1) {
+				if ( parseInt(status[0]) != 1 ) {
 					
 					var level_key = "load_error";
-					tree = "{title:'<span>"+rules_files+rule_file+"</span>', icon:'../../../pixmaps/theme/any.png', addClass:'size12', isFolder:'true', key:'1', children:[{title: '<span>"+messages[7]+"</span>', icon:'../../../pixmaps/theme/ltError.gif', addClass:'bold_red', key:'"+level_key+"'}]}";
+					tree = "{title:'<span>"+rules_files+rule_file+"</span>', icon:'../../pixmaps/theme/any.png', addClass:'size12', isFolder:'true', key:'1', children:[{title: '<span>"+messages[7]+"</span>', icon:'../../pixmaps/theme/ltError.gif', addClass:'bold_red', key:'"+level_key+"'}]}";
 				    tree  = Base64.encode(tree);		 
 				}
 				else

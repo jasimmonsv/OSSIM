@@ -155,6 +155,18 @@ if ($what=="hosts") {
         $db->close($conn);
 	}
 }
+else if($what=="sensors") {
+    $frcon = new Frameworkd_socket();
+    if (!$frcon->status) {
+        echo gettext("Can't connect to frameworkd...<br>");
+    }
+    else {
+        $error_code = $frcon->write("refresh_sensor_list");
+        if (!$error_code) {
+            echo _("An error has been found updating the Agent cache...<br>");
+        }
+    }
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">

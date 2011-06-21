@@ -100,9 +100,9 @@ if ($allowedNets == "" && $allowedSensors == "") {
 	if ($debug) echo "ok.\n";
 	
 	// 2) CLEAN TEMP DATABASE NOT ALLOWED EVENTS
+	$snort_temp_conn = $db->snort_custom_connect($snort_name_temp);
 	if ($allowedHosts != "") {
 		if ($debug) echo "Filtering acid_event table...";
-		$snort_temp_conn = $db->snort_custom_connect($snort_name_temp);
 		$sql = "DELETE FROM acid_event WHERE INET_NTOA(ip_src) not in ($allowedHosts) AND INET_NTOA(ip_dst) not in ($allowedHosts)";
 		$snort_temp_conn->Execute($sql);
 		if ($debug) echo "ok.\n";

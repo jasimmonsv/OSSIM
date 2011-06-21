@@ -839,27 +839,29 @@ CREATE TABLE plugin (
 --
 DROP TABLE IF EXISTS plugin_sid;
 CREATE TABLE plugin_sid (
-    plugin_id    INTEGER NOT NULL,
-    sid            INTEGER NOT NULL,
-    category_id    INTEGER,
-    class_id    INTEGER,
-    reliability    INTEGER DEFAULT 1,
-    priority    INTEGER DEFAULT 1,
-    name        VARCHAR (255) NOT NULL,
-    aro         DECIMAL (11,4) NOT NULL DEFAULT 0,
-    subcategory_id INTEGER,
-    KEY `search` ( `plugin_id` , `name` ),
-    PRIMARY KEY (plugin_id, sid)
+  `plugin_id` int(11) NOT NULL,
+  `sid` int(11) NOT NULL,
+  `category_id` int(11) DEFAULT NULL,
+  `class_id` int(11) DEFAULT NULL,
+  `reliability` int(11) DEFAULT '1',
+  `priority` int(11) DEFAULT '1',
+  `name` varchar(255) NOT NULL,
+  `aro` decimal(11,4) NOT NULL DEFAULT '0.0000',
+  `subcategory_id` int(11) DEFAULT NULL,
+   KEY `search` ( `plugin_id` , `name` ),
+   PRIMARY KEY (`plugin_id`,`sid`)
 );
 
 DROP TABLE IF EXISTS plugin_sid_changes;
-CREATE TABLE `plugin_sid_changes` (
+CREATE TABLE plugin_sid_changes (
   `plugin_id` int(11) NOT NULL,
   `sid` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `category_id` int(11) DEFAULT NULL,
+  `class_id` int(11) DEFAULT NULL,
   `reliability` int(11) DEFAULT '1',
   `priority` int(11) DEFAULT '1',
-  `category_id` int(11) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `aro` decimal(11,4) NOT NULL DEFAULT '0.0000',
   `subcategory_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`plugin_id`,`sid`)
 );

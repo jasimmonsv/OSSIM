@@ -726,6 +726,113 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
+	function EventsByPrio($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array(), $order_type = "DESC") {
+        require_once ('classes/Event_viewer.inc');
+        require_once ('classes/Status.inc');
+		
+		$list = array();
+        $temp_conn = $this->snort_conn;
+        
+		$from_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$from_date);
+		$to_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$to_date);
+		
+		if ($order_type == "") $order_type = "DESC";
+		
+		// User sensor filtering
+		$sensor_str_alarm = "";
+		$sensor_str_event = "";
+		if (Session::allowedSensors() != "" || count($sensors)>0) {
+			// ossim
+			//$user_sensors = explode(",",Session::allowedSensors());
+			$user_sensors = (Session::allowedSensors()=="" || !count($sensors)) ? array_merge(explode(",",Session::allowedSensors()),$sensors) : array_intersect(explode(",",Session::allowedSensors()), $sensors);
+			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
+				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
+			$sensor_str_alarm = " AND ($sensor_str) AND e.id=a.event_id";
+			// snort
+			$snortsensors = Event_viewer::GetSensorSids($temp_conn);
+			$sensor_str = "";
+			foreach ($user_sensors as $user_sensor)
+				if (count($snortsensors[$user_sensor]) > 0) $sensor_str .= ($sensor_str != "") ? ",".implode(",",$snortsensors[$user_sensor]) : implode(",",$snortsensors[$user_sensor]);
+			if ($sensor_str == "") $sensor_str = "0";
+			$sensor_str_event = " AND acid_event.sid in (" . $sensor_str . ")";
+		}
+		
+		// plugin groups filter
+		$sql_plugin_groups='';
+
+		if($plugin_groups!=null){
+			switch ($type) {
+				case "alarm":
+					$nameTable='a';
+					break;
+				case "event":
+				default:
+					$nameTable='acid_event';
+			}
+			$groups = Plugingroup::get_list($this->ossim_conn,'plugin_group.group_id='.$plugin_groups);
+			foreach($groups as $group) {
+				$sql_plugin_groups.='AND (';
+				$i=1;
+				foreach($group->get_plugins() as $p) {	
+					if($i!==1){
+						$sql_plugin_groups.=' OR ';
+					}
+					if($p['sids']=='0'||$p['sids']=='ANY'){
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].')';
+					}else{
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].' AND '.$nameTable.'.plugin_sid in ('.$p['sids'].'))';
+					}
+					$i++;
+				}
+				$sql_plugin_groups.=')';
+			}
+		}
+		//
+		
+		if ($sensor_str != "") {
+			$sensor_join = " ,event e";
+			$sql_where .= $sensor_str;
+		} else $sensor_join = "";
+		
+		switch ($type) {
+            case "alarm":
+                return array();
+                break;
+
+            case "event":
+            default:
+                //
+                list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_dst;ip_src",$assets,$sourcetype,$category,$subcategory,1);
+                // 
+                $query = OssimQuery("SELECT plugin_sid.name as sig_name, ossim_priority, acid_event.plugin_id, acid_event.plugin_sid
+                  FROM acid_event $join2 LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' $sensor_str_event
+                  $where2 $sql_plugin_groups GROUP BY acid_event.plugin_id, acid_event.plugin_sid
+                  ORDER BY ossim_priority $order_type LIMIT $limit");
+                $db = new ossim_db();
+				$temp_conn = $db->snort_connect();
+				//$temp_conn = $this->snort_conn;
+        }
+		//echo $query;
+		//exit;
+        if (!$rs = & $temp_conn->Execute($query)) {
+            print $temp_conn->ErrorMsg();
+        } else {
+            while (!$rs->EOF) {
+                $rs->fields['sig_name'] = trim($rs->fields['sig_name']);
+                if ($rs->fields['sig_name']=="")
+                    $rs->fields['sig_name'] = Status::get_unknown_sid_name($this->ossim_conn,$rs->fields['plugin_id'],$rs->fields['plugin_sid']);
+
+                $tmp_array = array(
+                    $rs->fields["sig_name"],
+                    $rs->fields["ossim_priority"]
+                );
+                array_push($list, $tmp_array);
+                $rs->MoveNext();
+            }
+        }
+		if ($type == "event") $db->close($temp_conn);
+        return $list;
+    }
     function PromiscuousHost($conn, $limit = 10, $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array(), $order_type = "DESC") {
         require_once ('classes/Host.inc');
         require_once ('classes/Net.inc');

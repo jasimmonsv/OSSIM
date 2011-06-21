@@ -261,7 +261,7 @@ $nmap_running = Scan::scanning_now();
 		}
 		
 		#process_div {
-			width: 550px;
+			width: 570px;
 			background: transparent;
 			margin: 20px auto;
 		}
@@ -326,7 +326,7 @@ if (!$nmap_exists)
 <div id='error_messages' class='ossim_error'></div>
 
 <form name="assets_form" id="assets_form" method="GET" action="do_scan.php" target="process">
-	<table align="center" style='width: 550px;'>
+	<table align="center" style='width: 570px;'>
 		<tr>
 			<th colspan="2"><?php echo gettext("Please, select the assets you want to scan:") ?></th>
 		</tr>

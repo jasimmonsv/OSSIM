@@ -39,7 +39,8 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "PolicyPolicy");
 
 $key = GET('key');
-ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("key"));
+ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("Key"));
+
 if (ossim_error()) {
     die(_("Invalid Parameter key"));
 }
@@ -49,67 +50,87 @@ if (file_exists($cachefile)) {
     readfile($cachefile);
     exit;
 }
+
 require_once ('classes/Port_group.inc');
 require_once ('ossim_db.inc');
-$db = new ossim_db();
-$conn = $db->connect();
+
+$db          = new ossim_db();
+$conn        = $db->connect();
 $port_groups = array();
-$buffer = "";
-if ($port_group_list = Port_group::get_list($conn, "ORDER BY name")) {
-    foreach($port_group_list as $port_group) {
-        $pg_name = $port_group->get_name();
-        $pg_ports = $port_group->get_reference_ports($conn, $pg_name);
-        $port_groups[] = (!preg_match("/ANY/i", $pg_name)) ? array(
-            $pg_name,
-            $pg_ports
-        ) : array(
-            $pg_name,
-            array()
-        );
+$buffer      = "";
+
+if ($port_group_list = Port_group::get_list($conn, "ORDER BY name")) 
+{
+    foreach($port_group_list as $port_group) 
+	{
+        $pg_name    = $port_group->get_name();
+        $pg_ports   = $port_group->get_reference_ports($conn, $pg_name);
+		$pg_descr   = $port_group->get_descr();
+				
+		if ( !preg_match("/ANY/i", $pg_name) )
+			$port_groups[] = array($pg_name, $pg_ports, $pg_descr);
+		else
+			$port_groups[] = array($pg_name, array(), "");
     }
 }
 
-if($key=="") {
+if( $key =="" ) 
+{
     $buffer .= "[ {title: '"._("Port Groups")."', key:'key1', isFolder:true, icon:'../../pixmaps/theme/ports.png', expand:true\n";
-    if (count($port_groups) > 0) {
-        $buffer .= ", children:[";
+    if (count($port_groups) > 0) 
+	{
         $j = 1;
-        foreach($port_groups as $pg) {
-            $pg_name = utf8_encode($pg[0]);
-			$pg_key = "pg_".base64_encode($pg[0]);
-            $pg_ports = $pg[1];
-            $html = "";
-            if ($pg_name =="ANY")
-                $li = "key:'$pg_key', url:'$pg_name', icon:'../../pixmaps/theme/ports.png', title:'$pg_name'\n";
+		
+		$buffer .= ", children:[";
+        foreach($port_groups as $pg) 
+		{
+            $pg_name   = utf8_encode($pg[0]);
+			$pg_key    = "pg_".base64_encode($pg[0]);
+            $pg_ports  = $pg[1];
+            $tooltip   = ( $pg[2] != '' ) ? ",tooltip:'".$pg[2]."'" : "";
+			
+			$html     = "";
+            if ($pg_name == "ANY")
+                $li = "key:'$pg_key', url:'$pg_name', icon:'../../pixmaps/theme/ports.png', title:'$pg_name', tooltip:'ANY'\n";
             else
-                $li = "key:'$pg_key', isLazy:true, url:'$pg_name', icon:'../../pixmaps/theme/ports.png', title:'$pg_name'\n";
+                $li = "key:'$pg_key', isLazy:true, url:'$pg_name', icon:'../../pixmaps/theme/ports.png', title:'$pg_name' $tooltip\n";
 
-                if ($html != "") $buffer .= (($j > 1) ? "," : "") . "{ $li, children:[ " . preg_replace("/,$/", "", $html) . " ] }\n";
-            else $buffer .= (($j > 1) ? "," : "") . "{ $li }\n";
-            $j++;
+            if ($html != "") 
+				$buffer .= (($j > 1) ? "," : "") . "{ $li, children:[ " . preg_replace("/,$/", "", $html) . " ] }\n";
+            
+			else $buffer .= (($j > 1) ? "," : "") . "{ $li }\n";
+            
+			$j++;
         }
         $buffer .= "]";
     }
     $buffer .= "}]";
 }
 
-else if(preg_match("/pg_(.*)/",$key,$found)) {
-    $html = "";
+else if(preg_match("/pg_(.*)/",$key,$found)) 
+{
+    $html    = "";
     $buffer .= "[";
-    $k=1;
+    $k       = 1;
     $port_list = Port_group_reference::get_list($conn, " where port_group_name = '".base64_decode($found[1])."'");
-    foreach ($port_list as $port) {
-        $protocol_name = $port->get_protocol_name();
+    
+	foreach ($port_list as $port) 
+	{
+        $protocol_name   = $port->get_protocol_name();
         $protocol_number = $port->get_port_number();
-        $html.= "{ key:'$key.$k', url:'noport', icon:'../../pixmaps/theme/ports.png', title:'</font>$protocol_number $protocol_name</font>'},";
-        //if ($k++>$limit) break;
+		
+        $html           .= "{ key:'$key.$k', url:'noport', icon:'../../pixmaps/theme/ports.png', title:'</font>$protocol_number $protocol_name</font>' },";
     }
     
-    if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
-    $buffer .= "]";
+    if ($html != "") 
+		$buffer .= preg_replace("/,$/", "", $html);
+    
+	$buffer .= "]";
 }
-if ($buffer=="" || $buffer=="[]")
-    $buffer = "[{title:'"._("No port groups found")."'}]";
+
+if ( $buffer == "" || $buffer == "[]" )
+    $buffer = "[{title:'"._("No port groups found")."', noLink:true}]";
+
 echo $buffer;
 error_reporting(0);
 $f = fopen($cachefile,"w");
