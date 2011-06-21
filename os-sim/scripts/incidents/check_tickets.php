@@ -11,8 +11,8 @@ $mdays = $conf->get_conf("tickets_max_days", FALSE);
 $db = new ossim_db();
 $dbconn = $db->connect();
 
-
-$result=$dbconn->execute("SELECT id, title, date, ref, type_id, priority, last_update, in_charge, submitter FROM incident WHERE DATEDIFF( now( ) , date ) > $mdays AND STATUS = 'open'");
+$result=$dbconn->execute("SET SESSION time_zone='+00:00'");
+$result=$dbconn->execute("SELECT id, title, date, ref, type_id, priority, last_update, in_charge, submitter FROM incident inner join incident_tag on incident_tag.incident_id=incident.id WHERE DATEDIFF( now( ) , date ) > $mdays AND STATUS = 'open'");
 
 while ( !$result->EOF ) {
     //echo $result->fields["in_charge"];
