@@ -52,7 +52,7 @@ from Logger import Logger
 from Output import Output
 from Stats import Stats
 from Conn import ServerConn, FrameworkConn, ServerData
-from ConnPro import ServerConnPro
+#from ConnPro import ServerConnPro
 from Exceptions import AgentCritical
 from ParserUnifiedSnort import ParserUnifiedSnort
 from ParserDatabase import ParserDatabase
@@ -158,7 +158,7 @@ class Agent:
 
         self.detector_objs = []
         self.watchdog = None
-        self.shutdown_running = False;
+        self.shutdown_running = False
         #output server list.
         self.__outputServerList = []
         self.__outputServerConnecitonList = []
@@ -252,7 +252,7 @@ class Agent:
         return False
     def get_frmk(self,frmk_ip):
         for fmk in self.__frameworkConnecitonList:
-            if frmk.get_frmkip() == frmk_ip:
+            if fmk.get_frmkip() == frmk_ip:
                 return fmk
         return None
     def get_is_srv_in_list(self,srv_ip):
@@ -481,14 +481,14 @@ class Agent:
                     parser.start()
                     self.detector_objs.append(parser)
                 elif plugin.get("config", "source") == "remote-log":
-                   if plugin_id in self.conn_plugins:
+                    if plugin_id in self.conn_plugins:
                         parser = ParserRemote(self.conf, plugin, self.conn_plugins[plugin_id])
-                   else:
+                    else:
                         parser = ParserRemote(self.conf, plugin, None)
                         logger.info("Remote Log parser.........................................")
 
-                   parser.start()
-                   self.detector_objs.append(parser)
+                    parser.start()
+                    self.detector_objs.append(parser)
 
         logger.info("%d detector rules loaded" % (self.nrules))
 
@@ -507,10 +507,10 @@ class Agent:
             Handle terminate signal
         '''
         if self.getShutDownRunning() == False:
-           logger.info("WARNING: Shutdown received! - Processing it ...!")
-           self.shutdown()
+            logger.info("WARNING: Shutdown received! - Processing it ...!")
+            self.shutdown()
         else:
-           logger.info("WARNING: Shutdown received! - We can't process it because another shutdonw process is running!")
+            logger.info("WARNING: Shutdown received! - We can't process it because another shutdonw process is running!")
 
 
     def shutdown(self):
@@ -758,18 +758,18 @@ class Agent:
 
         except KeyboardInterrupt:
             if self.getShutDownRunning() == False:
-               logger.info("WARNING! Ctrl+C received! shutdowning")
-               self.shutdown()
+                logger.info("WARNING! Ctrl+C received! shutdowning")
+                self.shutdown()
             else:
-               logger.info("WARNING! Ctrl+C received! Shutdown signal ignored -- Another shutdown process running.")
+                logger.info("WARNING! Ctrl+C received! Shutdown signal ignored -- Another shutdown process running.")
 
         except AgentCritical, e:
             logger.critical(e)
             if self.getShutDownRunning() == False:
-               self.shutdown()
-               logger.info("WARNING! Exception captured, shutdowning!")
+                self.shutdown()
+                logger.info("WARNING! Exception captured, shutdowning!")
             else:
-               logger.info("WARNING! Exception captured! Shutdown signal ignored -- Another shutdown process running")
+                logger.info("WARNING! Exception captured! Shutdown signal ignored -- Another shutdown process running")
 
         except Exception, e:
             logger.error("Unexpected exception: " + str(e))

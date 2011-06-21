@@ -156,7 +156,7 @@ foreach my $file (@files) {
                 $pre_filter =~ s/ .*//; # keep just the first filter expression
                 $pre_filter =~ s/\./\\./g;
                 $pre_filter =~ s/#/\|/g;
-                $pre_filter =~ s//[^\=]+\=//;
+                $pre_filter =~ s/[^\=]+\=//;
                 $pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\" |egrep -l \"$pre_filter\"|" : "$order_by \"$file\" |egrep -l \"$pre_filter\"|"; # -l stops on the first match
             } else {
                 $pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\"|" : "$order_by \"$file\" |";

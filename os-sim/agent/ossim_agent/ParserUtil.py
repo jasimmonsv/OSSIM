@@ -838,7 +838,7 @@ class HostResolv():
         ''' Refresh the HOST dynamic cache'''
         #action="refresh_asset_list" list={ossim-unstable-pro=192.168.2.18,crosa=192.168.2.130} id=all transaction="50653"
         logger.info("Updating dynamic host cache... %s" % data)
-        HostResolv.HOST_RESOLV_DYNAMIC_CACHE.clear()
+        #HostResolv.HOST_RESOLV_DYNAMIC_CACHE.clear()
         pattern = "action=\"refresh_asset_list\"\s+list={(?P<list>.*)}"
         ipv4_reg = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         hostname_valid = "(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])"
@@ -857,6 +857,9 @@ class HostResolv():
                     for hostname in hostname_list:
                         hostname = hostname.strip()
                         if re.match(ipv4_reg, ip) and re.match(hostname_valid, hostname):
+                            if HostResolv.has_key(hostname):
+                                if HostResolv[hostname]!=ip:
+                                    logger.warning("Host: %s change ip address from :%s to %s" % (hostname,HostResolv[hostname],ip))
                             HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
                             logger.info("Adding host/ip to cache %s->%s" % (hostname,ip))
         HostResolv.printCache()
