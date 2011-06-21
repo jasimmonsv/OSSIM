@@ -420,7 +420,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     qroPrintEntry($solera.' '.$incident.' <INPUT TYPE="checkbox" NAME="action_chk_lst[' . $i . ']" VALUE="' . htmlspecialchars($tmp_rowid) . '">',"","","","style='border-left:1px solid white;border-top:1px solid white' nowrap");
     echo '    <INPUT TYPE="hidden" NAME="action_lst['.$i.']" VALUE="'.htmlspecialchars($tmp_rowid).'">';
     // 2- Signature    
-    $temp = "$antes <A HREF='base_qry_alert.php?submit=" . rawurlencode($tmp_rowid) . "&amp;sort_order=";
+    $temp = "$antes <A class='trlnk' HREF='base_qry_alert.php?submit=" . rawurlencode($tmp_rowid) . "&amp;sort_order=";
     $temp.= ($qs->isCannedQuery()) ? $qs->getCurrentCannedQuerySort() : $qs->getCurrentSort();
     $temp.= "'>" . $despues . "</a>"; // $tmpsig[1]
     $cell_data['SIGNATURE'] = $temp;

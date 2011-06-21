@@ -734,6 +734,8 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 	//
 	<?=$ipsel?>
 	
+    var nogb=false;	
+	
 	function postload() {
 		// CAPTURE ENTER KEY
 		$("#search_str").bind("keydown", function(event) {
@@ -866,6 +868,20 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 		if (typeof gen_timeline == 'function') gen_timeline();
 		// report
 		if (typeof parent.launch_form == 'function') parent.launch_form();
+		//
+		$('a.trlnk').each(function() {
+			$(this).click(function() {
+				nogb=true;
+			});
+		});	
+		$('.trcell').each(function() {
+			$(this).click(function() {
+				if (!nogb) {
+					GB_show_nohide("<?=_("Event details")?>",$('a.trlnk',this).attr('href')+'&minimal_view=1&noback=1',500,'80%');
+					return false;
+				}
+			});
+		});
 	}
 	function bgtask() {
 		$.ajax({
@@ -972,6 +988,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 	}
 	
     function GB_hide() { document.location.reload() }
+    function GB_onclose() { nogb=false; }
     function fill_subcategories() {
     	var idcat = $('#category').val();
     	if (idcat!="") {

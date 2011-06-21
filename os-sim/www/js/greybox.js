@@ -42,6 +42,29 @@ function GB_show(caption, url, height, width) {
   $("#GB_window").append("<iframe id='GB_frame' name='GB_frame' src='"+url+"' frameborder='0'></iframe>");
 }
 
+function GB_show_nohide(caption, url, height, width) {
+  GB_HEIGHT = height || 400;
+  GB_WIDTH = width || 400;
+  GB_URL_AUX = url;
+
+  if(!GB_DONE) {
+	$(document.body).append("<div id='GB_overlay" + GB_TYPE + "'></div><div id='GB_window'><div id='GB_head'><div id='GB_caption'></div><div id='GB_table'><table><tr><td><img src='/ossim/pixmaps/theme/close.png' id='GB_closeimg' alt='Close' title='Close'></td></tr></table></div></div></div>");
+	$("#GB_overlay" + GB_TYPE).click(GB_onlyhide);
+	$("#GB_closeimg").click(GB_onlyhide);
+	$(window).resize(GB_position);
+	GB_DONE = true;
+  }
+  $("#GB_frame").remove();
+  $("#GB_caption").html(caption);
+  $("#GB_overlay" + GB_TYPE).show();
+  GB_position();
+
+  $("#GB_window").show();
+
+  if (GB_SLEEP>0) sleep(GB_SLEEP);
+  $("#GB_window").append("<iframe id='GB_frame' name='GB_frame' src='"+url+"' frameborder='0'></iframe>");
+}
+
 function sleep(milliseconds) {
   var start = new Date().getTime();
   for (var i = 0; i < 1e7; i++) {
@@ -49,6 +72,11 @@ function sleep(milliseconds) {
       break;
     }
   }
+}
+
+function GB_onlyhide() {
+  $("#GB_window,#GB_overlay" + GB_TYPE).hide();
+  if (typeof(GB_onclose) == "function") GB_onclose(GB_URL_AUX);
 }
 
 function GB_hide() {
@@ -91,5 +119,3 @@ function GB_position() {
   $("#GB_window").css({ width: ww, height: hw, left: ((w - wp)/2)+"px", top: (sy+hy)+"px" });
   $("#GB_frame").css("height",hw);
 }
-
-

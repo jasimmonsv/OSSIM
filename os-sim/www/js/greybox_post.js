@@ -12,9 +12,9 @@ var GB_DONE   = false;
 var GB_TYPE   = ''; // empty or "w"
 var GB_HEIGHT = 400;
 var GB_WIDTH  = 400;
-//var GB_SCROLL_DIFF = (navigator.appVersion.match(/MSIE/)) ? 1 : ((navigator.appCodeName.match(/Mozilla/)) ? 20 : 17 );
+var GB_SCROLL_DIFF = (navigator.appVersion.match(/MSIE/)) ? 1 : ((navigator.appCodeName.match(/Mozilla/)) ? 17 : 17 );
 //var GB_HDIFF = (navigator.appVersion.match(/MSIE/)) ? 12 : ((navigator.appCodeName.match(/Mozilla/)) ? 42 : 18 );
-var GB_HDIFF = 20;
+var GB_HDIFF = 5;
 var GB_SLEEP = (navigator.appVersion.match(/MSIE/)) ? 1000 : 0;
 var GB_URL_AUX = "";
 
@@ -66,7 +66,9 @@ function GB_position() {
   if (self.innerWidth > w) w = self.innerWidth;
   if (de && de.clientWidth > w) w = de.clientWidth;
   if (document.body.clientWidth > w) w = document.body.clientWidth;
-    
+  
+  w = w - GB_SCROLL_DIFF; 
+   
   // total document height
   var h = document.body.scrollHeight
   if ((self.innerHeight+window.scrollMaxY) > h) h = self.innerHeight+window.scrollMaxY;
@@ -74,14 +76,15 @@ function GB_position() {
   if (document.body.clientHeight > h) h = document.body.clientHeight;
 
   $("#GB_overlay" + GB_TYPE).css({width:(w)+"px",height:(h)+"px"});
-  var sy = document.documentElement.scrollTop || document.body.scrollTop;
+   
+  var sy_correction = (navigator.appVersion.match(/MSIE/)) ? 30 : 0; 
+  var sy = document.documentElement.scrollTop || document.body.scrollTop - sy_correction;
   var ww = (typeof(GB_WIDTH) == "string" && GB_WIDTH.match(/\%/)) ? GB_WIDTH : GB_WIDTH+"px";
   var wp = (typeof(GB_WIDTH) == "string" && GB_WIDTH.match(/\%/)) ? w*(GB_WIDTH.replace(/\%/,''))/100 : GB_WIDTH;
   
-  var hw = (typeof(GB_HEIGHT) == "string" && GB_HEIGHT.match(/\%/)) ? GB_HEIGHT : GB_HEIGHT+"px";
+  var hw = (typeof(GB_HEIGHT) == "string" && GB_HEIGHT.match(/\%/)) ? GB_HEIGHT- GB_HDIFF : (GB_HEIGHT- GB_HDIFF)+"px";
   var hy = (typeof(GB_HEIGHT) == "string" && GB_HEIGHT.match(/\%/)) ? (document.body.clientHeight-document.body.clientHeight*(GB_HEIGHT.replace(/\%/,''))/100)/2 : 32;
   
-  $("#GB_window").css({ width: ww, height: hw,
-    left: ((w - wp)/2)+"px", top: (sy+hy)+"px" });
+  $("#GB_window").css({ width: ww, height: hw, left: ((w - wp)/2)+"px", top: (sy+hy)+"px" });
   $("#GB_frame").css("height",hw);
 }
