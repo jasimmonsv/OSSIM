@@ -266,7 +266,7 @@ class Agent:
             Request each server connection for its framework data and try to connect it.
         '''
         conn_counter = 0
-        logger.info("----------------------------------- FRAMEWORK CONNECTIONS ----------------------------")
+        
         for server_conn in self.__outputServerConnecitonList:
             if server_conn.get_priority() <= self.__currentPriority \
             and server_conn.get_is_alive() and server_conn.get_has_valid_frmkdata():
@@ -274,22 +274,27 @@ class Agent:
                 frmk_tmp_id, frmk_tmp_ip, frmk_tmp_port = server_conn.get_framework_data()
                 tmpFrameworkConn = None
                 tryConnect = False
-                if not self.is_frmk_in_list(frmk_tmp_ip):
+                inlist = self.is_frmk_in_list(frmk_tmp_ip)
+                if not inlist:
                     tmpFrameworkConn = FrameworkConn(self.conf, frmk_tmp_id, frmk_tmp_ip, frmk_tmp_port)
                     tryConnect = True
                 else:
                     tmpFrameworkConn=self.get_frmk(frmk_tmp_ip)
                     if tmpFrameworkConn is not None and not tmpFrameworkConn.frmk_alive():
                         tryConnect = True
+                    else:
+                        conn_counter = 1
+                        
                 if tryConnect:
                     if tmpFrameworkConn.connect(attempts=3, waittime=30):
                         logger.debug("Control Framework (%s:%s) is now enabled!" % (frmk_tmp_ip, frmk_tmp_port))
                         conn_counter += 1
                         tmpFrameworkConn.frmk_control_messages()
-                        self.__frameworkConnecitonList.append(tmpFrameworkConn)
+                        if not inlist:
+                            self.__frameworkConnecitonList.append(tmpFrameworkConn)        
         if conn_counter == 0:
             logger.warning("No Framework connections available")
-        logger.info("----------------------------------- FRAMEWORK CONNECTIONS ENDS------------------------")
+        
 
 
     def connect_server(self):

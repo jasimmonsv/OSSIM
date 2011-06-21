@@ -629,10 +629,12 @@ class FrameworkConn():
             except socket.error, e:
                 logger.error(e)                
                 if not self.__tryReconect:
+                    self.__alive = False
                     self.reconnect()                    
 
             except AttributeError, e: # self.__conn == None
                 if not self.__tryReconect:
+                    self.__alive = False                    
                     self.reconnect()                    
 
             else:
@@ -681,8 +683,7 @@ class FrameworkConn():
                 char = self.__conn.recv(1)
 
             except socket.timeout, e:
-                logger.debug("Timed out waiting!")
-                self.__alive = False
+                logger.debug("Timed out waiting!")             
 
             except socket.error, e:
                 logger.error('Error receiving data from the control framework: %s' % str(e))
