@@ -206,7 +206,9 @@ if (count($delete) > 0) {
   					<input type="button" class="button" name="deleteB" value="<?php echo gettext("Purge"); ?>" type="submit" onclick="boton(this.form, 'delete')"  <?php echo ($isDisabled) ? "disabled" : "" ?> />
   				</td>
   			</tr>
+  			<?php if ($pro) { ?>
   			<tr><td colspan="3" class="nobborder"><table class="transparent"><tr><td class="nobborder"><input type="checkbox" name="nomerge" value="nomerge" checked="checked"></input></td><td class="nobborder"><?php echo _("Restore into a new database") ?></td></tr></table></td></tr>
+  			<?php } ?>
   		</table>
   		<input type="hidden" name="perform" value="">
   		</form>

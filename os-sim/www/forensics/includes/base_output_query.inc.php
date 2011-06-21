@@ -252,10 +252,10 @@ function qroReturnSelectALLCheck() {
 function qroPrintEntryHeader($prio = 1, $color = 0, $more = "", $forced_color="") {
     global $priority_colors;
     if ($color == 1) {
-        echo '<TR BGCOLOR="#' . $priority_colors[$prio] . '" ' . $more . '>';
+        echo '<TR class="trcell" BGCOLOR="#' . $priority_colors[$prio] . '" ' . $more . '>';
     } else {
         $bgcolor = ($forced_color!="") ? $forced_color : (($prio % 2 == 0) ? "EEEEEE" : "FFFFFF");
-        echo '<TR BGCOLOR="#' . $bgcolor . '" ' . $more . '>';
+        echo '<TR class="trcell" BGCOLOR="#' . $bgcolor . '" ' . $more . '>';
     }
 }
 function qroPrintEntry($value, $halign = "center", $valign = "top", $passthru = "", $bgcolor = "") {

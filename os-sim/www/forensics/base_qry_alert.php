@@ -47,12 +47,12 @@ function PrintCleanURL() {
     if ((isset($_GET['asciiclean']) && $_GET['asciiclean'] == 1) || (isset($_COOKIE['asciiclean']) && ($_COOKIE['asciiclean'] == "clean") && (!isset($_GET['asciiclean'])))) {
         //create link to non-cleaned payload display
         $url = '<center><a href="base_qry_alert.php?' . $query;
-        $url.= '&amp;sort_order=' . urlencode($sort_order) . '&amp;asciiclean=0">' . gettext("Normal Display") . '</a></center>';
+        $url.= '&amp;sort_order=' . urlencode($sort_order) . '&amp;asciiclean=0&amp;minimal_view='.$_GET['minimal_view'].'">' . gettext("Normal Display") . '</a></center>';
         return $url;
     } else {
         //create link to cleaned payload display
         $url = '<center><a href="base_qry_alert.php?' . $query;
-        $url.= '&amp;sort_order=' . urlencode($sort_order) . '&amp;asciiclean=1">' . gettext("Plain Display") . '</a></center>';
+        $url.= '&amp;sort_order=' . urlencode($sort_order) . '&amp;asciiclean=1&amp;minimal_view='.$_GET['minimal_view'].'">' . gettext("Plain Display") . '</a></center>';
         return $url;
     }
 }
@@ -61,10 +61,10 @@ function PrintBinDownload($db, $cid, $sid) {
     $query = CleanVariable($_SERVER["QUERY_STRING"], VAR_PERIOD | VAR_DIGIT | VAR_PUNC | VAR_LETTER);
     if (isset($_GET['asciiclean']) && ($_GET['asciiclean'] == 1) || ((isset($_COOKIE['asciiclean']) && $_COOKIE['asciiclean'] == "clean") && (!isset($_GET['asciiclean'])))) {
         $url = '<center><a href="base_payload.php?' . $query;
-        $url.= '&amp;download=1&amp;cid=' . urlencode($cid) . '&amp;sid=' . urlencode($sid) . '&amp;asciiclean=1">Download of Payload</a></center>';
+        $url.= '&amp;download=1&amp;cid=' . urlencode($cid) . '&amp;sid=' . urlencode($sid) . '&amp;asciiclean=1&amp;minimal_view='.$_GET['minimal_view'].'">'._("Download of Payload").'</a></center>';
     } else {
         $url = '<center><a href="base_payload.php?' . $query;
-        $url.= '&amp;download=1&amp;cid=' . urlencode($cid) . '&amp;sid=' . urlencode($sid) . '&amp;asciiclean=0">Download of Payload</a></center>';
+        $url.= '&amp;download=1&amp;cid=' . urlencode($cid) . '&amp;sid=' . urlencode($sid) . '&amp;asciiclean=0&amp;minimal_view='.$_GET['minimal_view'].'">'._("Download of Payload").'</a></center>';
     }
     return $url;
 }
@@ -77,10 +77,10 @@ function PrintPcapDownload($db, $cid, $sid) {
     $query = CleanVariable($_SERVER["QUERY_STRING"], VAR_PERIOD | VAR_DIGIT | VAR_PUNC | VAR_LETTER);
     if ((isset($_GET['asciiclean']) && $_GET['asciiclean'] == 1) || (isset($_COOKIE['asciiclean']) && ($_COOKIE["asciiclean"] == "clean") && (!isset($_GET['asciiclean'])))) {
         $url = '<center><a href="base_payload.php?' . $query;
-        $url.= '&amp;download=' . urlencode($type) . '&amp;cid=' . urlencode($cid) . '&amp;sid=' . urlencode($sid) . '&amp;asciiclean=1">Download in pcap format</a></center>';
+        $url.= '&amp;download=' . urlencode($type) . '&amp;cid=' . urlencode($cid) . '&amp;sid=' . urlencode($sid) . '&amp;asciiclean=1&amp;minimal_view='.$_GET['minimal_view'].'">'._("Download in pcap format").'</a></center>';
     } else {
         $url = '<center><a href="base_payload.php?' . $query;
-        $url.= '&amp;download=' . urlencode($type) . '&amp;cid=' . urlencode($cid) . '&amp;sid=' . urlencode($sid) . '&amp;asciiclean=0">Download in pcap format</a></center>';
+        $url.= '&amp;download=' . urlencode($type) . '&amp;cid=' . urlencode($cid) . '&amp;sid=' . urlencode($sid) . '&amp;asciiclean=0&amp;minimal_view='.$_GET['minimal_view'].'">'._("Download in pcap format").'</a></center>';
     }
     return $url;
 }
@@ -122,7 +122,7 @@ function PrintPacketLookupBrowseButtons2($seq, $order_by_tmp, $where_tmp, $db, &
     $result2->baseFreeRows();
 }
 function showShellcodeAnalysisLink($cid, $sid, $signature) {
-    $url = (!preg_match("/shellcode/i",$signature)) ? '' : '<center><a href="shellcode.php?cid=' . $cid . '&amp;sid=' . $sid . '">Shellcode Analysis</a></center>';
+    $url = (!preg_match("/shellcode/i",$signature)) ? '' : '<center><a href="shellcode.php?cid=' . $cid . '&amp;sid=' . $sid . '">'._("Shellcode Analysis").'</a></center>';
     return $url;
 }
 function PrintPacketLookupBrowseButtons($seq, $save_sql, $db, &$previous_button, &$next_button) {

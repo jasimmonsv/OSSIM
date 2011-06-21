@@ -8,7 +8,7 @@ Standards-Version: 3.7.2
 Package: ossim-agent
 Architecture: all
 Suggests: arpwatch, nmap, ntop, osiris, p0f, pads, snort, tcptrack
-Depends: ${python:Depends}, lsb-base (>= 3.0-6), python-adodb, python-mysqldb, python-paramiko, python-pymssql, openvas-scanner, python-tz, alienvault-openvas-plugins
+Depends: ${python:Depends}, lsb-base (>= 3.0-6), python-adodb, python-mysqldb, python-paramiko, python-pymssql, openvas-scanner, python-tz, alienvault-openvas-plugins, python-libpcap
 Description: Open Source Security Information Management (Agent)
  OSSIM is a distribution of open source products that are integrated
  to provide an infrastructure for security monitoring. It provides a

@@ -253,9 +253,11 @@ class Backup {
 		</script>
 		<?php }
 		session_write_close();
-    	while (count($pfiles = Backup::get_current_processes()) > 0) {
+		$error = "";
+    	while (count($pfiles = Backup::get_current_processes()) > 0 && $error == "") {
         	$reloc = true;
     		foreach ($pfiles as $bid => $file) {
+    			if ($error != "") continue;
     			ob_flush();
 	    		flush();
 	    		$ndates = 1;
@@ -268,27 +270,29 @@ class Backup {
 	            $perc = 0;
 	            foreach ($lines as $l) {
 	            	if (trim($l) != "") {
-	            		$line = trim($l);
-	            		if (preg_match("/^Launching/",$line)) {
+	            		if (preg_match("/^Launching/",$l)) {
 	            			$perc += $inc;
+	            			$line = trim($l);
 	            		} else {
 	            			$error .= $line."<br>";
+	            			$reloc = false;
 	            		}
 	            	}
 	            }
-	    		?><script type="text/javascript">$("#pbar_<?php echo $bid ?>").progressBar(<?php echo floor($perc) ?>);$("#progressText_<?php echo $bid ?>").html('<?php echo $line ?>...');</script><?php
+	    		if ($error != "") {
+		        	?><script type="text/javascript">$("#loading").hide();</script><?php
+		    		echo _("An error has occured executing")." '<b>$data_dir/scripts/restoredb.pl</b>':<br><b>'$error'</b>";
+		        } elseif($line != "") {
+	    			?><script type="text/javascript">$("#pbar_<?php echo $bid ?>").progressBar(<?php echo floor($perc) ?>);$("#progressText_<?php echo $bid ?>").html('<?php echo $line ?>...');</script><?php
+		        }
         	}
     		sleep(3);
         }
 		}
-        if ($error != "") {
-        	?><script type="text/javascript">$("#loading").hide();</script><?php
-    		echo _("An error has occured executing")." '<b>$data_dir/scripts/restoredb.pl</b>':<br><b>'$error'</b>";
-        } elseif ($reloc) {
+        if ($reloc) {
         	?><script type="text/javascript">parent.location.href="index.php";</script><?php
         }
     }
 } //class backup
 
 ?>
-
