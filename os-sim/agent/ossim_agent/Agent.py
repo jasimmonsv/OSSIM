@@ -252,7 +252,7 @@ class Agent:
         return False
     def get_frmk(self,frmk_ip):
         for fmk in self.__frameworkConnecitonList:
-            if frmk.get_frmkip() == frmk_ip:
+            if fmk.get_frmkip() == frmk_ip:
                 return fmk
         return None
     def get_is_srv_in_list(self,srv_ip):
