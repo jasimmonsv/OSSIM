@@ -392,7 +392,7 @@ function get_logger_servers($conn_aux) {
 			$name = $db->get_name();		
 			$ip = $db->get_ip();
 			if ($ip == $_SERVER['SERVER_ADDR']) $ip = "127.0.0.1";
-			ossim_valid(GET($name), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal: server '.$name);
+			ossim_valid(GET($name), OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal: server '.$name);
 			if ((GET($name) != "" && GET("num_servers") != "") || GET("num_servers") == "") {
 				$cmd = 'sudo /usr/share/ossim/www/sem/test_remote_ssh.pl '.$ip;
 				$res = explode("\n",`$cmd`);
