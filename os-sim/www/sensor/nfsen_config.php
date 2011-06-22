@@ -24,6 +24,9 @@ ossim_valid($restart, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("restart"));
 if (ossim_error()) {
 	echo _("You must fill all inputs");
 } else {
+	require_once ('ossim_conf.inc');
+	$ossim_conf = $GLOBALS["CONF"];
+	$main_ip = $ossim_conf->get_conf("frameworkd_address");
 	$nfsen_sensors = get_nfsen_sensors();
 	if ($delete) {
 		if ($nfsen_sensors[$name] != "") {
@@ -42,7 +45,7 @@ if (ossim_error()) {
 		$nfsen_sensors[$name]['type'] = $type;
 		set_nfsen_sensors($nfsen_sensors);
 		nfsen_reset();
-		echo str_replace("IP",$ip,str_replace("PORT",$port,_("You should now configure your Flows generator to send Flows to IP port PORT")));
+		echo str_replace("IP",$main_ip,str_replace("PORT",$port,_("You should now configure your Flows generator to send Flows to IP port PORT. A new exception must be created in AlienVault firewall")));
 	}
 }
 ?>
