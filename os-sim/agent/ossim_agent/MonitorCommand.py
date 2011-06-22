@@ -33,7 +33,8 @@
 #
 import commands
 import string
-
+from Config import Conf, Plugin, Aliases, CommandLineOptions
+import Config
 #
 # LOCAL IMPORTS
 #

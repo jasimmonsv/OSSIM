@@ -38,7 +38,8 @@ import socket
 #
 from Logger import Logger
 from Monitor import Monitor
-
+from Config import Conf, Plugin, Aliases, CommandLineOptions
+import Config
 #
 # GLOBAL VARIABLES
 #

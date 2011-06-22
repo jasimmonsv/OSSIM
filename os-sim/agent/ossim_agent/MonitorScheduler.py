@@ -39,7 +39,8 @@ import time
 #
 from EventList import EventList
 from Logger import Logger
-
+from Config import Conf, Plugin, Aliases, CommandLineOptions
+import Config
 #
 # GLOBAL VARIABLES
 #
