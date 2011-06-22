@@ -56,7 +56,7 @@ init_categories();
 $pattern = "/firefox/i";
 $test = preg_match($pattern, $_SERVER['HTTP_USER_AGENT']);
 if ($test == 0) $cols = "262,100%";
-else $cols = "280,100%";
+else $cols = "350,100%";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
