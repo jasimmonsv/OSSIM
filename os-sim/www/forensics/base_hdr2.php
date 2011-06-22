@@ -869,7 +869,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 		// report
 		if (typeof parent.launch_form == 'function') parent.launch_form();
 		//
-		$('a.trlnk').each(function() {
+		$('a.trlnk,a.trlnka').each(function() {
 			$(this).click(function() {
 				nogb=true;
 			});
@@ -877,7 +877,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 		$('.trcell').each(function() {
 			$(this).click(function() {
 				if (!nogb) {
-					GB_show_nohide("<?=_("Event details")?>",$('a.trlnk',this).attr('href')+'&minimal_view=1&noback=1',500,'80%');
+					GB_show_nohide("<?=_("Event details")?>",$('a.trlnka',this).attr('href')+'&minimal_view=1&noback=1',500,'80%');
 					return false;
 				}
 			});
