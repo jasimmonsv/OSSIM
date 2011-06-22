@@ -1,4 +1,6 @@
 <?php
+ini_set("max_execution_time","300"); 
+
 require_once ('classes/Security.inc');
 
 $scan_name    = GET("scan_name");
@@ -63,7 +65,7 @@ if (ossim_error()) {
             }
         </script>
 		<style type='text/css'>
-			.ul.dynatree-container {border:none !important;}
+			.dynatree-container{ border:none !important;}
 		</style>
     </head>
     <body>

@@ -34,6 +34,8 @@
 * Function list:
 * Classes list:
 */
+ini_set("max_execution_time","300"); 
+
 require_once ('classes/Security.inc');
 require_once ('classes/Util.inc');
 require_once ('classes/Session.inc');

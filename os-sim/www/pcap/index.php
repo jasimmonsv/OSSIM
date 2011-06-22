@@ -5,6 +5,7 @@
 *   All rights reserved.
 *
 ****************************************************************************/
+ini_set("max_execution_time","300"); 
 
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
