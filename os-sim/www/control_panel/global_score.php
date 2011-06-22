@@ -553,20 +553,20 @@ uasort($ext_hosts, 'order_by_risk');
 		}
 		
 		function toggle_group(group_name,link_id,ac) {
-			if ($("#"+link_id+'_'+ac).html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
+			if ($("#g"+link_id+'_'+ac).html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
 				$("#group_"+link_id+'_'+ac).html("<img src='../pixmaps/loading.gif' width='20'>");
 				$.ajax({
 					type: "GET",
 					url: "global_score_ajax.php?group_name="+group_name+"&ac="+ac+"&range=<?php echo $range ?>",
 					data: "",
 					success: function(msg){
-						$("#"+link_id+'_'+ac).html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
+						$("#g"+link_id+'_'+ac).html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
 						$("#group_"+link_id+'_'+ac).html(msg);
 					}
 				});
 			} else {
 				$("#group_"+link_id+'_'+ac).html("");
-				$("#"+link_id+'_'+ac).html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
+				$("#g"+link_id+'_'+ac).html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
 			}
 		}
   </script>
@@ -785,7 +785,7 @@ uasort($ext_hosts, 'order_by_risk');
 						<tr>
 							<td class="noborder">
 								<?php if (round($group_data["max_$ac"] / $group_data["threshold_$ac"] * 100) > 100) { ?>
-								<a id="<?php echo $ac ?>_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle_group('<?php echo $group_name ?>','<?php echo $ac ?>_<?php echo $a ?>','<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
+								<a id="g<?php echo $ac ?>_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle_group('<?php echo $group_name ?>','<?php echo $ac ?>_<?php echo $a ?>','<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
 								<?php } else { ?>
 								<img src="../pixmaps/plus-small-gray.png" align="absmiddle" border="0"></img>
 								<?php } ?>
