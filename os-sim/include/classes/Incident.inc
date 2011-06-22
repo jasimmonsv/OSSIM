@@ -390,7 +390,7 @@ class Incident {
 		
         $metric = array(
             'target' => array(
-                OSS_IP_ADDRCIDR_0,
+                OSS_TEXT,
                 OSS_NULLABLE,
                 'illegal:' . _("Target")
             ) ,
