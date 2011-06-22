@@ -53,13 +53,26 @@ function xml_backdata($file) {
 	return $ret;
 }
 
-
+$action        = GET('action');
+$category_file = GET('xml_file');
+$category_name = GET('name');
 $query = POST('query');
-$nohide = ($query != "") ? 1 : 0;
+$nohide = ($query != "" || $action != "") ? 1 : 0;
+ossim_valid($action, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("action"));
+ossim_valid($category_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
+ossim_valid($category_name, OSS_LETTER, OSS_DIGIT, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("name"));
 ossim_valid($query, OSS_TEXT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("query"));
 if (ossim_error()) {
     die(ossim_error());
 }
+if ($action == "enable_category") {
+	enable_category($category_name,$category_file);
+} elseif ($action == "disable_category") {
+	disable_category($category_name,$category_file);
+}
+
+init_groups();
+init_categories();
 
 $conf = $GLOBALS["CONF"];
 $XML_FILE = '/etc/ossim/server/directives.xml';
@@ -284,8 +297,8 @@ function background_clone(id,xml_file,mini) {
 											<td width="50" nowrap align="right">
 											<?php if (!isset($cannotedit[$category->xml_file])) { ?>
 											  <?php if ($category->active) { ?>
-											  <a href="index.php?action=add_directive&xml_file=<?php echo $category->xml_file?>&id=<?php echo $category->id . $onlydir; ?>" title="<?php echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
-											  <a href="editxml.php?xml_file=<?php echo $category->xml_file?>" title="<?php echo gettext("Edit XML directive file"); ?>"><img src="../pixmaps/theme/any.png" border="0" alt="<?php echo gettext("Edit XML directive file"); ?>" title="<?php echo gettext("Edit XML directive file"); ?>"/></a>
+											  <a target="main" href="index.php?action=add_directive&xml_file=<?php echo $category->xml_file?>&id=<?php echo $category->id . $onlydir; ?>" title="<?php echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
+											  <a target="main" href="editxml.php?xml_file=<?php echo $category->xml_file?>" title="<?php echo gettext("Edit XML directive file"); ?>"><img src="../pixmaps/theme/any.png" border="0" alt="<?php echo gettext("Edit XML directive file"); ?>" title="<?php echo gettext("Edit XML directive file"); ?>"/></a>
 											  <?php } else { ?>
 											  <img src="../pixmaps/plus-small-gray.png" border="0" style="opacity:.30;filter:Alpha(Opacity=30);"/></a>
 											  <img src="../pixmaps/theme/any.png" border="0" style="opacity:.30;filter:Alpha(Opacity=30);"/></a>
@@ -294,9 +307,9 @@ function background_clone(id,xml_file,mini) {
 											</td>
 											<td width="20" align="right">
 											  <?php if ($category->active) { ?>
-											  <a href="main.php?action=disable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px;" title="<?php echo gettext("Disable this category"); ?>"><img src="../pixmaps/tick.png" border="0" alt="<?php echo gettext("Disable this category"); ?>" title="<?php echo gettext("Disable this category"); ?>"/></a>
+											  <a href="left.php?action=disable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px;" title="<?php echo gettext("Disable this category"); ?>"><img src="../pixmaps/tick.png" border="0" alt="<?php echo gettext("Disable this category"); ?>" title="<?php echo gettext("Disable this category"); ?>"/></a>
 											  <?php } else { ?>
-											  <a href="main.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px; " title="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Enable this category"); ?>" title="<?php echo gettext("Enable this category"); ?>"/></a>
+											  <a href="left.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px; " title="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Enable this category"); ?>" title="<?php echo gettext("Enable this category"); ?>"/></a>
 											  <?php } ?>
 											</td>
 										</tr>
