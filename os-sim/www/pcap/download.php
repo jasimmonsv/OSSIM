@@ -1,4 +1,6 @@
 <?php
+ini_set("max_execution_time","300"); 
+
 require_once ('classes/Scan.inc');
 require_once ('classes/Session.inc');
 
@@ -21,7 +23,7 @@ $users = Session::get_users_to_assign($dbconn);
 $my_users = array();
 foreach( $users as $k => $v ) {  $my_users[$v->get_login()]=1;  }
 
-if($my_users[$scan_info[1]]!=1)  return;
+if($my_users[$scan_info[1]]!=1 && !Session::am_i_admin() )  return;
 
 $scan = new TrafficScan();
 

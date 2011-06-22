@@ -1,4 +1,6 @@
 <?php
+ini_set("max_execution_time","300"); 
+
 require_once ('classes/Security.inc');
 
 $scan_name    = GET("scan_name");
@@ -17,7 +19,7 @@ if (ossim_error()) {
         <title> <?php echo gettext("Payload pcap") ?> </title>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
         <meta http-equiv="Pragma" content="no-cache"/>
-        <link rel="stylesheet" type="text/css" href="../forensics/styles/tree.css" />
+        <link rel="stylesheet" type="text/css" href="../style/tree.css" />
         <link rel="stylesheet" type="text/css" href="../style/style.css"/>
         <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
         <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
@@ -62,6 +64,9 @@ if (ossim_error()) {
                 });
             }
         </script>
+		<style type='text/css'>
+			.dynatree-container{ border:none !important;}
+		</style>
     </head>
     <body>
         <div id="loading" style="width:350px;margin:auto;text-align:center"></div>

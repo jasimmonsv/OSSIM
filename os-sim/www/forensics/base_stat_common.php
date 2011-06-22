@@ -783,6 +783,12 @@ function range_graphic($trdata) {
                 $noprint = 1;
                 $interval = "j M";
                 $key = "j F";
+            } elseif ($diff <= 86400) {
+	            $suf = "h";
+	            $jump = 3600;
+	            $noprint = 2;
+	            $interval = "G";
+	            $key = "G";
             } else {
                 $suf = "";
                 $jump = 3600;

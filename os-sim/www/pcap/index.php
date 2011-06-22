@@ -5,6 +5,7 @@
 *   All rights reserved.
 *
 ****************************************************************************/
+ini_set("max_execution_time","300"); 
 
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
@@ -82,7 +83,7 @@ if(GET("command") == _("Launch scan")) {
 
     // sources
     
-    ossim_valid($src, OSS_DIGIT, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_NL, '\.\,\/', 'illegal:' . _("Source"));
+    ossim_valid($src, OSS_NULLABLE, OSS_DIGIT, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_NL, '\.\,\/', 'illegal:' . _("Source"));
     if( ossim_error() )  
     {
         $info_error[] = ossim_get_error();
@@ -136,8 +137,12 @@ if(GET("command") == _("Launch scan")) {
             
         }
     }
+    else {
+        $tsources = array();
     
-    ossim_valid($dst, OSS_DIGIT, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_NL, '\.\,\/', 'illegal:' . _("Destination"));
+    }
+    
+    ossim_valid($dst, OSS_NULLABLE, OSS_DIGIT, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_NL, '\.\,\/', 'illegal:' . _("Destination"));
     
     if( ossim_error() )  
     {
@@ -194,12 +199,14 @@ if(GET("command") == _("Launch scan")) {
             
         }
     }
-
+    else {
+        $tdestinations = array();
+    }
     // launch scan
     
     $info_sensor = $sensors_status[Sensor::get_sensor_name($dbconn, $sensor_ip)];
 
-    if(count($tsources)>0 && count($tdestinations)>0 && $sensor_ip!="" && $sensor_interface!="" && intval($timeout)>0 && count($info_error)==0 && ($info_sensor[0]==0 || $info_sensor[0]==-1)) {
+    if($sensor_ip!="" && $sensor_interface!="" && intval($timeout)>0 && count($info_error)==0 && ($info_sensor[0]==0 || $info_sensor[0]==-1)) {
         $rlaunch_scan = $scan->launch_scan($tsources, $tdestinations, $sensor_ip, $sensor_interface, $timeout);
         $message_info="<div class='ossim_success'>"._("Launched scan")."</div>";
     }
@@ -216,7 +223,7 @@ if($op=="delete" && $scan_name!="" && $sensor_name!="") {
     $my_users = array();
     foreach( $users as $k => $v ) {  $my_users[$v->get_login()]=1;  }
     
-    if($my_users[$scan_info[1]]==1)  $scan->delete_scan($scan_name,$sensor_name);
+    if( $my_users[$scan_info[1]]==1 || Session::am_i_admin() )  $scan->delete_scan($scan_name,$sensor_name);
 }
 
 ?>

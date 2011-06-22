@@ -409,18 +409,18 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     // Solera DeepSee API
     $solera = "";
     if ($_SESSION["_solera"]) {
-        $solera = "<a href=\"javascript:;\" onclick=\"solera_deepsee('".$myrow['timestamp']."','".$myrow['timestamp']."','$current_sip','".$myrow["layer4_sport"]."','$current_dip','".$myrow["layer4_dport"]."','".strtolower(IPProto2str($current_proto))."')\"><img src='../pixmaps/solera.png' border='0' align='absmiddle'></a>";
+        $solera = "<a class='trlnk' href=\"javascript:;\" onclick=\"solera_deepsee('".$myrow['timestamp']."','".$myrow['timestamp']."','$current_sip','".$myrow["layer4_sport"]."','$current_dip','".$myrow["layer4_dport"]."','".strtolower(IPProto2str($current_proto))."')\"><img src='../pixmaps/solera.png' border='0' align='absmiddle'></a>";
     }
     
     $nidespues = str_replace("<", "[", $despues);
     $nidespues = str_replace(">", "]", $nidespues);
     
-    $incident = "<a href=\"../incidents/newincident.php?" . "ref=Event&" . "title=" . urlencode($nidespues) . "&" . "priority=1&" . "src_ips=".$current_sip."&" . "event_start=".$myrow['timestamp']."&" . "event_end=".$myrow['timestamp']."&" . "src_ports=".$myrow["layer4_sport"]."&" . "dst_ips=".$current_dip."&" . "dst_ports=".$myrow["layer4_dport"]."&hmenu=Tickets&smenu=Tickets\"><img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\" align='absmiddle'/></a>";
+    $incident = "<a class='trlnk' href=\"../incidents/newincident.php?" . "ref=Event&" . "title=" . urlencode($nidespues) . "&" . "priority=1&" . "src_ips=".$current_sip."&" . "event_start=".$myrow['timestamp']."&" . "event_end=".$myrow['timestamp']."&" . "src_ports=".$myrow["layer4_sport"]."&" . "dst_ips=".$current_dip."&" . "dst_ports=".$myrow["layer4_dport"]."&hmenu=Tickets&smenu=Tickets\"><img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\" align='absmiddle'/></a>";
     // 1- Checkbox
     qroPrintEntry($solera.' '.$incident.' <INPUT TYPE="checkbox" NAME="action_chk_lst[' . $i . ']" VALUE="' . htmlspecialchars($tmp_rowid) . '">',"","","","style='border-left:1px solid white;border-top:1px solid white' nowrap");
     echo '    <INPUT TYPE="hidden" NAME="action_lst['.$i.']" VALUE="'.htmlspecialchars($tmp_rowid).'">';
     // 2- Signature    
-    $temp = "$antes <A HREF='base_qry_alert.php?submit=" . rawurlencode($tmp_rowid) . "&amp;sort_order=";
+    $temp = "$antes <A class='trlnka' HREF='base_qry_alert.php?submit=" . rawurlencode($tmp_rowid) . "&amp;sort_order=";
     $temp.= ($qs->isCannedQuery()) ? $qs->getCurrentCannedQuerySort() : $qs->getCurrentSort();
     $temp.= "'>" . $despues . "</a>"; // $tmpsig[1]
     $cell_data['SIGNATURE'] = $temp;
@@ -479,7 +479,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         	$slnk = "<img src='images/homelan.png' align='absmiddle' border=0 style='width:3mm'>"; 
         	$slnkrd = $current_url."/forensics/images/homelan.png";
         }
-		$cell_data['IP_PORTSRC'] = $div.'<A alt="'.$current_sip.'" title="'.$current_sip.'" HREF="base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_src&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D='.$current_sip.'&ip_addr%5B0%5D%5B8%5D=+">' . $sip_aux . '</A><FONT SIZE="-1">' . $current_sport . '</FONT>' . $country_img . $homelan . $bdiv;
+		$cell_data['IP_PORTSRC'] = $div.'<A class="trlnk" alt="'.$current_sip.'" title="'.$current_sip.'" HREF="base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_src&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D='.$current_sip.'&ip_addr%5B0%5D%5B8%5D=+">' . $sip_aux . '</A><FONT SIZE="-1">' . $current_sport . '</FONT>' . $country_img . $homelan . $bdiv;
         $cell_pdfdata['IP_PORTSRC'] = $sip_aux.$current_sport.$slnk;
 		$cell_data['IP_SRC'] = $current_sip . $country_img . $homelan;
 		$cell_data['PORT_SRC'] = str_replace(":","",$current_sport);
@@ -496,13 +496,13 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
                     $ps_element = ereg_replace(":", "", $ps_element);
                     $div = '<div id="'.$ps_element.';'.$ps_element.'" class="HostReportMenu">';
 					$bdiv = "</div>";
-					$cell_data['IP_PORTSRC'] = "$div<A HREF=\"base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_src&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D=$ps_element&ip_addr%5B0%5D%5B8%5D=+\">" . $ps_element . "</A>$bdiv";
+					$cell_data['IP_PORTSRC'] = "$div<A class='trlnk' HREF=\"base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_src&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D=$ps_element&ip_addr%5B0%5D%5B8%5D=+\">" . $ps_element . "</A>$bdiv";
 					//qroPrintEntry("$div<A HREF=\"base_stat_ipaddr.php?ip=" . $ps_element . "&amp;netmask=32\">" . $ps_element . "</A>$bdiv");
                 }
             }
         } else {
 			//qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>');
-			$cell_data['IP_PORTSRC'] = '<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>';
+			$cell_data['IP_PORTSRC'] = '<A class="trlnk" HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>';
 		}
 		$cell_data['IP_SRC'] = gettext("unknown");
 		$cell_data['PORT_SRC'] = gettext("unknown");
@@ -534,14 +534,14 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         	$dlnk = "<img src='images/homelan.png' align='absmiddle' border=0 style='width:3mm'>"; 
         	$dlnkrd = $current_url."/forensics/images/homelan.png";
         }
-		$cell_data['IP_PORTDST'] = $div.'<A alt="'.$current_dip.'" title="'.$current_dip.'" HREF="base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_dst&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D='.$current_dip.'&ip_addr%5B0%5D%5B8%5D=+">' . $dip_aux . '</A><FONT SIZE="-1">' . $current_dport . '</FONT>' . $country_img . $homelan . $bdiv;
+		$cell_data['IP_PORTDST'] = $div.'<A class="trlnk" alt="'.$current_dip.'" title="'.$current_dip.'" HREF="base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_dst&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D='.$current_dip.'&ip_addr%5B0%5D%5B8%5D=+">' . $dip_aux . '</A><FONT SIZE="-1">' . $current_dport . '</FONT>' . $country_img . $homelan . $bdiv;
         $cell_pdfdata['IP_PORTDST'] = $dip_aux.$current_dport.$dlnk;
 		$cell_data['IP_DST'] = $current_dip . $country_img . $homelan;
 		$cell_data['PORT_DST'] = str_replace(":","",$current_dport);
 		//qroPrintEntry($div.'<A HREF="base_stat_ipaddr.php?ip=' . $current_dip . '&amp;netmask32">' . $dip_aux . '</A><FONT SIZE="-1">' . $current_dport . '</FONT>' . $country_img . $homelan . $bdiv, 'center', 'top', 'nowrap');
     } else {
 		//qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>');
-		$cell_data['IP_PORTDST'] = '<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>';
+		$cell_data['IP_PORTDST'] = '<A class="trlnk" HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>';
 		$cell_data['IP_DST'] = gettext("unknown");
 		$cell_data['PORT_DST'] = gettext("unknown");
 	}
@@ -570,7 +570,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 
     // 8- Priority
     //qroPrintEntry("<img src=\"bar2.php?value=" . $current_oprio . "&max=5\" border='0' align='absmiddle' title='$current_oprio'>&nbsp;");
-	$cell_data['PRIORITY'] = '<a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$myrow["plugin_id"].'&sid='.$myrow["plugin_sid"].'\',200,400)">'."<img src=\"bar2.php?value=" . $current_oprio . "&max=5\" border='0' align='absmiddle' title='$current_oprio'></a>";
+	$cell_data['PRIORITY'] = '<a href="javascript:;" onclick="nogb=true;GB_show_nohide(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$myrow["plugin_id"].'&sid='.$myrow["plugin_sid"].'\',300,400)">'."<img src=\"bar2.php?value=" . $current_oprio . "&max=5\" border='0' align='absmiddle' title='$current_oprio'></a>";
 	$cell_pdfdata['PRIORITY'] = "<img src='".$current_url."/forensics/bar2.php?value=" . $current_oprio . "&max=5' border='0' align='absmiddle' style='width:10mm'>";
     $cell_align['PRIORITY'] = "center";
     //if ($current_oprio != "")
@@ -580,7 +580,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 
     // 10- Rel
     //qroPrintEntry("<img src=\"bar2.php?value=" . $current_oreli . "&max=9\" border='0' align='absmiddle' title='$current_oreli'>&nbsp;");
-	$cell_data['RELIABILITY'] = '<a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$myrow["plugin_id"].'&sid='.$myrow["plugin_sid"].'\',200,400)">'."<img src=\"bar2.php?value=" . $current_oreli . "&max=9\" border='0' align='absmiddle' title='$current_oreli'></a>";
+	$cell_data['RELIABILITY'] = '<a href="javascript:;" onclick="nogb=true;GB_show_nohide(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$myrow["plugin_id"].'&sid='.$myrow["plugin_sid"].'\',300,400)">'."<img src=\"bar2.php?value=" . $current_oreli . "&max=9\" border='0' align='absmiddle' title='$current_oreli'></a>";
 	$cell_pdfdata['RELIABILITY'] = "<img src='".$current_url."/forensics/bar2.php?value=" . $current_oreli . "&max=9' border='0' align='absmiddle' style='width:10mm'>";
     $cell_align['RELIABILITY'] = "center";
     //if ($current_oreli != "")

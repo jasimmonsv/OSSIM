@@ -533,44 +533,40 @@ uasort($ext_hosts, 'order_by_risk');
 			document.location.reload();
 		}
 		
-		function toggle(type, start_id, end_id, link_id)
+		function toggle(type, start_id, end_id, link_id, ac)
 		{
-			if ($("#"+link_id+'_c').html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
+			if ($("#"+link_id+'_'+ac).html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
 				for (i=0; i < end_id; i++) {
 					id = start_id + i;
 					tr_id = type + '_' + id;
-					$("#"+tr_id+'_c').show();
-					$("#"+tr_id+'_a').show();
+					$("#"+tr_id+'_'+ac).show();
 				}
-				$("#"+link_id+'_c').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
-				$("#"+link_id+'_a').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
+				$("#"+link_id+'_'+ac).html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
 			} else {
 				for (i=0; i < end_id; i++) {
 					id = start_id + i;
 					tr_id = type + '_' + id;
-					$("#"+tr_id+'_c').hide();
-					$("#"+tr_id+'_a').hide();
+					$("#"+tr_id+'_'+ac).hide();
 				}
-				$("#"+link_id+'_c').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
-				$("#"+link_id+'_a').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
+				$("#"+link_id+'_'+ac).html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
 			}
 		}
 		
 		function toggle_group(group_name,link_id,ac) {
-			if ($("#"+link_id+'_'+ac).html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
+			if ($("#g"+link_id+'_'+ac).html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
 				$("#group_"+link_id+'_'+ac).html("<img src='../pixmaps/loading.gif' width='20'>");
 				$.ajax({
 					type: "GET",
 					url: "global_score_ajax.php?group_name="+group_name+"&ac="+ac+"&range=<?php echo $range ?>",
 					data: "",
 					success: function(msg){
-						$("#"+link_id+'_'+ac).html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
+						$("#g"+link_id+'_'+ac).html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
 						$("#group_"+link_id+'_'+ac).html(msg);
 					}
 				});
 			} else {
 				$("#group_"+link_id+'_'+ac).html("");
-				$("#"+link_id+'_'+ac).html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
+				$("#g"+link_id+'_'+ac).html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
 			}
 		}
   </script>
@@ -789,7 +785,9 @@ uasort($ext_hosts, 'order_by_risk');
 						<tr>
 							<td class="noborder">
 								<?php if (round($group_data["max_$ac"] / $group_data["threshold_$ac"] * 100) > 100) { ?>
-								<a id="a_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle_group('<?php echo $group_name ?>','a_<?php echo $a ?>','<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
+								<a id="g<?php echo $ac ?>_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle_group('<?php echo $group_name ?>','<?php echo $ac ?>_<?php echo $a ?>','<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
+								<?php } else { ?>
+								<img src="../pixmaps/plus-small-gray.png" align="absmiddle" border="0"></img>
 								<?php } ?>
 							</td>
 							
@@ -813,7 +811,7 @@ uasort($ext_hosts, 'order_by_risk');
 						</tr>
 						
 						<tr>
-							<td colspan="6" class="nobborder"><div id="group_a_<?php echo $a ?>_<?php echo $ac ?>"></div></td>
+							<td colspan="6" class="nobborder"><div id="group_<?php echo $ac ?>_<?php echo $a ?>_<?php echo $ac ?>"></div></td>
 						</tr>
 					<?php
 					} 
@@ -850,7 +848,7 @@ uasort($ext_hosts, 'order_by_risk');
 							if ($num_hosts) 
 							{ 
 								?>
-								<a id="a_<?php echo ++$a?>_<?php echo $ac?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
+								<a id="<?php echo $ac ?>_<?php echo ++$a?>_<?php echo $ac?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, '<?php echo $ac ?>_<?php echo $a ?>', '<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
 								<?php
 							} ?>
 							<a href="../report/host_report.php?host=<?=$net_data['address']?>" id="<?=$net_data['address']?>;<?=$net_name?>" class="NetReportMenu"><b><?php echo $net_name?></b></a>

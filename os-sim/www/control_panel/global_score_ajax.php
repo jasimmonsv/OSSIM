@@ -342,9 +342,9 @@ foreach($groups[$group_name]['nets'] as $net_name => $net_data) {
                     <td style="text-align: left">
                         <?php
                 if ($num_hosts) { ?>
-                        <a id="a_<?php echo ++$a
+                        <a id="<?php echo $ac ?>_<?php echo ++$a
 ?>_<?php echo $ac
-?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
+?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, '<?php echo $ac ?>_<?php echo $a ?>', '<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
                         <?php
                 } ?>
                         <?php echo $net_name ?>

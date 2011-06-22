@@ -145,13 +145,14 @@ $sql = "SELECT DISTINCT acid_event.plugin_id, acid_event.plugin_sid, count(acid_
 $tr = ($_SESSION["time_range"] != "") ? $_SESSION["time_range"] : "all";
 $trdata = array(0,0,$tr);
 if ($tr=="range") {
-    $desde = strtotime($_SESSION["time"][0][4]."-".$_SESSION["time"][0][2]."-".$_SESSION["time"][0][3]);
-    $hasta = strtotime($_SESSION["time"][1][4]."-".$_SESSION["time"][1][2]."-".$_SESSION["time"][1][3]);
+    $desde = strtotime($_SESSION["time"][0][4]."-".$_SESSION["time"][0][2]."-".$_SESSION["time"][0][3]." 00:00:00");
+    $hasta = strtotime($_SESSION["time"][1][4]."-".$_SESSION["time"][1][2]."-".$_SESSION["time"][1][3]." 23:59:59");
     $diff = $hasta - $desde; 
     if ($diff > 2678400) $tr = "all";
     elseif ($diff > 1296000) $tr = "month";
     elseif ($diff > 604800) $tr = "weeks";
     elseif ($diff > 172800) $tr = "week";
+    elseif ($diff <= 86400) $tr = "today";
     else $tr = "day";
     $trdata = array ($desde,$hasta,"range");
 }

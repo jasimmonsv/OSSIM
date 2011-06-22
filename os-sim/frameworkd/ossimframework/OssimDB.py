@@ -1,7 +1,9 @@
 import sys
 import OssimConf
 import Const
-
+import time
+import os
+from Logger import Logger
 try:
     from adodb import adodb
 except ImportError:
@@ -10,6 +12,13 @@ except ImportError:
     except ImportError:
         print "You need python adodb module installed"
         sys.exit()
+
+
+import _mysql_exceptions
+#from _mysql_exceptions import OperationalError
+
+logger = Logger.logger
+
 
 class OssimDB:
 
@@ -27,17 +36,42 @@ class OssimDB:
             print __name__, ": Can't connect to database (%s@%s)" % (user, host)
             print e
             sys.exit()
+        self._host = host
+        self._db = db
+        self._user = user
+        self._password = passwd
 
     # execute query and return the result in a hash
     def exec_query (self, query) :
 
         arr = []
-        try:
-            cursor = self.conn.Execute(query)
-        except Exception, e:
-            print __name__, \
+        retries = 0
+        reconnect  = 0
+        while 1: 
+            try: 
+             if reconnect == 1:
+                #retries = retries  + 1 	
+                logger.warning ("Reconnecting to %s,database %s in 10 seconds" % (self._host, self._db))
+                time.sleep(10)
+                self.conn.Connect (self._host,self._user,self._password,self._db)
+                reconnect = 0
+             logger.debug ("Query " + query)
+             cursor = self.conn.Execute(query)
+             break
+            except _mysql_exceptions.OperationalError, e:
+              print __name__, \
                 ': Error executing query (%s) """%s"""' % (query, e)
-            return []
+              reconnect = 1 
+
+            except Exception,e:
+              print __name__, \
+                ': Error executing query (%s) """%s"""' % (query, e)
+              return[]
+       # if retries == 10:
+       #  print __name__, \
+       #        ": Can't reconected to database after %d retries. Exiting framework" % retries
+       #  sys.exit (-1)
+			
         while not cursor.EOF:
             arr.append(cursor.GetRowAssoc(0))
             cursor.MoveNext()
