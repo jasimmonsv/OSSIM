@@ -533,26 +533,22 @@ uasort($ext_hosts, 'order_by_risk');
 			document.location.reload();
 		}
 		
-		function toggle(type, start_id, end_id, link_id)
+		function toggle(type, start_id, end_id, link_id, ac)
 		{
-			if ($("#"+link_id+'_c').html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
+			if ($("#"+link_id+'_'+ac).html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
 				for (i=0; i < end_id; i++) {
 					id = start_id + i;
 					tr_id = type + '_' + id;
-					$("#"+tr_id+'_c').show();
-					$("#"+tr_id+'_a').show();
+					$("#"+tr_id+'_'+ac).show();
 				}
-				$("#"+link_id+'_c').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
-				$("#"+link_id+'_a').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
+				$("#"+link_id+'_'+ac).html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
 			} else {
 				for (i=0; i < end_id; i++) {
 					id = start_id + i;
 					tr_id = type + '_' + id;
-					$("#"+tr_id+'_c').hide();
-					$("#"+tr_id+'_a').hide();
+					$("#"+tr_id+'_'+ac).hide();
 				}
-				$("#"+link_id+'_c').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
-				$("#"+link_id+'_a').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
+				$("#"+link_id+'_'+ac).html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
 			}
 		}
 		
@@ -850,7 +846,7 @@ uasort($ext_hosts, 'order_by_risk');
 							if ($num_hosts) 
 							{ 
 								?>
-								<a id="a_<?php echo ++$a?>_<?php echo $ac?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
+								<a id="<?php echo $ac ?>_<?php echo ++$a?>_<?php echo $ac?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, '<?php echo $ac ?>_<?php echo $a ?>', '<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
 								<?php
 							} ?>
 							<a href="../report/host_report.php?host=<?=$net_data['address']?>" id="<?=$net_data['address']?>;<?=$net_name?>" class="NetReportMenu"><b><?php echo $net_name?></b></a>
