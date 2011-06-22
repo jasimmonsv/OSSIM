@@ -785,7 +785,9 @@ uasort($ext_hosts, 'order_by_risk');
 						<tr>
 							<td class="noborder">
 								<?php if (round($group_data["max_$ac"] / $group_data["threshold_$ac"] * 100) > 100) { ?>
-								<a id="a_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle_group('<?php echo $group_name ?>','a_<?php echo $a ?>','<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
+								<a id="<?php echo $ac ?>_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle_group('<?php echo $group_name ?>','<?php echo $ac ?>_<?php echo $a ?>','<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
+								<?php } else { ?>
+								<img src="../pixmaps/plus-small-gray.png" align="absmiddle" border="0"></img>
 								<?php } ?>
 							</td>
 							
@@ -809,7 +811,7 @@ uasort($ext_hosts, 'order_by_risk');
 						</tr>
 						
 						<tr>
-							<td colspan="6" class="nobborder"><div id="group_a_<?php echo $a ?>_<?php echo $ac ?>"></div></td>
+							<td colspan="6" class="nobborder"><div id="group_<?php echo $ac ?>_<?php echo $a ?>_<?php echo $ac ?>"></div></td>
 						</tr>
 					<?php
 					} 
