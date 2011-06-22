@@ -874,7 +874,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 				nogb=true;
 			});
 		});	
-		$('.trcell').each(function() {
+		$('.trcellclk').each(function() {
 			$(this).click(function() {
 				if (!nogb) {
 					GB_show_nohide("<?=_("Event details")?>",$('a.trlnka',this).attr('href')+'&minimal_view=1&noback=1',500,'80%');
