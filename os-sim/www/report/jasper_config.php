@@ -89,6 +89,7 @@ Session::logcheck("MenuReports", "ReportsReportServer");
                                 $report_params = array();
                                 $result = $client->requestReport($report_unit, $report_format,$report_params,'list');
                                 $tempJS='';
+                                $reportOrd = array();
 
                                 foreach($result as $key => $report){ $i++;
 
