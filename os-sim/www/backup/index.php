@@ -64,7 +64,9 @@ if (!$rs = $conn->Execute($query)) {
 }
 // Delete
 while (!$rs->EOF) {
-    $delete[] = $rs->fields["day"];
+	if (file_exists($backup_dir."/delete-".$rs->fields["day"].".sql.gz")) {
+		$delete[] = $rs->fields["day"];
+	}
     $rs->MoveNext();
 }
 // Insert
