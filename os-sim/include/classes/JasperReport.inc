@@ -1402,7 +1402,7 @@ class UpdateSql {
 
   public function update(){
     if (file_exists($this->file)) {
-        require($this->file);
+		require($this->file);
     } else {
         return false;
     }

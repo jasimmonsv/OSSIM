@@ -790,7 +790,7 @@ class PDF extends FPDF {
         $this->__WriteTable("Metrics last $time_range", $length, $content, 0, $color);
     }
     /* JASPER */
-    function MetricsNoPDF($time_range = "week", $type = "attack", $target = "host", $assets_filter, $dates_filter) {
+    function MetricsNoPDF($time_range = "week", $type = "attack", $target = "host", $assets_filter="", $dates_filter="") {
         require_once ('classes/Control_panel_host.inc');
         require_once ('classes/Session.inc');
         $user = Session::get_session_user();
@@ -854,7 +854,7 @@ class PDF extends FPDF {
         } elseif ($target == "global") {
             $query = "SELECT * FROM control_panel
                 WHERE id = 'global_$user' AND time_range = '$time_range' $dates_filter";
-            if (!$rs_global = & $this->ossim_conn->Execute($query)) print $conn->ErrorMsg();
+            if (!$rs_global = & $this->ossim_conn->Execute($query)) print $this->ossim_conn->ErrorMsg();
             else {
                 if ($type == "compromise") $tmp_array = array(
                     "GLOBAL",

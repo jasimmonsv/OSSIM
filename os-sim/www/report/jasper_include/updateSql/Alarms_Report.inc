@@ -283,6 +283,7 @@ function event_max_risk($NUM_HOSTS, $security_report, $report_type, $date_from,$
         foreach($sql as $value){
             $temp_conn->Execute($value);
         }
+		$temp_conn->Execute('use ossim');
         $db->close($temp_conn);
     }
 ?>
