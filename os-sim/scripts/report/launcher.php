@@ -5,9 +5,10 @@
 *   All rights reserved.
 *
 ****************************************************************************/
-
+set_time_limit(0);
 ob_implicit_flush();
 ini_set('include_path', '/usr/share/ossim/include');
+ini_set('memory_limit','1024M');
 
 require_once("classes/Util.inc");
 require_once("classes/Session.inc");
