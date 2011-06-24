@@ -39,6 +39,7 @@ ini_set("max_execution_time","300");
 require_once ('classes/Session.inc');
 require_once ('classes/Sensor.inc');
 require_once ('classes/Net_group.inc');
+require_once ('classes/Net.inc');
 require_once ('classes/Util.inc');
 require_once ('ossim_db.inc');
 
@@ -79,6 +80,7 @@ $all_cclass_hosts = array();
 $buffer           = "";
 $where_host       = "";
 
+
 if(preg_match("/host_(.*)/",$key,$found)) {
     $where_host = ", host_sensor_reference hsr WHERE h.ip=hsr.host_ip AND hsr.sensor_name='".$found[1]."'";
 }
@@ -108,7 +110,7 @@ if ( $key == "" || preg_match("/^(all|host|hostgroup)/",$key))
 	}
 }
 
-/* All assets*/
+/* All assets*/ 
 
 if ($key == "hostgroup") 
 {
@@ -122,10 +124,10 @@ if ($key == "hostgroup")
 			{
                 $hg_name  = $hg->get_name();
 				$hg_key   = "hostgroup_".base64_encode($hg_name);
-				$hg_title = Util::htmlentities(utf8_encode($hg_name));
+				$hg_title = Util::htmlentities($hg_name);
 				
 				$title    = ( strlen($hg_name) > $length_name ) ? substr($hg_name, 0, $length_name)."..." : $hg_name;	
-				$title    = Util::htmlentities(utf8_encode($title));
+				$title    = Util::htmlentities($title);
                 $tooltip  = $hg_title;
 				
 				$h        = '585'; 
@@ -160,10 +162,10 @@ else if (preg_match("/snet_(.*)/",$key,$found))
 	{
         $snet_key   = "net_".base64_encode($net_name);
 		$ips        = "<font style=\"font-size:80%\">(".$net_ips.")</font>";
-		$snet_title = Util::htmlentities(utf8_encode($net_name));
+		$snet_title = Util::htmlentities($net_name);
 		
 		$title      = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-		$title      = Util::htmlentities(utf8_encode($title))." ".$ips;
+		$title      = Util::htmlentities($title)." ".$ips;
 		
 		$tooltip    = $snet_title." (".$net_ips.")";
 		$li[]       = "{ key:'$snet_key', h:'$h', url:'../net/newnetform.php?name=$net_name', isLazy:true, icon:'../../pixmaps/theme/host.png', title:'$title', tooltip:'$tooltip' }";
@@ -187,10 +189,10 @@ else if (preg_match("/shostgroup_(.*)/",$key,$found))
     foreach($sensor_assets["hgroup"] as $hg_name => $v) 
 	{
         $hg_key   = "hostgroup_".base64_encode($hg_name);
-        $hg_title = Util::htmlentities(utf8_encode($hg_name));
+        $hg_title = Util::htmlentities($hg_name);
 				
 		$title    = ( strlen($hg_name) > $length_name ) ? substr($hg_name, 0, $length_name)."..." : $hg_name;
-		$title    = Util::htmlentities(utf8_encode($title));
+		$title    = Util::htmlentities($title);
 		$tooltip  = $hg_title;
 		$h        = '585';
 		
@@ -215,10 +217,10 @@ else if (preg_match("/snetgroup_(.*)/",$key,$found))
     foreach($sensor_assets["ngroup"] as $net_group_name => $v) 
 	{
         $ng_key   = base64_encode($net_group_name);
-		$ng_title = Util::htmlentities(utf8_encode($net_group_name));
+		$ng_title = Util::htmlentities($net_group_name);
         
 		$title    = ( strlen($net_group_name) > $length_name ) ? substr($net_group_name, 0, $length_name)."..." : $net_group_name;	
-		$title    = Util::htmlentities(utf8_encode($title));
+		$title    = Util::htmlentities($title);
 		$tooltip  = $ng_title;
 		
 		$h        = '585';
@@ -281,51 +283,11 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found))
         
     echo $buffer;
 }
-else if ($key == "net") 
-{
-	$wherenet = ($filter!="") ? "ips like '%$filter%'" : "";
-	$net_list = Net::get_list($conn, $wherenet);
-    
-    if (count($net_list)>0) 
-	{
-        $buffer .= "[";
-        $j = 0;
-        
-		foreach($net_list as $net) 
-		{
-            if ($j>=$from && $j<$to) 
-			{
-                $net_name  = $net->get_name();
-				$net_title = Util::htmlentities(utf8_encode($net_name));
-				
-				$net_key   = "net_".base64_encode($net_name);
-				$ips_data  = $net->get_ips();
-				$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
-								
-        		$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-				$title     = Util::htmlentities(utf8_encode($title))." ".$ips;
-				
-				$tooltip   = $net_title." (".$ips_data.")";
-															
-				$li = "key:'$net_key', isLazy:true, h:'$h', url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip' \n";
-                $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
-            }
-            $j++;
-        }
-		
-        if ($j>$to) 
-		{
-            $li      = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."'";
-            $buffer .= ",{ $li }\n";
-        }
-        
-		$buffer .= "]";
-    }
-	
-    if ( $buffer == "" || $buffer == "[]" )
-        $buffer = "[{title:'"._("No Networks Found")."', noLink:true}]";
-    
-	echo $buffer;
+else if ($key == "net") {
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
+}
+else if ( preg_match("/^.class_(.*)/",$key,$found) ) {
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
 }
 else if (preg_match("/net_(.*)/",$key,$found))
 {
@@ -404,10 +366,10 @@ else if ($key=="netgroup")
 			{
                 $ng_name  = $net_group->get_name();
 				$ng_key   = "netgroup_".base64_encode($ng_name);
-				$ng_title = Util::htmlentities(utf8_encode($ng_name));
+				$ng_title = Util::htmlentities($ng_name);
 				
 				$title    = ( strlen($ng_name) > $length_name ) ? substr($ng_name, 0, $length_name)."..." : $ng_name;
-				$title    = Util::htmlentities(utf8_encode($title));				
+				$title    = Util::htmlentities($title);				
 				$tooltip  = $ng_title;
 								
                 $li = "key:'$ng_key', isLazy:true , h:'$h', url:'../net/newnetgroupform.php?name=".urlencode($ng_name)."', icon:'../../pixmaps/theme/net_group.png', title:'$title', tooltip:'$tooltip'\n";
@@ -443,7 +405,7 @@ else if (preg_match("/netgroup_(.*)/",$key,$found))
     foreach($nets as $net) 
 	{
         $net_name  = $net->get_net_name();
-		$net_title = Util::htmlentities(utf8_encode($net_name));
+		$net_title = Util::htmlentities($net_name);
 		
 		$ips_data  = $net->get_net_ips($conn);
 		$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
@@ -451,7 +413,7 @@ else if (preg_match("/netgroup_(.*)/",$key,$found))
 		$net_key   = utf8_encode($key.$k);
 		
 		$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-		$title     = Util::htmlentities(utf8_encode($title))." ".$ips;;
+		$title     = Util::htmlentities($title)." ".$ips;;
 		
 		$tooltip   = $net_title." (".$ips_data.")";;
 		
@@ -567,10 +529,10 @@ else if(preg_match("/u_(.*)_netgroup/",$key,$found))
 		if (Session::groupAllowed($conn, $netgroup->get_name(), $found[1])) 
 		{
 			$ng_name   = $netgroup->get_name();
-			$ng_title  = Util::htmlentities(utf8_encode($ng_name));
+			$ng_title  = Util::htmlentities($ng_name);
 			
 			$title     = ( strlen($ng_name) > $length_name ) ? substr($ng_name, 0, $length_name)."..." : $ng_name;	
-			$title     = Util::htmlentities(utf8_encode($title));
+			$title     = Util::htmlentities($title);
 			$tooltip   = $ng_title;
 						
 			$li = "h:'$h', url:'../net/newnetgroupform.php?name=".urlencode($ng_name)."', icon:'../../pixmaps/theme/net_group.png', title:'$title', tooltip:'$tooltip'\n";
@@ -585,44 +547,13 @@ else if(preg_match("/u_(.*)_netgroup/",$key,$found))
     
 	echo $buffer;
 }
-else if(preg_match("/u_(.*)_net/",$key,$found))
+else if(preg_match("/^u_(.*)_net$/",$key))
 {
-    $net_list     = Net::get_list($conn);
-    $allowedNets  = Session::allowedNets($found[1]);
-    $nets_allowed = array_fill_keys(explode(",",$allowedNets),1);
-    
-    $buffer .= "[";
-    $j = 0;
-			
-	foreach($net_list as $net) 
-	{
-    	$cidrs = explode(",",$net->get_ips());
-    	
-		if ($allowedNets == "" || Acl::cidrs_allowed($cidrs,$nets_allowed)) 
-		{
-	        $net_name  = $net->get_name();
-	        $net_title = Util::htmlentities(utf8_encode($net_name));
-	        
-			$ips_data  = $net->get_ips();
-			$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
-	        
-			$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;
-			$title 	   = Util::htmlentities(utf8_encode($title))." ".$ips;
-			$tooltip   = $net_title." (".$ips_data.")"; 
-						
-			$li        = "h:'$h', url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip'\n";
-						
-	        $buffer .= (($j > 0) ? "," : "") . "{ $li }";
-	        $j++;
-	    }
-	}
-	
-    $buffer .= "]";
-    
-	if ( $buffer == "[]" )  
-		$buffer = "[{title:'"._("No Networks Found")."', noLink:true}]";
-    
-	echo $buffer;
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
+}
+else if(preg_match("/^u_(.*)_.class_(.*)/",$key))
+{
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
 }
 else if(preg_match("/u_(.*)_sensor/",$key,$found))
 {
@@ -638,10 +569,10 @@ else if(preg_match("/u_(.*)_sensor/",$key,$found))
 		if ($allowedSensors == "" || $sensors_allowed[$sensor->get_ip()]) 
 		{
 			$sensor_name = $sensor->get_name();
-			$s_title     = Util::htmlentities(utf8_encode($sensor_name));
+			$s_title     = Util::htmlentities($sensor_name);
 			
 			$title     = ( strlen($sensor_name) > $length_name ) ? substr($sensor_name, 0, $length_name)."..." : $sensor_name;	
-			$title     = Util::htmlentities(utf8_encode($title));
+			$title     = Util::htmlentities($title);
 			$tooltip   = $s_title;
 			
 			$li = "h:'$h', url:'../sensor/interfaces.php?sensor=".$sensor->get_ip()."&name=".urlencode($sensor_name)."', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip'\n";
@@ -694,10 +625,10 @@ else if(preg_match("/e_(.*)_netgroup/",$key,$found))
     
 	foreach($netgroup_list as $netgroup_name) 
 	{
-    	$ng_title  = Util::htmlentities(utf8_encode($netgroup_name));
+    	$ng_title  = Util::htmlentities($netgroup_name);
 		
 		$title     = ( strlen($netgroup_name) > $length_name ) ? substr($netgroup_name, 0, $length_name)."..." : $netgroup_name;	
-		$title     = Util::htmlentities(utf8_encode($title));
+		$title     = Util::htmlentities($title);
 		$tooltip   = $ng_title;
 				
         $li      = "h:'$h', url:'../net/newnetgroupform.php?name=".urlencode($netgroup_name)."', icon:'../../pixmaps/theme/net_group.png', title:'$title', tooltip:'$tooltip'\n";
@@ -712,54 +643,14 @@ else if(preg_match("/e_(.*)_netgroup/",$key,$found))
     
 	echo $buffer;
 }
-else if(preg_match("/e_(.*)_net$/",$key,$found))
+else if(preg_match("/^e_(.*)_net$/",$key))
 {
-	$entityPerms = Acl::entityPerms($conn,$found[1]);
-	$all         = count($entityPerms["assets"]);
-	$nets        = Net::get_list($conn, "", "ORDER BY name ASC", array_keys($entityPerms['sensors'])); //Net::get_all($conn);
-   
-    $html    = "";
-
-    $p = 0;
-	
-	$buffer .= "[";
-    foreach($nets as $net) 
-	{
-        $cidrs = explode(",",$net->get_ips());
-        if (!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"])) 
-		{
-            if($p>=$from && $p<$to) 
-			{
-                $net_name  = $net->get_name();
-				$ips_data  = $net->get_ips();
-				$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
-				$net_title = Util::htmlentities(utf8_encode($net_name));
-				
-        		$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-				$title 	   = Util::htmlentities(utf8_encode($title))." ".$ips;
-				$tooltip   = $net_title." (".$ips_data.")";
-								
-                $html     .= "{h:'$h', url:'../net/newnetform.php?name=".urlencode($net->get_name())."', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip'},";
-            }
-            $p++;
-		}
-	}
-    
-	if ($p>$to) {
-        $html.= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."' }";
-    }
-	    
-	if ($html != "") 
-		$buffer .= preg_replace("/,$/", "", $html); 
-	
-    $buffer .= "]";
-    
-	if ( $buffer == "[]" )  
-		$buffer = "[{title:'"._("No Networks Found")."', noLink:true}]";
-    
-	echo $buffer;
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
 }
-
+else if(preg_match("/^e_(.*)_.class_(.*)/",$key))
+{
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
+}
 else if(preg_match("/e_(.*)_sensor/",$key,$found))
 {
     $entityPerms = Acl::entityPerms($conn,$found[1]);
@@ -774,10 +665,10 @@ else if(preg_match("/e_(.*)_sensor/",$key,$found))
 		if (!$all || $entityPerms["sensors"][$sensor->get_ip()]) 
 		{
 			$sensor_name = $sensor->get_name();
-			$s_title     = Util::htmlentities(utf8_encode($sensor_name));
+			$s_title     = Util::htmlentities($sensor_name);
 			
 			$title   = ( strlen($sensor_name) > $length_name ) ? substr($sensor_name, 0, $length_name)."..." : $sensor_name;	
-			$title 	 = Util::htmlentities(utf8_encode($title));
+			$title 	 = Util::htmlentities($title);
 			$tooltip = $s_title;
 						
 			$li = "h:'$h', url:'../sensor/interfaces.php?sensor=".$sensor->get_ip()."&name=".urlencode($sensor_name)."', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip'\n";
@@ -846,10 +737,10 @@ else if(preg_match("/ue_(.*)/",$key,$found))
 		
 		$u_key   = "u_".$login;
 		
-		$u_title = Util::htmlentities(utf8_encode($login));
+		$u_title = Util::htmlentities($login);
 			
 		$title   = ( strlen($login) > $length_name ) ? substr($login, 0, $length_name)."..." : $login;	
-		$title   = Util::htmlentities(utf8_encode($title));
+		$title   = Util::htmlentities($title);
 		$tooltip = $u_title;
 		
 		
@@ -898,11 +789,11 @@ else if(preg_match("/ou/",$key))
 	$j=0;
 	foreach ($users as $k => $v)
 	{
-		$u_title = Util::htmlentities(utf8_encode($k));
+		$u_title = Util::htmlentities($k);
 		$u_key   = "u_".$k;	
 		
 		$title   = ( strlen($k) > $length_name ) ? substr($k, 0, $length_name)."..." : $k;	
-		$title = Util::htmlentities(utf8_encode($title));
+		$title = Util::htmlentities($title);
 		
 		$tooltip = $u_title;
 				
@@ -937,7 +828,7 @@ else if( preg_match("/servers/",$key) )
 			$serv_title  = Util::htmlentities($server_name);
 			
 			$title   = ( strlen($server_name) > $length_name ) ? substr($server_name, 0, $length_name)."..." : $server_name;	
-			$title   = Util::htmlentities(utf8_encode($title));
+			$title   = Util::htmlentities($title);
 			
 			$tooltip = $serv_title;
 						
@@ -969,10 +860,10 @@ else if( preg_match("/databases/",$key) )
 		{
 			$icon     = "../../pixmaps/database.png";
 			$db_name  = $database->get_name();
-			$db_title = Util::htmlentities(utf8_encode($db_name));
+			$db_title = Util::htmlentities($db_name);
 			
 			$title    = ( strlen($db_name) > $length_name ) ? substr($db_name, 0, $length_name)."..." : $db_name;
-			$title    = Util::htmlentities(utf8_encode($title));			
+			$title    = Util::htmlentities($title);			
 			
 			$tooltip  = $db_title;
 						
@@ -1002,10 +893,10 @@ else if(preg_match("/sensors/",$key))
 		$sensor_name    = utf8_encode($sensor->get_name());
 		$related_assets = Sensor::get_assets($conn, $sensor_name);
 		
-		$s_title  = Util::htmlentities(utf8_encode($sensor_name));
+		$s_title  = Util::htmlentities($sensor_name);
 			
 		$title    = ( strlen($sensor_name) > $length_name ) ? substr($sensor_name, 0, $length_name)."..." : $sensor_name;	
-		$title    = Util::htmlentities(utf8_encode($title));		
+		$title    = Util::htmlentities($title);		
 		
 		$tooltip  = $s_title;
 				

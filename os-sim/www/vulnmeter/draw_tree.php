@@ -229,49 +229,11 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found))
     else 
         echo $buffer;
 }
-else if ($key == "net") 
-{
-	$net_list = Net::get_list($conn, "", "ORDER BY name");
-    
-	$buffer .= "[";
-    if (count($net_list)>0) 
-	{
-        $j = 0;
-        foreach($net_list as $net) 
-		{
-            if($j>=$from && $j<$to) 
-			{
-                $net_name  = $net->get_name();
-				$net_key   = "net_".base64_encode($net_name);
-								
-				$ips_data  = $net->get_ips();				
-				$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
-				
-				$net_title = Util::htmlentities($net_name);
-        		$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-				$title     = Util::htmlentities($title)." ".$ips;
-				
-				$tooltip   = $net_title." (".$ips_data.")";
-								
-				$li      = "key:'$net_key', isLazy:true, url:'$ips_data', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip'\n";
-                $buffer .= (($j>$from) ? "," : "") . "{ $li }\n";
-            }
-            $j++;
-        }
-		
-        if ($j>$to) 
-		{
-            $li      = "key:'net', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."'";
-            $buffer .= ",{ $li }\n";
-        }
-        
-    }
-    $buffer .= "]";
-    
-    if ($buffer=="" || $buffer=="[]")
-        echo "[{title:'"._("No Networks found")."', noLink:true}]";
-    else 
-        echo $buffer;
+else if ($key == "net") {
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
+}
+else if ( preg_match("/^.class_(.*)/",$key,$found) ) {
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
 }
 else if (preg_match("/net_(.*)/",$key,$found))
 {
@@ -629,53 +591,11 @@ else if (preg_match("/host_(.*)/",$key,$found)){
     else 
         echo $buffer;
 }
-else if(preg_match("/e_(.*)_net$/",$key,$found))
-{
-	$entityPerms = Acl::entityPerms($conn,$found[1]);
-	$all         = count($entityPerms["assets"]);
-	$nets        = Net::get_list($conn);
-	   
-    $html = "";
-    $p    = 0;
-	
-	$buffer .= "[";
-    foreach($nets as $net) 
-	{
-        $cidrs = explode(",",$net->get_ips());
-        if (!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"])) 
-		{
-            if($p>=$from && $p<$to) 
-			{
-                $net_name = $net->get_name();
-				$net_title = Util::htmlentities($net_name);
-				
-				$ips_data  = $net->get_ips();				
-				$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
-								
-				$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-				$title     = Util::htmlentities($title)." ".$ips;
-				
-				$tooltip   = $net_title." (".$ips_data.")";
-								
-				$html     .= "{url:'$ips_data', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip'},\n";
-            }
-            $p++;
-        }
-    }
-
-    if ($p>$to) {
-        $html.= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."' }";
-    }
-	
-    if ($html != "") 
-		$buffer .= preg_replace("/,$/", "", $html);
-    
-    $buffer .= "]";
-    
-    if ( $buffer == "" || $buffer == "[]" )
-        echo "[{title:'"._("No Networks found")."', noLink:true}]";
-    else 
-        echo $buffer;
+else if(preg_match("/^e_(.*)_net$/",$key)) {
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
+}
+else if(preg_match("/^e_(.*)_.class_(.*)/",$key)) {
+    echo Net::draw_nets_by_class($conn, $key, $filter, $length_name);
 }
 else if(preg_match("/e_(.*)_sensor/",$key,$found))
 {

@@ -262,6 +262,7 @@ class Net {
     	
         $query = OssimQuery("SELECT DISTINCT SQL_CALC_FOUND_ROWS net.* FROM net $main_where$sensor_where$nets_where $limit");
         //echo $query."<br>";exit;
+        //error_log("$query\n",3,"/tmp/net.log");
         //error_log(implode(",",$sensors).":$query\n",3,"/tmp/log");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
@@ -675,6 +676,197 @@ class Net {
                 return $rs->fields["ips"];
             }
         }
+    }
+    function draw_nets_by_class($conn, $key, $filter, $length_name=50, $low_limit = 10, $high_limit = 100) {
+    
+        require_once ('classes/Session.inc');
+    
+        $buffer    = "";
+        $condition = "";
+        
+        if( $filter!="" ) {
+            if(preg_match("/\d+\./",$filter))   
+                $condition = "ips LIKE '".$filter."%' OR ips LIKE '%,".$filter."%'";
+            else                                 
+                $condition = "name LIKE '%".$filter."%'";
+        }
+        
+        if(preg_match("/.*class.*/",$key) && $condition !="") {
+            $condition = " AND (".$condition.")"; 
+        }
+        
+        if($key=="net") {   // current user nets
+            $net_list = Net::get_list($conn, $condition, "");
+        }
+        else if ( preg_match("/^.class_(.*)/",$key,$found) ) {  // current user subnets
+            $net_list = Net::get_list($conn,"(ips LIKE '".$found[1].".%' OR ips LIKE '%,".$found[1].".%')" . $condition, "");
+        }
+        else if( preg_match("/^e_(.*)_net$/",$key,$found) ) { // entity nets
+            $entityPerms    = Acl::entityPerms($conn,$found[1]);
+            $all            = count($entityPerms["assets"]);
+            $nets_to_check  = Net::get_list($conn, $condition, "ORDER BY name ASC", array_keys($entityPerms['sensors'])); //Net::get_all($conn);
+
+            foreach ($nets_to_check as $net) {
+                $cidrs = explode(",",$net->get_ips());
+                if(!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"]))  $net_list[] = $net; // save nets
+            }
+            
+
+        }
+        else if ( preg_match("/^e_(.*)_.class_(.*)/",$key,$found) ) { // entity subnets
+            $entityPerms    = Acl::entityPerms($conn,$found[1]);
+            $all            = count($entityPerms["assets"]);
+            $nets_to_check  = Net::get_list($conn, "(ips LIKE '".$found[2].".%' OR ips LIKE '%,".$found[2].".%')" . $condition, "ORDER BY name ASC", array_keys($entityPerms['sensors'])); //Net::get_all($conn);
+            
+            foreach ($nets_to_check as $net) {
+                $cidrs = explode(",",$net->get_ips());
+                if(!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"]))  $net_list[] = $net; // save nets
+            }
+        }
+        else if( preg_match("/^u_(.*)_net$/",$key,$found) ) { // user nets
+            $nets_to_check  = Net::get_list($conn, $condition);
+            $allowedNets    = Session::allowedNets($found[1]);
+            $nets_allowed   = array_fill_keys(explode(",",$allowedNets),1);
+        
+            foreach ($nets_to_check as $net) {
+                $cidrs = explode(",",$net->get_ips());
+                if ($allowedNets == "" || Acl::cidrs_allowed($cidrs,$nets_allowed))  $net_list[] = $net;
+            }
+        }
+        else if(preg_match("/^u_(.*)_.class_(.*)/",$key,$found) ) { // user subnets
+            $nets_to_check  = Net::get_list($conn, "(ips LIKE '".$found[2].".%' OR ips LIKE '%,".$found[2].".%')" . $condition);
+            $allowedNets    = Session::allowedNets($found[1]);
+            $nets_allowed   = array_fill_keys(explode(",",$allowedNets),1);
+        
+            foreach ($nets_to_check as $net) { 
+                $cidrs = explode(",",$net->get_ips());
+                if ($allowedNets == "" || Acl::cidrs_allowed($cidrs,$nets_allowed))  $net_list[] = $net;
+            }
+        }
+        
+        if(count($net_list)>0) {
+            // Find IP classes (Class A, Class B and Class C)
+            
+            foreach ($net_list as $net) {
+                $cidrs = trim($net->get_ips());
+                $acidrs = explode(",", $cidrs);
+                foreach($acidrs as $cidr) {
+                    $data = explode(".", $cidr);
+                    
+                    if($cclasses[$data[0].".".$data[1].".".$data[2]]!=1)  $cclasses[$data[0].".".$data[1].".".$data[2]] = 1;
+                    if($cclasses[$data[0].".".$data[1]]!=1)               $bclasses[$data[0].".".$data[1]] = 1;
+                    if($cclasses[$data[0]]!=1)                            $aclasses[$data[0]] = 1;
+                }
+                
+                $name = trim($net->get_name());
+                $nets[$name] = $cidrs;
+            
+            }
+            
+            ksort($nets);
+            $data = array();
+            $found = array();
+            
+            if($key == "net" || preg_match("/^u_(.*)_net$/",$key,$found) || preg_match("/^e_(.*)_net$/",$key,$found) ) {
+                
+                $uoe = "";
+                
+                if( $found[1]!="" ) {
+                    if(preg_match("/^\d+$/",$found[1]))     $uoe = "e_".$found[1]."_";
+                    else                                    $uoe = "u_".$found[1]."_";
+                }
+                $buffer .= "[";
+                
+                if(count($bclasses) <= $low_limit ) {
+                    foreach($cclasses as $cclass => $v) {
+                        $buffer .= "{ key:'".$uoe."cclass_$cclass', icon:'../../pixmaps/theme/net.png', title:'$cclass.---/--', expand:true, children:[\n";
+                        foreach($nets as $net_name => $net_cidrs) if(preg_match("/$cclass\..*/",$net_cidrs)) {
+                        
+                            $net_title = Util::htmlentities($net_name);
+                            
+                            $net_key   = "net_".base64_encode($net_name);
+                            $ips       = "<font style=\"font-size:80%\">(".$net_cidrs.")</font>";
+                                            
+                            $title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
+                            $title     = Util::htmlentities($title)." ".$ips;
+                            
+                            $tooltip   = $net_title." (".$net_cidrs.")";
+                            
+                            $buffer .= "{ key:'$net_key', isLazy:true, h:'$h', url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip' },";
+
+                        }
+                        $buffer = preg_replace("/,$/", "", $buffer);
+                        $buffer .= "]},";
+                    }
+                }
+                else if(count($bclasses) > $low_limit && count($bclasses) <= $high_limit) {
+                    foreach($bclasses as $bclass => $v)
+                        $buffer .= "{ key:'".$uoe."bclass_$bclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$bclass.---.---/--'},";
+                }
+                else {
+                    foreach($aclasses as $aclass => $v)
+                        $buffer .= "{ key:'".$uoe."aclass_$aclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$aclass.---.---.---/--'},";
+                }
+                $buffer = preg_replace("/,$/", "", $buffer);
+                
+                $buffer .= "]";
+                
+            }
+            else if( preg_match("/^aclass_(\d+)/", $key) || preg_match("/^._(.*)_aclass_\d+/", $key, $data) ) {
+                $uoe = "";
+                
+                if( $data[1]!="" ) {
+                    if(preg_match("/^\d+$/",$data[1]))      $uoe = "e_".$data[1]."_";
+                    else                                    $uoe = "u_".$data[1]."_";
+                }
+
+                $buffer .= "[";
+                foreach($bclasses as $bclass => $v)
+                    $buffer .= "{ key:'".$uoe."bclass_$bclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$bclass.---.---/--'},";
+                $buffer = preg_replace("/,$/", "", $buffer);
+                $buffer .= "]";
+            }
+            else if( preg_match("/^bclass_(\d+\.\d+)/", $key) ||  preg_match("/^._(.*)_bclass_(\d+\.\d+)/",$key,$data) ){
+                $uoe = "";
+                
+                if( $data[1]!="" ) {
+                    if(preg_match("/^\d+$/",$data[1]))      $uoe = "e_".$data[1]."_";
+                    else                                    $uoe = "u_".$data[1]."_";
+                }
+                
+                $buffer .= "[";
+                foreach($cclasses as $cclass => $v)
+                    $buffer .= "{ key:'".$uoe."cclass_$cclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$cclass.---/--'},";
+                $buffer = preg_replace("/,$/", "", $buffer);
+                $buffer .= "]";
+            }
+            else if( preg_match("/^cclass_(\d+\.\d+\.\d+)/",$key) ||  preg_match("/^._(.*)_cclass_(\d+\.\d+\.\d+)/",$key) ){
+                $buffer .= "[";
+
+                foreach($nets as $net_name => $net_cidrs) {
+                    $net_title = Util::htmlentities($net_name);
+                            
+                    $net_key   = "net_".base64_encode($net_name);
+                    $ips       = "<font style=\"font-size:80%\">(".$net_cidrs.")</font>";
+                                            
+                    $title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
+                    $title     = Util::htmlentities($title)." ".$ips;
+                            
+                    $tooltip   = $net_title." (".$net_cidrs.")";
+                            
+                    $buffer .= "{ key:'$net_key', isLazy:true, h:'$h', url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip' },";
+                }
+
+                $buffer = preg_replace("/,$/", "", $buffer);
+                $buffer .= "]";
+            }
+        
+        }
+        
+        if ( $buffer == "" || $buffer == "[]" )
+            $buffer = "[{title:'<span>"._("No Networks Found")."<span>', key:'_no_nets_', icon:'../../pixmaps/theme/any.png', addClass:'grey_12'}]";
+
+        return $buffer;
     }
 }
 ?>
