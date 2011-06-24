@@ -76,9 +76,9 @@ if (!$printing_ag) {
 $from = " FROM acid_event " . $criteria_clauses[0];
 $where = " WHERE " . $criteria_clauses[1];
 // use accumulate tables only with timestamp criteria
-$use_ac = (preg_match("/AND/", preg_replace("/AND \( timestamp/", "", $criteria_clauses[1]))) ? false : true;
-if (preg_match("/ \d\d:\d\d:\d\d/",$criteria_clauses[1])) $use_ac = false;
-//$use_ac = false;
+//$use_ac = (preg_match("/AND/", preg_replace("/AND \( timestamp/", "", $criteria_clauses[1]))) ? false : true;
+//if (preg_match("/ \d\d:\d\d:\d\d/",$criteria_clauses[1])) $use_ac = false;
+$use_ac = false;
 if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)(.*)$/", $where, $matches)) {
     if ($matches[2] != $matches[3]) {
         $where = $matches[1] . " AND timestamp BETWEEN('" . $matches[2] . "') AND ('" . $matches[3] . "') " . $matches[4];
@@ -124,6 +124,7 @@ $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , "");
 $sql = "SELECT DISTINCT acid_event.sid, count(acid_event.cid) as event_cnt," . " count(distinct acid_event.plugin_id, acid_event.plugin_sid) as sig_cnt, " . " count(distinct(acid_event.ip_src)) as saddr_cnt, " . " count(distinct(acid_event.ip_dst)) as daddr_cnt, " . "min(timestamp) as first_timestamp, max(timestamp) as last_timestamp" . $sort_sql[0] . $from . $where . " GROUP BY acid_event.sid " . $sort_sql[1];
 //echo $sql."<br>";
 // use accumulate tables only with timestamp criteria
+/*
 if ($use_ac) {
     $where = $more = $sqla = $sqlb = $sqlc = "";
     if (preg_match("/timestamp/", $criteria_clauses[1])) {
@@ -139,7 +140,7 @@ if ($use_ac) {
      (select count(distinct(ip_dst)) from ac_sensor_ipdst where ac_sensor_sid.sid=ac_sensor_ipdst.sid $sqlc) as daddr_cnt,
       min(ac_sensor_sid.first_timestamp) as first_timestamp,  max(ac_sensor_sid.last_timestamp) as last_timestamp
       FROM ac_sensor_sid FORCE INDEX(primary) $where GROUP BY ac_sensor_sid.sid $orderby";
-}
+}*/
 //echo $sql;
 /* Run the Query again for the actual data (with the LIMIT) */
 $result = $qs->ExecuteOutputQuery($sql, $db);
@@ -177,8 +178,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     	$start_time = date("Y-m-d H:i:s",strtotime($start_time)+(3600*$tz));
     	$stop_time = date("Y-m-d H:i:s",strtotime($stop_time)+(3600*$tz));
 	}    
-    $sname = GetSensorName($sensor_id, $db);
-	$sensor_ip = preg_replace("/\-.*/","",$sname);
+    list($sensor_ip,$sname) = GetSensorHostName($sensor_id, $db);
 	$homelan = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $sensor_ip)) || in_array($sensor_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$sensor_ip'><img src=\"".Host::get_homelan_icon($sensor_sip,$icons,$match_cidr,$_conn)."\" border=0></a>" : "";
 	$country = strtolower(geoip_country_code_by_addr($gi, $sensor_ip));
 	$country_name = geoip_country_name_by_addr($gi, $sensor_ip);
