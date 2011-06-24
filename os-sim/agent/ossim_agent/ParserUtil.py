@@ -860,8 +860,12 @@ class HostResolv():
                             if HostResolv.HOST_RESOLV_DYNAMIC_CACHE.has_key(hostname):
                                 if HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname]!=ip:
                                     logger.warning("Host: %s change ip address from :%s to %s" % (hostname,HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname],ip))
+                                else:
+                                    logger.info("Host/ip without changes %s->%s" % (hostname,ip))
+                            else:
+                                logger.info("Adding host/ip to cache %s->%s" % (hostname,ip))
                             HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
-                            logger.info("Adding host/ip to cache %s->%s" % (hostname,ip))
+                            
         HostResolv.printCache()
         HostResolv.saveHostCache()
     refreshCache = staticmethod(refreshCache)

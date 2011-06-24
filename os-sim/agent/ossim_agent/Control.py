@@ -119,7 +119,7 @@ class ControlManager():
 
         # raise exception if we have a bad request
         elif action == "" or transaction == "":
-            raise ValueError('Incorrectly formatted control message.:%s' % data)
+            logger.warning('Incorrectly formatted control message.:%s' % data)
             return self.__response
 
         logger.debug(" Received message from the control framework: %s" % data)
