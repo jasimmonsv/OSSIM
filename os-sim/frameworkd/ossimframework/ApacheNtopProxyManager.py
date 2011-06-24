@@ -67,7 +67,7 @@ class ApacheNtopProxyManager:
             self.__myconf["ossim_pass"])
             self.__myDB_connected = True
         #read sensor list.
-        query = 'select ip from sensor;' 
+        query = 'select sensor.ip from sensor join sensor_properties where sensor.ip = sensor_properties.ip and sensor_properties.has_ntop =1;' 
         tmp = self.__myDB.exec_query(query)
         for sensor in tmp:
             self.__sensors.append(sensor['ip'])
