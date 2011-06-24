@@ -115,7 +115,7 @@ if ($key == "os")
     if ($hg_list = Host_os::get_os_list($conn, $ossim_hosts, $filter)) 
 	{
         $j         = 0;
-		$length_os = 30;
+		$length_os = 25;
         
 		uasort($hg_list, 'cmpf');
         
@@ -129,7 +129,7 @@ if ($key == "os")
                 $pix  = ( $pix == "") ? "../../pixmaps/theme/host_group.png" : $pix;
                 
 				$title   = ( strlen($os) > $length_os ) ? substr($os, 0, $length_os)."..." : $os;
-				$title   = Util::htmlentities(utf8_encode($title))." <font style=\"font-weight:normal;font-size:80%\">(".count($hg)." "._("hosts").")</font>";	
+				$title   = Util::htmlentities($title)." <font style=\"font-weight:normal;font-size:80%\">(".count($hg)." "._("hosts").")</font>";	
 				$tooltip = $os;
 				
 				$li = "key:'os_$os', url:'OS:$os', icon:'$pix', isLazy:true, title:'$title', tooltip:'$tooltip'";
@@ -270,7 +270,7 @@ else if ($key == "macs")
 				$mac_url = 'MAC:'.$mv;
 				
 				$title   = ( strlen($macv) > $length_mac ) ? substr($macv, 0, $length_mac)."..." : $macv;
-				$title   = Util::htmlentities(utf8_encode($title))." <font style=\"font-weight:normal;font-size:80%\">(".count($hg)." "._("hosts").")</font>";	
+				$title   = Util::htmlentities($title)." <font style=\"font-weight:normal;font-size:80%\">(".count($hg)." "._("hosts").")</font>";	
 				$tooltip = $macv;
 								
                 $li   = "key:'$mac_key', url:'$mac_url', icon:'../../pixmaps/theme/mac.png', isLazy:true, title:'$title', tooltip:'$tooltip'\n";

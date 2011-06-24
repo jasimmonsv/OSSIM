@@ -229,7 +229,8 @@ if ( isset($_SESSION['_host']) )
 if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1" ) {
 ?>
 	<p> <?php echo _("Host succesfully inserted"); ?> </p>
-	<script type='text/javascript'>document.location.href="host.php"</script><? 
+	<script type='text/javascript'>document.location.href="host.php"</script>
+<? 
 }
 else 
 {

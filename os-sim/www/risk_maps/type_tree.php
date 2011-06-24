@@ -121,11 +121,11 @@ if ( $key == "host_group" )
             if($j>=$from && $j<$to) 
 			{
                	$hg_name  = $hg->get_name();
-				$hg_title = Util::htmlentities(utf8_encode($hg_name));
+				$hg_title = Util::htmlentities($hg_name);
 				$hg_key   = utf8_encode("hostgroup;".$hg_name);
 				
 				$title    = ( strlen($hg_name) > $length_name ) ? substr($hg_name, 0, $length_name)."..." : $hg_name;	
-				$title    = Util::htmlentities(utf8_encode($title));
+				$title    = Util::htmlentities($title);
 				$tooltip  = $hg_title;
 								
 				$li = "key:'$hg_key', url:'HOST_GROUP:$title', icon:'../../pixmaps/theme/host_group.png', title:'$title', tooltip:'$tooltip'\n";
@@ -159,7 +159,7 @@ else if ( $key == "net" )
             if ($j>=$from && $j<$to) 
 			{
                 $net_name  = $net->get_name();
-				$net_title = Util::htmlentities(utf8_encode($net_name));
+				$net_title = Util::htmlentities($net_name);
 				
 				$net_key   = utf8_encode("net;".$net_name);
 				$net_url   = "NETWORK:".Util::htmlentities($net_name);
@@ -168,7 +168,7 @@ else if ( $key == "net" )
 				$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
 								
         		$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-				$title     = Util::htmlentities(utf8_encode($title))." ".$ips;
+				$title     = Util::htmlentities($title)." ".$ips;
 				
 				$tooltip   = $net_title." (".$ips_data.")";
 								
@@ -199,11 +199,11 @@ else if ( $key=="sensor" )
             if ($j>=$from && $j<$to) 
 			{
               	$sensor_name = $sensor->get_name();
-				$s_title     = Util::htmlentities(utf8_encode($sensor_name));
+				$s_title     = Util::htmlentities($sensor_name);
 				$sensor_key  = utf8_encode("sensor;".$sensor_name);
 				
-				$title    = ( strlen($sensor_name) > $length_name ) ? substr($sensor_name, 0, $length_name)."..." : $sensor_name;	
-				$title    = Util::htmlentities(utf8_encode($title));
+				$s_name   = ( strlen($sensor_name) > $length_name ) ? substr($sensor_name, 0, $length_name)."..." : $sensor_name;	
+				$title    = Util::htmlentities($s_name);
 				$tooltip  = $s_title;
 				
 				$li       = "key:'$sensor_key', url:'', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip'\n";
@@ -234,10 +234,10 @@ else if ( $key=="server" )
 			{
               	$server_name = $server->get_name();
 				$server_key  = utf8_encode("server;".$server_name);
-				$s_title     = Util::htmlentities(utf8_encode($server_name));
+				$s_title     = Util::htmlentities($server_name);
 								
-				$title    = ( strlen($server_name) > $length_name ) ? substr($server_name, 0, $length_name)."..." : $server_name;	
-				$title    = Util::htmlentities(utf8_encode($title));
+				$s_name   = ( strlen($server_name) > $length_name ) ? substr($server_name, 0, $length_name)."..." : $server_name;	
+				$title    = Util::htmlentities($s_name);
 				$tooltip  = $s_title;
 								
 				$li      = "key:'$server_key', url:'', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip'\n";
@@ -299,8 +299,8 @@ else if ( preg_match("/all_(.*)/",$key,$found) )
 						   
 				$aux_hname  = ( strlen($host_name) > $length_hn ) ? substr($host_name, 0, $length_hn)."..." : $host_name;
 								
-				$title      = ( $host_name == $ip ) ? $ip : "$ip <font style=\"font-size:80%\">(".Util::htmlentities($aux_hname).")</font>";
-				$tooltip    = ( $host_name == $ip ) ? $ip : $ip." (".Util::htmlentities($host_name).")";
+				$title      = ( $host_name == "" ) ? $ip : "$ip <font style=\"font-size:80%\">(".Util::htmlentities($aux_hname).")</font>";
+				$tooltip    = ( $host_name == "" ) ? $ip : $ip." (".Util::htmlentities($host_name).")";
 													
 				$html.= "{ key:'$host_key', icon:'../../pixmaps/theme/host.png', title:'$title', tooltip:'$tooltip' },\n";
 			}
