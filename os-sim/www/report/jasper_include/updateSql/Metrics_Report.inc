@@ -103,6 +103,7 @@ function sql_report_data($sql=NULL, $report_data_type){
                 $temp_conn->Execute($value2);
             }
         }
+		$temp_conn->Execute('use ossim');
         $db->close($temp_conn);
     }
 

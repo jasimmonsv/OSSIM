@@ -393,7 +393,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     // ********************** EVENTS TABLE **********************
     // <TR>
     //qroPrintEntryHeader((($colored_alerts == 1) ? GetSignaturePriority($myrow[2], $db) : $i) , $colored_alerts);
-    qroPrintEntryHeader($i , $colored_alerts);
+    qroPrintEntryHeader($i , $colored_alerts, '', '', 'trcellclk');
     $rowid = ($qs->GetCurrentView() * $show_rows) + $i;
     $tmp_rowid = "#" . $rowid . "-(" . $myrow["sid"] . "-" . $myrow["cid"] . ")";
     // <TD>

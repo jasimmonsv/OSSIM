@@ -73,10 +73,7 @@ if (file_exists($cachefile)) {
 */
 
 require_once ('classes/Host.inc');
-require_once ('classes/Host_group.inc');
 require_once ('classes/Net.inc');
-require_once ('classes/Sensor.inc');
-require_once ('classes/Server.inc');
 require_once ('ossim_db.inc');
 
 $db   = new ossim_db();
@@ -106,46 +103,7 @@ if ($key == "" || preg_match("/^(all|host_group)/",$key))
 	}
 }
 
-if ( $key == "host_group" ) 
-{
-	$hg_list = Host_group::get_list($conn, "", "ORDER BY name");
-	
-    if (count($hg_list)>0) 
-	{
-        $j         = 0;
-       	
-		$buffer .= "[";
-		
-		foreach($hg_list as $hg) 
-		{
-            if($j>=$from && $j<$to) 
-			{
-               	$hg_name  = $hg->get_name();
-				$hg_title = Util::htmlentities($hg_name);
-				$hg_key   = utf8_encode("hostgroup;".$hg_name);
-				
-				$title    = ( strlen($hg_name) > $length_name ) ? substr($hg_name, 0, $length_name)."..." : $hg_name;	
-				$title    = Util::htmlentities($title);
-				$tooltip  = $hg_title;
-								
-				$li = "key:'$hg_key', url:'HOST_GROUP:$title', icon:'../../pixmaps/theme/host_group.png', title:'$title', tooltip:'$tooltip'\n";
-                
-				$buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
-            }
-            $j++;
-        }
-		
-        if ($j>$to) 
-		{
-            $li      = "key:'host_group', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("next")." $maxresults "._("host groups")."'";
-            $buffer .= ",{ $li }\n";
-        }
-        
-		$buffer .= "]";
-    }
-	
-}
-else if ( $key == "net" )
+if ( $key == "net" )
 {
 
 	$wherenet = ($filter!="") ? "ips like '%$filter%'" : "";
@@ -161,12 +119,13 @@ else if ( $key == "net" )
                 $net_name  = $net->get_name();
 				$net_title = Util::htmlentities($net_name);
 				
-				$net_key   = utf8_encode("net;".$net_name);
 				$net_url   = "NETWORK:".Util::htmlentities($net_name);
 				
 				$ips_data  = $net->get_ips();				
 				$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
-								
+				
+				$net_key   = utf8_encode("net;".$ips_data);
+				
         		$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
 				$title     = Util::htmlentities($title)." ".$ips;
 				
@@ -181,74 +140,6 @@ else if ( $key == "net" )
 		if ($j>$to) 
 		{
             $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."'";
-            $buffer .= ",{ $li }\n";
-        }
-        
-		$buffer .= "]";
-    }
-}
-else if ( $key=="sensor" ) 
-{
-    if ($sensor_list = Sensor::get_list($conn, "ORDER BY name"))
-	{
-        $j = 0;
-		
-		$buffer .= "[";
-        foreach($sensor_list as $sensor) 
-		{
-            if ($j>=$from && $j<$to) 
-			{
-              	$sensor_name = $sensor->get_name();
-				$s_title     = Util::htmlentities($sensor_name);
-				$sensor_key  = utf8_encode("sensor;".$sensor_name);
-				
-				$s_name   = ( strlen($sensor_name) > $length_name ) ? substr($sensor_name, 0, $length_name)."..." : $sensor_name;	
-				$title    = Util::htmlentities($s_name);
-				$tooltip  = $s_title;
-				
-				$li       = "key:'$sensor_key', url:'', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip'\n";
-                $buffer  .= (($j > $from) ? "," : "") . "{ $li }\n";
-            }
-            $j++;
-        }
-        
-		if ($j>$to) 
-		{
-            $li      = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("next")." $maxresults "._("sensors")."'";
-            $buffer .= ",{ $li }\n";
-        }
-		
-        $buffer .= "]";
-    }
-}
-else if ( $key=="server" ) 
-{
-    if ($server_list = Server::get_list($conn, "ORDER BY name")) 
-	{
-        $j = 0;
-		
-		$buffer .= "[";
-        foreach($server_list as $server) 
-		{
-            if ($j>=$from && $j<$to) 
-			{
-              	$server_name = $server->get_name();
-				$server_key  = utf8_encode("server;".$server_name);
-				$s_title     = Util::htmlentities($server_name);
-								
-				$s_name   = ( strlen($server_name) > $length_name ) ? substr($server_name, 0, $length_name)."..." : $server_name;	
-				$title    = Util::htmlentities($s_name);
-				$tooltip  = $s_title;
-								
-				$li      = "key:'$server_key', url:'', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip'\n";
-                $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
-            }
-            $j++;
-        }
-		
-        if ($j>$to) 
-		{
-            $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/server.png', title:'"._("next")." $maxresults "._("servers")."'";
             $buffer .= ",{ $li }\n";
         }
         
@@ -294,7 +185,7 @@ else if ( preg_match("/all_(.*)/",$key,$found) )
 		{
 			if ($i>=$from && $i<$to) 
 			{                    
-				$host_key   = "host;".$ossim_hosts[$ip];
+				$host_key   = "host;".$ip;
 				$host_name  = ( $ip == $ossim_hosts[$ip] ) ? "" : utf8_encode($ossim_hosts[$ip]);
 						   
 				$aux_hname  = ( strlen($host_name) > $length_hn ) ? substr($host_name, 0, $length_hn)."..." : $host_name;
@@ -323,11 +214,7 @@ else if ( preg_match("/all_(.*)/",$key,$found) )
 else if ( $key !="all" ) 
 {
     $buffer .= "[ { key:'all', page:'', isFolder:true, isLazy:true , icon:'../../pixmaps/theme/host.png', title:'"._("Hosts")." <font style=\"font-weight:normal;font-size:80%\">(" . $total_hosts . " "._("hosts").")</font>'},\n";
-    $buffer .= "{ key:'host_group', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_group.png', title:'"._("Host Groups")."'},\n";
 	$buffer .= "{ key:'net', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("Networks")."'},\n";
-    $buffer .= "{ key:'sensor', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net_group.png', title:'"._("Sensors")."'}\n";
-    if (Session::am_i_admin()) 
-		$buffer .= ",{ key:'server', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/server.png', title:'"._("Servers")."'}\n";
     $buffer .= "]";
 }
 

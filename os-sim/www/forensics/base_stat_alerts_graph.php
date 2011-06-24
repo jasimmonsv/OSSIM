@@ -212,7 +212,7 @@ if ($use_ac) {
         $sqlgraph = "SELECT sum(sig_cnt) as sig_cnt, $interval FROM ac_alerts_signature WHERE plugin_id=PLUGINID AND plugin_sid=PLUGINSID $grpby";
     }
 } else {
-    $event_cnt = EventCnt($db, "", "", $sql);
+    $event_cnt = EventCnt($db, "", "", "SELECT count(*) " . $from . $where);
     if ($event_cnt == 0) $event_cnt = 1;
 }
 //echo $sql."<br>".$sqlgraph."<br>".$interval." ".$tr;

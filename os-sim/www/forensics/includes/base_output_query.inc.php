@@ -249,13 +249,13 @@ class QueryResultsOutput {
 function qroReturnSelectALLCheck() {
     return '<INPUT type=checkbox value="Select All" onClick="if (this.checked) SelectAll(); if (!this.checked) UnselectAll();">';
 }
-function qroPrintEntryHeader($prio = 1, $color = 0, $more = "", $forced_color="") {
+function qroPrintEntryHeader($prio = 1, $color = 0, $more = "", $forced_color="", $class="trcell") {
     global $priority_colors;
     if ($color == 1) {
-        echo '<TR class="trcell" BGCOLOR="#' . $priority_colors[$prio] . '" ' . $more . '>';
+        echo '<TR class="'.$class.'" BGCOLOR="#' . $priority_colors[$prio] . '" ' . $more . '>';
     } else {
         $bgcolor = ($forced_color!="") ? $forced_color : (($prio % 2 == 0) ? "EEEEEE" : "FFFFFF");
-        echo '<TR class="trcell" BGCOLOR="#' . $bgcolor . '" ' . $more . '>';
+        echo '<TR class="'.$class.'" BGCOLOR="#' . $bgcolor . '" ' . $more . '>';
     }
 }
 function qroPrintEntry($value, $halign = "center", $valign = "top", $passthru = "", $bgcolor = "") {

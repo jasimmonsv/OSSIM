@@ -44,6 +44,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 $key  = GET('key');
 $page = intval(GET('page'));
 
+
 ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("Key"));
 ossim_valid($page, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("Page"));
 
@@ -59,7 +60,10 @@ $to           = $page * $maxresults;
 $from         = $to - $maxresults;
 $nextpage     = $page + 1;
 
-$length_name  = 30;
+$length_name = ( !empty($_GET['length_name']) ) ? GET('length_name') : 30;
+
+
+
 
 $cachefile = "/var/ossim/sessions/".$_SESSION["_user"]."_vulnmeter_".base64_encode($key)."_$page.json";
 if (file_exists($cachefile) && $key!="entities") {
@@ -149,13 +153,13 @@ else if ($key == "hostgroup")
             if($j>=$from && $j<$to) 
 			{
                 $hg_name  = $hg->get_name();
-				$hg_title = Util::htmlentities(utf8_encode($hg_name));
+				$hg_title = Util::htmlentities($hg_name);
 				
 				$hg_key   = "hostgroup_".base64_encode($hg_name);
 				$hg_url   = "NODES:".$hg_title;
 								           
-				$title    = ( strlen($hg_name) > $length_name ) ? substr($hg_name, 0, $length_name)."..." : $hg_name;	
-				$title    = Util::htmlentities(utf8_encode($title));
+				$title    = ( strlen($hg_name) > $length_name ) ? substr($hg_name, 0, $length_name)."..." : $hg_name;	 
+				$title    = Util::htmlentities($title);
 				$tooltip  = $hg_title;
 								
 				$li      = "key:'$hg_key', isLazy:true , url:'$hg_url', icon:'../../pixmaps/theme/host_group.png', title:'$title', tooltip:'$tooltip'\n";
@@ -179,7 +183,7 @@ else if ($key == "hostgroup")
 }
 else if (preg_match("/hostgroup_(.*)/",$key,$found)) 
 {
-    $length_hn = 35;
+    $length_hn = $length_name+5;
 	
 	$buffer .= "[";
     if ($hg_hosts = Host_group::get_hosts($conn, base64_decode($found[1]))) 
@@ -201,7 +205,7 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found))
 														
 					$aux_hname  = ( strlen($hname) > $length_hn ) ? substr($hname, 0, $length_hn)."..." : $hname;
 			
-					$title      = ( $hname == '' ) ? $ip : "$ip <font style=\"font-size:80%\">(" . Util::htmlentities(utf8_encode($aux_hname)) . ")</font>";
+					$title      = ( $hname == '' ) ? $ip : "$ip <font style=\"font-size:80%\">(" . Util::htmlentities($aux_hname) . ")</font>";
 					$tooltip    = ( $hname == '' ) ? $ip : $ip." (".$hname.")";
 															
 					$html      .= "{ key:'$host_key', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$title', tooltip:'$tooltip' },\n";
@@ -243,9 +247,9 @@ else if ($key == "net")
 				$ips_data  = $net->get_ips();				
 				$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
 				
-				$net_title = Util::htmlentities(utf8_encode($net_name));
+				$net_title = Util::htmlentities($net_name);
         		$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-				$title     = Util::htmlentities(utf8_encode($title))." ".$ips;
+				$title     = Util::htmlentities($title)." ".$ips;
 				
 				$tooltip   = $net_title." (".$ips_data.")";
 								
@@ -272,7 +276,7 @@ else if ($key == "net")
 else if (preg_match("/net_(.*)/",$key,$found))
 {
 	$hostin    = array();
-	$length_hn = 35;
+	$length_hn = $length_name+5;
 	
 	if ($net_list1 = Net::get_list($conn, "name='".base64_decode($found[1])."'")) 
 	{
@@ -316,7 +320,7 @@ else if (preg_match("/net_(.*)/",$key,$found))
 												
 			$aux_hname  = ( strlen($hname) > $length_hn ) ? substr($hname, 0, $length_hn)."..." : $hname;
 	
-			$title      = ( $hname == '' ) ? $ip : "$ip <font style=\"font-size:80%\">(" . Util::htmlentities(utf8_encode($aux_hname)) . ")</font>";
+			$title      = ( $hname == '' ) ? $ip : "$ip <font style=\"font-size:80%\">(" . Util::htmlentities($aux_hname) . ")</font>";
 			$tooltip    = ( $hname == '' ) ? $ip : $ip." (".$hname.")";
 									
 			$html      .= "{ key:'$host_key', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$title', tooltip:'$tooltip' },\n";
@@ -350,10 +354,10 @@ else if ($key=="netgroup")
 			{
                	$ng_name  = $net_group->get_name();
 				$ng_key   = "netgroup_".base64_encode($ng_name);
-				$ng_title = Util::htmlentities(utf8_encode($ng_name));
+				$ng_title = Util::htmlentities($ng_name);
 				
 				$title    = ( strlen($ng_name) > $length_name ) ? substr($ng_name, 0, $length_name)."..." : $ng_name;
-				$title    = Util::htmlentities(utf8_encode($title));				
+				$title    = Util::htmlentities($title);				
 				$tooltip  = $ng_title;
 								
 				$li      = "key:'$ng_key', isLazy:true , url:'NODES:$ng_title', icon:'../../pixmaps/theme/net_group.png', title:'$title', tooltip:'$tooltip'\n";
@@ -389,14 +393,14 @@ else if (preg_match("/netgroup_(.*)/",$key,$found))
         if($k>=$from && $k<$to) 
 		{
             $net_name  = $net->get_net_name();
-			$net_title = Util::htmlentities(utf8_encode($net_name));
+			$net_title = Util::htmlentities($net_name);
 			
 			$net_key   = utf8_encode($key.$k);
 			$ips_data  = $net->get_net_ips($conn);				
 			$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
 						
 			$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-			$title     = Util::htmlentities(utf8_encode($title))." ".$ips;
+			$title     = Util::htmlentities($title)." ".$ips;
 			
 			$tooltip   = $net_title." (".$ips_data.")";
 			
@@ -480,8 +484,7 @@ else if (preg_match("/all_(.*)/",$key,$found))
     
     $j         = 1;
     $i         = 0;
-	$length_hn = 30;
-	
+		
 	$buffer .= "[";
 	
 	foreach($all_cclass_hosts as $cclass => $hg) 
@@ -497,9 +500,9 @@ else if (preg_match("/all_(.*)/",$key,$found))
 					$hname      = ( $ip == $ossim_hosts[$ip] ) ? "" : $ossim_hosts[$ip];
 					$host_key   = "host_".$ip;
 														
-					$aux_hname  = ( strlen($hname) > $length_hn ) ? substr($hname, 0, $length_hn)."..." : $hname;
+					$aux_hname  = ( strlen($hname) > $length_name ) ? substr($hname, 0, $length_name)."..." : $hname;
 			
-					$title      = ( $hname == '' ) ? $ip : "$ip <font style=\"font-size:80%\">(" . Util::htmlentities(utf8_encode($aux_hname)) . ")</font>";
+					$title      = ( $hname == '' ) ? $ip : "$ip <font style=\"font-size:80%\">(" . Util::htmlentities($aux_hname) . ")</font>";
 					$tooltip    = ( $hname == '' ) ? $ip : $ip." (".$hname.")";
 								   
 					$html      .= "{ key:'$host_key', url:'$ip', isLazy:true, icon:'../../pixmaps/theme/host.png', title:'$title', tooltip:'$tooltip' },\n";
@@ -577,17 +580,16 @@ else if (preg_match("/host_(.*)/",$key,$found)){
     $buffer = "[";
     
     $name      = "";
-    $length_hn = 30;
-	    
+    	    
 	if ( $found[1] != $hname ) 
 	{  
 		$ip         = $found[1];
 		$host_name  = $hname;
 			
-		$host_tooltip = "!".$ip." (".Util::htmlentities(utf8_encode($host_name)).")";
-		$aux_hname    = ( strlen($host_name) > $length_hn ) ? substr($host_name, 0, $length_hn)."..." : $host_name;
+		$host_tooltip = "!".$ip." (".Util::htmlentities($host_name).")";
+		$aux_hname    = ( strlen($host_name) > $length_name ) ? substr($host_name, 0, $length_name)."..." : $host_name;
 
-		$title   = "<span style=\"color: #B3B5DD;\">!$ip (".Util::htmlentities(utf8_encode($aux_hname)).")</span>";
+		$title   = "<span style=\"color: #B3B5DD;\">!$ip (".Util::htmlentities($aux_hname).")</span>";
 		$tooltip = $host_tooltip;
 	}
     else
@@ -608,7 +610,7 @@ else if (preg_match("/host_(.*)/",$key,$found)){
 			$host_key   = utf8_encode($key.$j);
 		
 			$host_tooltip =  Util::htmlentities($fqdn)." (" . $ip . ")";
-			$aux_fqdn     = ( strlen($fqdn) > $length_hn ) ? substr($fqdn, 0, $length_hn)."..." : $fqdn;
+			$aux_fqdn     = ( strlen($fqdn) > $length_name ) ? substr($fqdn, 0, $length_name)."..." : $fqdn;
 	
 			$title   = "$aux_fqdn <font style=\"font-size:80%\">(" . $ip . ")</font>";
 			$tooltip = $host_tooltip;
@@ -645,13 +647,13 @@ else if(preg_match("/e_(.*)_net$/",$key,$found))
             if($p>=$from && $p<$to) 
 			{
                 $net_name = $net->get_name();
-				$net_title = Util::htmlentities(utf8_encode($net_name));
+				$net_title = Util::htmlentities($net_name);
 				
 				$ips_data  = $net->get_ips();				
 				$ips       = "<font style=\"font-size:80%\">(".$ips_data.")</font>";
 								
 				$title     = ( strlen($net_name) > $length_name ) ? substr($net_name, 0, $length_name)."..." : $net_name;	
-				$title     = Util::htmlentities(utf8_encode($title))." ".$ips;
+				$title     = Util::htmlentities($title)." ".$ips;
 				
 				$tooltip   = $net_title." (".$ips_data.")";
 								
@@ -689,11 +691,11 @@ else if(preg_match("/e_(.*)_sensor/",$key,$found))
 		if (!$all || $entityPerms["sensors"][$sensor->get_ip()]) 
 		{
 			$sensor_name = $sensor->get_name();
-			$s_title     = Util::htmlentities(utf8_encode($sensor_name));
+			$s_title     = Util::htmlentities($sensor_name);
 			$sensor_key  = utf8_encode("sensor;".$sensor_name);
 			
 			$title    = ( strlen($sensor_name) > $length_name ) ? substr($sensor_name, 0, $length_name)."..." : $sensor_name;	
-			$title    = Util::htmlentities(utf8_encode($title));
+			$title    = Util::htmlentities($title);
 			$tooltip  = $s_title;
 						
 			$li = "url:'".$sensor->get_ip()."', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip'\n";
@@ -741,7 +743,7 @@ else if ($key=="entities")
 			
 			$e_key  = "e_".$entity['id'];
 			$e_sn   = ( strlen($entity['name']) > $length_name )	? substr($entity['name'], 0, $length_name)."..." : $entity['name'];	
-			$e_name = Util::htmlentities(utf8_encode($entity_name)); 
+			$e_name = Util::htmlentities($entity_name); 
 			
 			$entities_admin[$entity['admin_user']] = $entity['id'];
 			
@@ -790,7 +792,7 @@ function echochildrens($entities, $parent_id, $entities_admin) {
 	$me              = Session::get_session_user();
 	$entities_types  = Acl::get_entities_types($conn);
 	
-	$length_name     = 30;
+	$length_name = ( !empty($_GET['length_name']) ) ? GET('length_name') : 30; 
 	
 	echo ",children:[";
 	
@@ -822,7 +824,7 @@ function echochildrens($entities, $parent_id, $entities_admin) {
 			
 			$child_key   = "e_".$child_id;
 			$child_sn    = ( strlen($child['name']) > $length_name )	? substr($child['name'], 0, $length_name)."..." : $child['name'];	
-			$child_name  = Util::htmlentities(utf8_encode($child['name'])); 
+			$child_name  = Util::htmlentities($child['name']); 
 			
 			$chil_ent_admin                       = $entities_admin;
 			$chil_ent_admin[$child['admin_user']] = $child_id;
