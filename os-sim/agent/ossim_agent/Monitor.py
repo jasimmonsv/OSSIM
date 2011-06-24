@@ -57,7 +57,7 @@ class Monitor:
             conffile = self.options.config_file
         else:
             conffile = self._conf.DEFAULT_CONFIG_FILE
-        self._conf.read([conffile])
+        self._conf.read([conffile],False)
         self.watch_rule = watch_rule
 
         self.queries = \

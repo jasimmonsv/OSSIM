@@ -345,6 +345,7 @@ class ParserLog(Detector):
 
                                 # one rule matched, no need to check more
                                 rule_matched = True
+                                break
 
             time.sleep(0.1)
 
