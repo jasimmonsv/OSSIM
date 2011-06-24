@@ -77,6 +77,26 @@ function GetSensorName($sid, $db) {
     $tmp_result->baseFreeRows();
     return $name;
 }
+function GetSensorHostName($sid, $db) {
+    $name = $ip = "";
+    $multiple = (preg_match("/\,/", $sid)) ? true : false;
+    if ($multiple) $sid = preg_replace("/\s*\,.*/", "", $sid);
+    $tmp_sql = "SELECT * FROM sensor WHERE sid='" . $sid . "'";
+    $tmp_result = $db->baseExecute($tmp_sql);
+    if ($tmp_result) {
+		$myrow = $tmp_result->baseFetchRow();
+        if ($myrow == "") $name = "Unknown";
+		else {
+			$ip   =  ($myrow["sensor"]!="") ? $myrow["sensor"] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$myrow["hostname"]));
+			$name =  trim(preg_replace("/.*\]\s*/","",$myrow["hostname"]));
+		}
+    }
+	else {
+		$ip = $name = "Unknown";
+	}
+    $tmp_result->baseFreeRows();
+    return array($ip,$name);
+}
 function GetSensorSids($db) {
     $sensors = array();
     $temp_sql = "SELECT * FROM sensor";

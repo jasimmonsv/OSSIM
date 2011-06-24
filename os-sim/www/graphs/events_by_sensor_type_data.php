@@ -84,26 +84,28 @@ if (Session::allowedSensors() != "") {
 	}
 	// SENSOR Filter mysql layer (not implemented)
 	//$query = "SELECT DISTINCT ac_sensor_sid.sid, sum(ac_sensor_sid.cid) as event_cnt, (select count(distinct plugin_id, plugin_sid) from ac_sensor_signature where ac_sensor_signature.sid=ac_sensor_sid.sid and ac_sensor_sid.day=ac_sensor_signature.day) as sig_cnt, (select count(distinct(ip_src)) from ac_sensor_ipsrc where ac_sensor_sid.sid=ac_sensor_ipsrc.sid and ac_sensor_sid.day=ac_sensor_ipsrc.day) as saddr_cnt, (select count(distinct(ip_dst)) from ac_sensor_ipdst where ac_sensor_sid.sid=ac_sensor_ipdst.sid and ac_sensor_sid.day=ac_sensor_ipdst.day) as daddr_cnt, min(ac_sensor_sid.first_timestamp) as first_timestamp, max(ac_sensor_sid.last_timestamp) as last_timestamp FROM ac_sensor_sid FORCE INDEX(primary) GROUP BY ac_sensor_sid.sid ORDER BY event_cnt DESC LIMIT 10";
-	$query = "SELECT DISTINCT sid, sum(cid) as event_cnt FROM ac_sensor_sid GROUP BY sid ORDER BY event_cnt DESC LIMIT 20";
+	$query = "SELECT DISTINCT sid, sum(cid) as event_cnt FROM ac_sensor_sid GROUP BY sid ORDER BY event_cnt DESC";
 }
 else
-	$query = "SELECT DISTINCT sid, sum(cid) as event_cnt FROM ac_sensor_sid GROUP BY sid ORDER BY event_cnt DESC LIMIT 20";
+	$query = "SELECT DISTINCT sid, sum(cid) as event_cnt FROM ac_sensor_sid GROUP BY sid ORDER BY event_cnt DESC";
 
 if (!$rs = & $conn->Execute($query)) {
     print $conn->ErrorMsg();
     exit();
 }
+$s=0;
 $data = array();
 while (!$rs->EOF) {
     // SENSOR Filter PHP layer
 	$sensor_plugin = explode("-", GetSensorName($rs->fields["sid"], $conn), 2);
-    if (Session::allowedSensors() == "" || $sensorkeys[$sensor_plugin[0]] > 0) {
+    if ($s<20 && (Session::allowedSensors() == "" || $sensorkeys[$sensor_plugin[0]] > 0)) {
 		$plugin = ($sensor_plugin[1] != "") ? preg_replace("/:.*/", "", $sensor_plugin[1]) : "snort";
 		if ($plugin=="") $plugin="snort";
 		$plugin= preg_replace("/ossec-.*/", "ossec", $plugin);
 		$sensor_plugin[0] = preg_replace("/:.*/", "", $sensor_plugin[0]);
 		$sensor = ($sensors[$sensor_plugin[0]] != "") ? $sensors[$sensor_plugin[0]] : $sensor_plugin[0];
 		$data[$sensor][$plugin]+= $rs->fields["event_cnt"];
+		$s++;
 	}
     $rs->MoveNext();
 }
