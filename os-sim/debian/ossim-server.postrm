@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+# Stop ossim-server after removal
+/etc/init.d/ossim-server stop > /dev/null
+
+if [ "$1" = "purge" ] ; then
+	update-rc.d -f ossim-server remove >/dev/null
+fi
+
+exit 0
