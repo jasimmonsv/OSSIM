@@ -130,6 +130,8 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
 
                 else:
                     return
+            except socket.error, e:
+                logger.warning("Client disconnected..." )
 
             except IndexError:
                 logger.error("IndexError")

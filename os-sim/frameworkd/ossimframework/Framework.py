@@ -220,7 +220,7 @@ class Framework:
 
             if str(conf[conf_entry]).lower() in ('1', 'yes', 'true'):
                 logger.info(c.upper() + " is enabled")
-                print conf_entry
+                #print conf_entry
                 exec "from %s import %s" % (c, c)
                 exec "t = %s()" % (c)
                 t.start()
