@@ -804,7 +804,7 @@ EOT;
                "Links" => $fieldMapLinks);
       if(count($tdata)>1)
         drawTableLatest($fieldMap, $tdata, "Hosts");
-      else echo "<br><b>"._("No results found, try to change the search parameters")."<br><br></b>";
+      else echo "<br><b>"._("No results found: ")."<a href='sched.php?smethod=schedule&hosts_alive=1&scan_locally=1'>"._("Click here to run a Vulnerability Scan now")."</a><br><br></b>";
 
    }
    // draw the pager again, if viewing all hosts

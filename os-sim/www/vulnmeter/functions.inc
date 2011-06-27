@@ -1349,7 +1349,7 @@ else {
                ORDER BY t1.id DESC LIMIT $offset,$pageSize";
 }
      $result = $dbconn->Execute($query);
-     $sInfo .= "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"90%\"><tr><td class=\"headerpr\" style=\"border:0;\">".(($status=="") ? _("All Scans") : _("All Running Scans"))."</td></tr></table>";
+     $sInfo .= "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"90%\"><tr><td class=\"headerpr\" style=\"border:0;\">".(($status=="") ? _("All Scans") : _("Running Scans"))."</td></tr></table>";
 
 
      if(!$result->EOF) {
