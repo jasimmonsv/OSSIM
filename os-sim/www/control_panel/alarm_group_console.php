@@ -595,6 +595,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 				}
 			});
 		} else {
+			alert("alarm_group_response.php?only_delete="+index+selected_group);
 			$.ajax({
 				type: "GET",
 				url: "alarm_group_response.php?only_delete="+index+selected_group,
@@ -863,7 +864,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
     // Timezone correction
     $tz = Util::get_timezone();
     foreach($alarm_group as $group) {
-        $group['date'] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$group['date'])+(3600*$tz));
+        $group['date'] = ($group['date'] != "") ? gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$group['date'])+(3600*$tz)) : "";
 		$group_id = $group['group_id'];
 		$_SESSION[$group_id] = $group['name'];
 		$ocurrences = $group['group_count'];
