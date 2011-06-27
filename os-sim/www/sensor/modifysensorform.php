@@ -51,8 +51,9 @@ $update = intval(GET('update'));
 
 $style_success = "style='display: none;'";
 
-if ( $update==1 ) {
-    $success_message = gettext("Sensor succesfully updated");
+if ( $update == 1 ) 
+{
+    $success_message = _("Sensor succesfully updated");
     $style_success   = "style='display: block;text-align:center;'"; 
 }
 
@@ -63,6 +64,11 @@ if ( isset($_SESSION['_sensor']) )
 	$priority   = $_SESSION['_sensor']['priority']; 
 	$descr	    = $_SESSION['_sensor']['descr']; 
 	$tzone	    = $_SESSION['_sensor']['tzone']; 
+	
+	$s_tpl      = Sensor::is_sensor_in_templates($conn, $ip);
+	if ( !empty($s_tpl) )
+		$s_tpl = implode(",", $s_tpl);
+	
 	
 	unset($_SESSION['_sensor']);
 }
@@ -84,16 +90,19 @@ else
 			$priority = $sensor->get_priority();
 			$descr    = $sensor->get_descr();
 			$tzone    = $sensor->get_tzone();
-						
+			$s_tpl      = Sensor::is_sensor_in_templates($conn, $ip);
+			if ( !empty($s_tpl) )
+				$s_tpl = implode(",", $s_tpl);
+									
 			unset($_SESSION['_sensor']);
-		
 		}
 	}
 	
 	$db->close($conn);
 }
 
-$tz=$tzone;
+$tz = $tzone;
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -115,6 +124,7 @@ $tz=$tzone;
             if ( $('#success_message').length == 1 )    
                 $("#success_message").remove();
         }
+		
 		$(document).ready(function(){
 			$('textarea').elastic();
 			
@@ -126,6 +136,24 @@ $tz=$tzone;
 		function ajax_postload() {
             if (typeof parent.doIframe == 'function')
                 parent.doIframe();
+		}
+		
+		function modify_sensor()
+		{
+			remove_success_message();
+			
+			var s_tpl  = '<?php echo $s_tpl?>';
+			var ip     = $("#ip").val();
+			var old_ip = $("#sip").val();
+			
+			if ( s_tpl != '' && old_ip != '' && (ip != old_ip) )
+			{
+				var msg = '<?php echo _("This sensor is used on templates:")." ".$s_tpl." "._("Do you want to modify this sensor?")?>';
+				if( confirm(msg) ) 
+					submit_form();
+			}
+			else
+				submit_form();
 		}
 				
 	</script>
@@ -181,6 +209,7 @@ if ($wm != "1")
 		<th><label for='ip'><?php echo gettext("IP"); ?></label></th>
 		<td class="left">
 			<input type="text" class='req_field vfield' name="ip" id="ip" value="<?php echo $ip?>"/>
+			<input type="hidden" name="sip" id="sip" class='req_field vfield' value="<?php echo $ip; ?>"/>
 			<span style="padding-left: 3px;">*</span>
 		</td>
 	</tr>
@@ -262,7 +291,7 @@ if ($wm != "1")
 	
 	<tr>
 		<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
-			<input type="button"  class="button" id='send' value="<?php echo _("Update")?>" onclick="remove_success_message();submit_form();"/>
+			<input type="button"  class="button" id='send' value="<?php echo _("Update")?>" onclick="modify_sensor();"/>
 			<input type="reset"   class="button" value="<?php echo gettext("Clear form"); ?>"/>
 		</td>
 	</tr>
