@@ -146,7 +146,7 @@ if ( isset($_SESSION['_host']) )
 	$hostname      = $_SESSION['_host']['hostname'];
 	$old_hostname  = $_SESSION['_host']['old_hostname'];
 	$ip            = $_SESSION['_host']['ip'];  	
-	$fqdns         = $_SESSION['_host']['fqdns']; 
+	$fqdns         = $_SESSION['_host']['fqdns'];
 	$descr	       = $_SESSION['_host']['descr']; 
 	$asset         = $_SESSION['_host']['asset'];
 	$nat           = $_SESSION['_host']['nat'];  	
@@ -981,7 +981,7 @@ if ( empty( $ip ) ) {
 							<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/></a><br/>
 						</th>
 						<td class="left">
-							<textarea name="fqdns" id="fqdns" class='vfield'><?php echo $fqdns;?></textarea>
+							<textarea name="fqdns" id="fqdns" class='vfield'><?php echo str_replace("\r\n", " ", $fqdns);?></textarea>
 						</td>
 					</tr>
 					
