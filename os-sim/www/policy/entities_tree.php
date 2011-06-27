@@ -305,7 +305,7 @@ else if (preg_match("/net_(.*)/",$key,$found))
 			foreach ($nets_ips as $net_ips) 
 			{
                 $net_range     = CIDR::expand_CIDR($net_ips,"SHORT","IP");
-                $host_list_aux = Host::get_list($conn,"WHERE inet_aton(ip)>=inet_aton('".$net_range[0]."') && inet_aton(ip)<=inet_aton('".$net_range[1]."')");
+                $host_list_aux = Host::get_list($conn,"WHERE inet_aton(ip)>=inet_aton('".$net_range[0]."') && inet_aton(ip)<=inet_aton('".$net_range[1]."')", "ORDER BY ip");
                 foreach ($host_list_aux as $h) 
 				{
                     $hostin[$h->get_ip()] = $h->get_hostname();

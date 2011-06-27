@@ -680,6 +680,7 @@ class Net {
     function draw_nets_by_class($conn, $key, $filter, $length_name=50, $low_limit = 10, $high_limit = 100) {
     
         require_once ('classes/Session.inc');
+        require_once ('classes/Host.inc');
     
         $buffer    = "";
         $condition = "";
@@ -753,9 +754,9 @@ class Net {
                 foreach($acidrs as $cidr) {
                     $data = explode(".", $cidr);
                     
-                    if($cclasses[$data[0].".".$data[1].".".$data[2]]!=1)  $cclasses[$data[0].".".$data[1].".".$data[2]] = 1;
-                    if($cclasses[$data[0].".".$data[1]]!=1)               $bclasses[$data[0].".".$data[1]] = 1;
-                    if($cclasses[$data[0]]!=1)                            $aclasses[$data[0]] = 1;
+                    if($cclasses[$data[0].".".$data[1].".".$data[2]]=="")  $cclasses[$data[0].".".$data[1].".".$data[2]] = Host::ip2ulong($data[0].".".$data[1].".".$data[2].".0");
+                    if($bclasses[$data[0].".".$data[1]]=="")               $bclasses[$data[0].".".$data[1]]              = Host::ip2ulong($data[0].".".$data[1].".0.0");
+                    if($aclasses[$data[0]]=="")                            $aclasses[$data[0]]                           = Host::ip2ulong($data[0].".0.0.0");
                 }
                 
                 $name = trim($net->get_name());
@@ -763,6 +764,10 @@ class Net {
             
             }
             
+            asort($aclasses);
+            asort($bclasses);
+            asort($cclasses);
+
             ksort($nets);
             $data = array();
             $found = array();
