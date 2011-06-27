@@ -76,7 +76,7 @@ $no_signed_files = get_no_signed_files();
 foreach ($no_signed_files as $k => $v)
 {
 	echo _("Signing")." ".$v;
-	$last_line = exec("openssl dgst -sha1 -sign /var/ossim/keys/rsaprv.pem -passin pass:`grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d \"=\"` $path_files$k | base64 > $path_files$v", $output, $ret); 
+	$last_line = exec("openssl dgst -sha1 -sign /var/ossim/keys/rsaprv.pem -passin pass:`grep \"^pass=\" /etc/ossim/ossim_setup.conf | cut -f 2 -d \"=\"` $path_files$k | base64 > $path_files$v", $output, $ret); 
 		
 	if ( $ret === 0  )
 		echo sprintf("%'.30s\n", _("Done"));

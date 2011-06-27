@@ -81,8 +81,8 @@ close F;
 # database connect
 my $dbhost = `grep db_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbhost);
 $dbhost = "localhost" if ($dbhost eq "");
-my $dbuser = `grep ^user= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbuser);
-my $dbpass = `grep ^pass= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbpass);
+my $dbuser = `grep "^user=" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbuser);
+my $dbpass = `grep "^pass=" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbpass);
 my $dbh = DBI->connect("DBI:mysql:ossim:$dbhost", $dbuser,$dbpass, {
 	PrintError => 0,
 	RaiseError => 1,
