@@ -93,16 +93,12 @@ $db->close($conn);
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
-  <link rel="stylesheet" type="text/css" href="../style/tree.css" />
   <link rel="stylesheet" type="text/css" href="../style/jasper.css">
 
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
   <script type="text/javascript" src="../js/datepicker.js"></script>
-  <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.cookie.js"></script>
-  <script type="text/javascript" src="../js/jquery.dynatree.js"></script>
   <script language="javascript">
       var userAgent = navigator.userAgent.toLowerCase();
 	jQuery.browser = {
@@ -302,7 +298,6 @@ $db->close($conn);
 				$("#_SEM_Report_pluginName").val(item.txt);
 			});
 			
-			load_tree("");
         });
         function showhide(layer,img){
 		$(layer).toggle();
@@ -318,73 +313,10 @@ $db->close($conn);
 		var url = "../nagios/index.php?opc=reporting&sensor="+sensor+"&fr_down="+fr_down+"&hmenu=Availability&smenu=Reporting";
 		parent.location.href=url;
 	}
-	var layer = null;
-	var nodetree = null;
-	var suf = "c";
-	var i=1;
 	
-	function load_tree(filter) {
-		if (nodetree!=null) {
-			nodetree.removeChildren();
-			$(layer).remove();
-		}
-		layer = '#srctree'+i;
-		$('#tree').append('<div id="srctree'+i+'" class="tree_container"></div>');
-		$(layer).dynatree({
-			initAjax: { url: "type_tree.php", data: {filter: filter} },
-			clickFolderMode: 2,
-			onActivate: function(dtnode) {
-				if (dtnode.data.key.indexOf(';')!=-1) 
-				{
-					var keys = dtnode.data.key.split(/\;/);
-					document.getElementById('hosts').value = keys[1];
-				}
-				else 
-					dtnode.toggleExpand();
-				
-			},
-			onDeactivate: function(dtnode) {},
-			onLazyRead: function(dtnode){
-				dtnode.appendAjax({
-					url: "type_tree.php",
-					data: {key: dtnode.data.key, filter: filter, page: dtnode.data.page}
-				});
-			}
-		});
-		nodetree = $(layer).dynatree("getRoot");
-		i=i+1
-	}
   </script>
   <style type='text/css'>
 	.datepickerHour {display:none;}
-	#loading {
-		position: absolute; 
-		width: 99%; 
-		height: 99%; 
-		margin: auto; 
-		text-align: center;
-		background: #FFFFFF;
-		z-index: 10000;
-	}
-	
-	#loading div{
-		position: relative;
-		top: 40%;
-		margin:auto;
-	}
-	
-	#loading div span{
-		margin-left: 5px;
-		font-weight: bold;	
-	}
-	#tree{ position: relative;}
-	.tree_container{
-		width: 300px;
-		postion: absolute;
-		top: 0px;
-		left: 0px;
-		z-index: 100;
-	}
   </style>
 </head>
 <body>
@@ -500,10 +432,7 @@ $db->close($conn);
                                   <h3><?= _("Asset Report") ?></h3><?php /* (<?= date("Y-m-d H:i:s",filemtime("host_report.php")) ?>)*/ ?>
                              </td>
                              <td class="reportOptions">
-                                <table class="transparent">
-									<tr><td style="padding-left:40px;border:0px;text-align:left"><label><?= _("Host Name/IP")."<br>"._("Network/CIDR") ?></label><div><input type="text" name="host" id="hosts"></div></td></tr>
-									<tr><td style="padding-left:40px;border:0px"><div id="tree"></div></td></tr>
-								</table>
+                                <label><?= _("Host Name/IP")."<br>"._("Network/CIDR") ?></label><div><input type="text" name="host" id="hosts"></div>
                              </td>
                              <td class="export">
                                  <input class="button" type="submit" value="<?= _("Generate") ?>" />
