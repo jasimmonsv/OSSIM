@@ -144,366 +144,351 @@ foreach ($plugin_list_order as $name => $plugin) {
     	<script type="text/javascript" src="../../../js/ui.multiselect.js"></script>
     	<script type="text/javascript" src="../../../js/combos.js"></script>    
     	<script type="text/javascript" src="../../../js/split.js"></script>
-		<script type="text/javascript" language="javascript"
-			src="<?php
-echo $js_dir . '/editor.js'; ?>"></script>
-
-		<script type="text/javascript" language="javascript"
-			src="<?php
-echo $js_dir . '/editableSelectBox.js'; ?>"></script>
-
-		<script type="text/javascript" language="javascript"
-			src="<?php
-echo $js_dir_rule . '/rule.js'; ?>"></script>
+		<script type="text/javascript" language="javascript" src="<?php echo $js_dir . '/editor.js'; ?>"></script>
+		<script type="text/javascript" language="javascript" src="<?php echo $js_dir . '/editableSelectBox.js'; ?>"></script>
+		<script type="text/javascript" language="javascript" src="<?php echo $js_dir_rule . '/rule.js'; ?>"></script>
 			
-    <script type="text/javascript" language="javascript">
-    var wizard_current = 1;
+		<script type="text/javascript" language="javascript">
+		var wizard_current = 1;
 
-    var is_monitor = <?php echo ($plugin_type == "2") ? "true" : "false" ?>;
-    var current_plugin_id = <?php echo ($rule->plugin_id != "") ? $rule->plugin_id : '""' ?>;
-	function wizard_goto(num) {
-		document.getElementById('wizard_'+wizard_current).style.display = "none";
-		document.getElementById('link_'+wizard_current).className = "normal";
-		wizard_current = num;
-		wizard_refresh();
-		if (num == 3) {
-			init_sids(current_plugin_id,is_monitor);
-		}
-		if (num == 4) {
-			init_network();
-		}
-		if (num == 6) {
-			init_sensor();
-		}
-	}
-	function wizard_refresh() {
-		document.getElementById('wizard_'+(wizard_current)).style.display = "block";
-		document.getElementById('link_'+wizard_current).className = "bold";
-	}
-    function wizard_next() {
-    	document.getElementById('wizard_'+wizard_current).style.display = "none";
-		if (wizard_current == 0)  document.getElementById('steps').style.display = "";
-		else document.getElementById('link_'+wizard_current).className = "normal";
-    	wizard_current++;
-    	if (wizard_current >= 17) {
-        	save_all();
-    		document.getElementById('frule').submit();
-    	} else {
-			if (wizard_current == 10 && !is_monitor) { // Skip monitor options (detector selected)
-				wizard_current = 13;
-    		}
-    		<?php if (!$rule->level || $rule->level <= 1) { ?>
-			if (wizard_current == 8 || wizard_current == 7) {
-				wizard_current = 9;
+		var is_monitor = <?php echo ($plugin_type == "2") ? "true" : "false" ?>;
+		var current_plugin_id = <?php echo ($rule->plugin_id != "") ? $rule->plugin_id : '""' ?>;
+		function wizard_goto(num) {
+			document.getElementById('wizard_'+wizard_current).style.display = "none";
+			document.getElementById('link_'+wizard_current).className = "normal";
+			wizard_current = num;
+			wizard_refresh();
+			if (num == 3) {
+				init_sids(current_plugin_id,is_monitor);
 			}
-			if (wizard_current == 13 || wizard_current == 14) {
-				wizard_current = 15;
+			if (num == 4) {
+				init_network();
 			}
-    		<?php } ?>
-    		document.getElementById('wizard_'+(wizard_current)).style.display = "block";
-    		if (wizard_current == 4) {
-        		init_network();
-    		}
-    		if (wizard_current == 6) {
-        		init_sensor();
-    		}
-    	}
-		// Update steps
-		if (wizard_current < 17) {
-			document.getElementById('step_'+wizard_current).style.display = "";
+			if (num == 6) {
+				init_sensor();
+			}
+		}
+		function wizard_refresh() {
+			document.getElementById('wizard_'+(wizard_current)).style.display = "block";
 			document.getElementById('link_'+wizard_current).className = "bold";
 		}
-    }
-    var customDataParser = function(data) {
-        if ( typeof data == 'string' ) {
-            var pattern = /^(\s\n\r\t)*\+?$/;
-            var selected, line, lines = data.split(/\n/);
-            data = {};
-            $('#msg').html('');
-            for (var i in lines) {
-                line = lines[i].split("=");
-                if (!pattern.test(line[0])) {
-                    if (i==0 && line[0]=='Total') {
-                        $('#msg').html("<?=_("Total plugin sids found:")?> <b>"+line[1]+"</b>");
-                    } else {
-                        // make sure the key is not empty
-                        selected = (line[0].lastIndexOf('+') == line.length - 1);
-                        if (selected) line[0] = line.substr(0,line.length-1);
-                        // if no value is specified, default to the key value
-                        data[line[0]] = {
-                            selected: false,
-                            value: line[1] || line[0]
-                        };
-                    }
-                }
-            }
-        } else {
-            this._messages($.ui.multiselect.constante.MESSAGE_ERROR, $.ui.multiselect.locale.errorDataFormat);
-            data = false;
-        }
-        return data;
-    };
-    function rm_sids() {
-		var selectbox = document.getElementById('pluginsids');
-    	var i;
-    	for(i=selectbox.options.length-1;i>=0;i--) {
-    		if(selectbox.options[i].selected) selectbox.remove(i);
-    	}
-    }
-    function init_sids(id,m) {
-		is_monitor = m;
-    	$(".multiselect_sids").multiselect({
-            searchDelay: 700,
-            dividerLocation: 0.5,
-            remoteUrl: 'popup/top/plugin_sid.php',
-            remoteParams: { plugin_id: id },
-            nodeComparator: function (node1,node2){ return 1 },
-            dataParser: customDataParser,
-        });
-    }
-	function save_sids() {
-		var current_sid = document.getElementById('plugin_sid').value;
-		if (!current_sid.match(/\d\:PLUGIN\_SID/)) {
-			var plugin_sid_list = getselectedcombovalue('pluginsids');
-			if (plugin_sid_list != "") {
-				document.getElementById('plugin_sid').value = plugin_sid_list;
-				document.getElementById('plugin_sid_list').value = plugin_sid_list;
+		function wizard_next() {
+			document.getElementById('wizard_'+wizard_current).style.display = "none";
+			if (wizard_current == 0)  document.getElementById('steps').style.display = "";
+			else document.getElementById('link_'+wizard_current).className = "normal";
+			wizard_current++;
+			if (wizard_current >= 17) {
+				save_all();
+				document.getElementById('frule').submit();
 			} else {
-				document.getElementById('plugin_sid').value = "ANY";
-				document.getElementById('plugin_sid_list').value = "";
-			}
-		}
-	}
-	function init_network() {
-		load_tree();
-	}
-	var layer_i = null;
-	var nodetree_i = null;
-	var i=1;
-	var layer_j = null;
-	var nodetree_j = null;
-	var j=1;
-	function load_tree(filter)
-	{
-		var combo2 = "toselect";
-		var suf2 = "to";
-		if (nodetree_j!=null) {
-			nodetree_j.removeChildren();
-			$(layer_j).remove();
-		}
-		layer_j = '#srctree'+j;
-		$('#container'+suf2).append('<div id="srctree'+j+'" style="width:100%"></div>');
-		$(layer_j).dynatree({
-			initAjax: { url: "draw_tree.php", data: {filter: filter} },
-			clickFolderMode: 2,
-			onActivate: function(dtnode) {
-				if (dtnode.data.url.match(/CCLASS/)) {
-					// add childrens if is a C class
-					var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
-					for (c=0;c<children.length; c++)
-						addto(combo2,children[c].data.url,children[c].data.url)
-				} else {
-					addto(combo2,dtnode.data.url,dtnode.data.url);
+				if (wizard_current == 10 && !is_monitor) { // Skip monitor options (detector selected)
+					wizard_current = 13;
 				}
-			},
-			onDeactivate: function(dtnode) {},
-			onLazyRead: function(dtnode){
-				dtnode.appendAjax({
-					url: "draw_tree.php",
-					data: {key: dtnode.data.key, filter: filter, page: dtnode.data.page}
-				});
-			}
-		});
-		nodetree_j = $(layer_j).dynatree("getRoot");
-		j=j+1;
-		
-		var combo1 = "fromselect";
-		var suf1 = "from";
-		if (nodetree_i!=null) {
-			nodetree_i.removeChildren();
-			$(layer_i).remove();
-		}
-		layer_i = '#srctree'+i;
-		$('#container'+suf1).append('<div id="srctree'+i+'" style="width:100%"></div>');
-		$(layer_i).dynatree({
-			initAjax: { url: "draw_tree.php", data: {filter: filter} },
-			clickFolderMode: 2,
-			onActivate: function(dtnode) {
-				if (dtnode.data.url.match(/CCLASS/)) {
-					// add childrens if is a C class
-					var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
-					for (c=0;c<children.length; c++)
-						addto(combo1,children[c].data.url,children[c].data.url)
-				} else {
-					addto(combo1,dtnode.data.url,dtnode.data.url);
+				<?php if (!$rule->level || $rule->level <= 1) { ?>
+				if (wizard_current == 8 || wizard_current == 7) {
+					wizard_current = 9;
 				}
-			},
-			onDeactivate: function(dtnode) {},
-			onLazyRead: function(dtnode){
-				dtnode.appendAjax({
-					url: "draw_tree.php",
-					data: {key: dtnode.data.key, filter: filter, page: dtnode.data.page}
-				});
+				if (wizard_current == 13 || wizard_current == 14) {
+					wizard_current = 15;
+				}
+				<?php } ?>
+				document.getElementById('wizard_'+(wizard_current)).style.display = "block";
+				if (wizard_current == 4) {
+					init_network();
+				}
+				if (wizard_current == 6) {
+					init_sensor();
+				}
 			}
-		});
-		nodetree_i = $(layer_i).dynatree("getRoot");
-		i=i+1;
-
-		
-	}
-	function save_network() {
-		selectall('fromselect');
-		selectall('toselect');
-		var from_list = getselectedcombovalue('fromselect');
-		var to_list = getselectedcombovalue('toselect');
-		var port_from_list = document.getElementById('port_from_list').value;
-		var port_to_list = document.getElementById('port_to_list').value;
-		if (from_list != "") {
-			document.getElementById('from').value = "LIST";
-			document.getElementById('from_list').value = from_list;
-		} else {
-			document.getElementById('from').value = "ANY";
-			document.getElementById('from_list').value = "";
+			// Update steps
+			if (wizard_current < 17) {
+				document.getElementById('step_'+wizard_current).style.display = "";
+				document.getElementById('link_'+wizard_current).className = "bold";
+			}
 		}
-		if (to_list != "") {
-			document.getElementById('to').value = "LIST";
-			document.getElementById('to_list').value = to_list;
-		} else {
-			document.getElementById('to').value = "ANY";
-			document.getElementById('to_list').value = "";
-		}
-		if (port_from_list != "" && port_from_list != "ANY") document.getElementById('port_from').value = "LIST";
-		if (port_to_list != "" && port_to_list != "ANY") document.getElementById('port_to').value = "LIST"; 
-	}
-	function init_sensor() {
-		$(".multiselect_sensor").multiselect({
-            searchDelay: 700,
-            dividerLocation: 0.5,
-            remoteUrl: 'popup/top/sensor.php',
-            nodeComparator: function (node1,node2){ return 1 },
-            dataParser: customDataParser,
-        });
-	}
-	function save_sensor() {
-		var sensor_list = getselectedcombovalue('sensorselect');
-		if (sensor_list != "") {
-			document.getElementById('sensor').value = "LIST";
-			document.getElementById('sensor_list').value = sensor_list;
-		} else {
-			document.getElementById('sensor').value = "ANY";
-			document.getElementById('sensor_list').value = "";
-		}
-	}
-	function save_all() {
-		save_sids();
-		save_network();
-		save_sensor();
-	}
-	function search_plugin(q) {
-		var str = "";
-		var _regex = new RegExp( "^" + q, "i");
-		$('.plugin_line').each(function() {
-			val = $(this).attr("id");
-			if (!val.match(_regex)) {
-				str += val;
-				document.getElementById(val).style.display='none';
+		var customDataParser = function(data) {
+			if ( typeof data == 'string' ) {
+				var pattern = /^(\s\n\r\t)*\+?$/;
+				var selected, line, lines = data.split(/\n/);
+				data = {};
+				$('#msg').html('');
+				for (var i in lines) {
+					line = lines[i].split("=");
+					if (!pattern.test(line[0])) {
+						if (i==0 && line[0]=='Total') {
+							$('#msg').html("<?=_("Total plugin sids found:")?> <b>"+line[1]+"</b>");
+						} else {
+							// make sure the key is not empty
+							selected = (line[0].lastIndexOf('+') == line.length - 1);
+							if (selected) line[0] = line.substr(0,line.length-1);
+							// if no value is specified, default to the key value
+							data[line[0]] = {
+								selected: false,
+								value: line[1] || line[0]
+							};
+						}
+					}
+				}
 			} else {
-				document.getElementById(val).style.display='block';
+				this._messages($.ui.multiselect.constante.MESSAGE_ERROR, $.ui.multiselect.locale.errorDataFormat);
+				data = false;
 			}
-		});
-		//alert(str);
-	}
-    function taille()
-    {
-        if (document.body)
-        {
-        var larg = (window.parent.document.body.clientWidth);
-        var haut = (window.parent.document.body.clientHeight);
-        }
-        else
-        {
-        var larg = (window.parent.window.innerWidth);
-        var haut = (window.parent.window.innerHeight);
-        }
-        /* default size */
-    	   var width = 890;
-    	   var height = 550;
-    
-    	   /* center the popup to the screen */
-    	   if (width < larg)
-    	   {
-    	     var left = (larg - width) / 2;
-    	   }
-    	   else
-    	   {
-            width = larg - 20;
-            left = 10;
-         }
-         
-         if (height < haut)
-    	   {
-           var top = (haut - height) / 2;
-    	   }
-    	   else
-    	   {
-            height = haut - 20;
-            top = 10;
-         }
-         
-         window.parent.document.getElementById('fenetre').style.top = top;
-         window.parent.document.getElementById('fenetre').style.left = left;
-         window.parent.document.getElementById('fenetre').style.width = width;
-         window.parent.document.getElementById('fenetre').style.height = height;
-         
-    }
-    
-   function open_frame(url){
-		var title = "";
-		if (url.match(/top\=from/)) title = "<?php echo _("From")." ("._("Network").")" ?>";
-		if (url.match(/top\=to/)) title = "<?php echo _("To")." ("._("Network").")" ?>";
-		if (url.match(/top\=plugin\_sid/)) title = "<?php echo _("Plugin Sid") ?>";
-		if (url.match(/top\=plugin\_id/)) title = "<?php echo _("Plugin Id") ?>";
-		GB_show(title,'../../'+url,400,'90%');
-	/*
-	var iframe = window.parent.document.getElementById('fenetre');
-    var fond = window.parent.document.getElementById('fond');
-    iframe.childNodes[0].src = url;    
-    taille();
-    fond.style.display = 'block';
-    iframe.style.display = 'block';
-	*/
-   }
-
-	function change_page(){
-		var page1 = window.document.getElementById('page1');
-		var page2 = window.document.getElementById('page2');
-
-		if (page1.style.display == 'block'){
-			page1.style.display = 'none';
-			page2.style.display = 'block';
+			return data;
+		};
+		function rm_sids() {
+			var selectbox = document.getElementById('pluginsids');
+			var i;
+			for(i=selectbox.options.length-1;i>=0;i--) {
+				if(selectbox.options[i].selected) selectbox.remove(i);
+			}
 		}
-		else{
-			page1.style.display = 'block';
-			page2.style.display = 'none';
+		function init_sids(id,m) {
+			is_monitor = m;
+			$(".multiselect_sids").multiselect({
+				searchDelay: 700,
+				dividerLocation: 0.5,
+				remoteUrl: 'popup/top/plugin_sid.php',
+				remoteParams: { plugin_id: id },
+				nodeComparator: function (node1,node2){ return 1 },
+				dataParser: customDataParser,
+			});
 		}
-	}
-   </script>
+		function save_sids() {
+			var current_sid = document.getElementById('plugin_sid').value;
+			if (!current_sid.match(/\d\:PLUGIN\_SID/)) {
+				var plugin_sid_list = getselectedcombovalue('pluginsids');
+				if (plugin_sid_list != "") {
+					document.getElementById('plugin_sid').value = plugin_sid_list;
+					document.getElementById('plugin_sid_list').value = plugin_sid_list;
+				} else {
+					document.getElementById('plugin_sid').value = "ANY";
+					document.getElementById('plugin_sid_list').value = "";
+				}
+			}
+		}
+		function init_network() {
+			load_tree();
+		}
+		var layer_i = null;
+		var nodetree_i = null;
+		var i=1;
+		var layer_j = null;
+		var nodetree_j = null;
+		var j=1;
+		function load_tree(filter)
+		{
+			var combo2 = "toselect";
+			var suf2 = "to";
+			if (nodetree_j!=null) {
+				nodetree_j.removeChildren();
+				$(layer_j).remove();
+			}
+			layer_j = '#srctree'+j;
+			$('#container'+suf2).append('<div id="srctree'+j+'" style="width:100%"></div>');
+			$(layer_j).dynatree({
+				initAjax: { url: "draw_tree.php", data: {filter: filter} },
+				clickFolderMode: 2,
+				onActivate: function(dtnode) {
+					if (dtnode.data.url.match(/CCLASS/)) {
+						// add childrens if is a C class
+						var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
+						for (c=0;c<children.length; c++)
+							addto(combo2,children[c].data.url,children[c].data.url)
+					} else {
+						addto(combo2,dtnode.data.url,dtnode.data.url);
+					}
+				},
+				onDeactivate: function(dtnode) {},
+				onLazyRead: function(dtnode){
+					dtnode.appendAjax({
+						url: "draw_tree.php",
+						data: {key: dtnode.data.key, filter: filter, page: dtnode.data.page}
+					});
+				}
+			});
+			nodetree_j = $(layer_j).dynatree("getRoot");
+			j=j+1;
+			
+			var combo1 = "fromselect";
+			var suf1 = "from";
+			if (nodetree_i!=null) {
+				nodetree_i.removeChildren();
+				$(layer_i).remove();
+			}
+			layer_i = '#srctree'+i;
+			$('#container'+suf1).append('<div id="srctree'+i+'" style="width:100%"></div>');
+			$(layer_i).dynatree({
+				initAjax: { url: "draw_tree.php", data: {filter: filter} },
+				clickFolderMode: 2,
+				onActivate: function(dtnode) {
+					if (dtnode.data.url.match(/CCLASS/)) {
+						// add childrens if is a C class
+						var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
+						for (c=0;c<children.length; c++)
+							addto(combo1,children[c].data.url,children[c].data.url)
+					} else {
+						addto(combo1,dtnode.data.url,dtnode.data.url);
+					}
+				},
+				onDeactivate: function(dtnode) {},
+				onLazyRead: function(dtnode){
+					dtnode.appendAjax({
+						url: "draw_tree.php",
+						data: {key: dtnode.data.key, filter: filter, page: dtnode.data.page}
+					});
+				}
+			});
+			nodetree_i = $(layer_i).dynatree("getRoot");
+			i=i+1;
+
+			
+		}
+		function save_network() {
+			selectall('fromselect');
+			selectall('toselect');
+			var from_list = getselectedcombovalue('fromselect');
+			var to_list = getselectedcombovalue('toselect');
+			var port_from_list = document.getElementById('port_from_list').value;
+			var port_to_list = document.getElementById('port_to_list').value;
+			if (from_list != "") {
+				document.getElementById('from').value = "LIST";
+				document.getElementById('from_list').value = from_list;
+			} else {
+				document.getElementById('from').value = "ANY";
+				document.getElementById('from_list').value = "";
+			}
+			if (to_list != "") {
+				document.getElementById('to').value = "LIST";
+				document.getElementById('to_list').value = to_list;
+			} else {
+				document.getElementById('to').value = "ANY";
+				document.getElementById('to_list').value = "";
+			}
+			if (port_from_list != "" && port_from_list != "ANY") document.getElementById('port_from').value = "LIST";
+			if (port_to_list != "" && port_to_list != "ANY") document.getElementById('port_to').value = "LIST"; 
+		}
+		function init_sensor() {
+			$(".multiselect_sensor").multiselect({
+				searchDelay: 700,
+				dividerLocation: 0.5,
+				remoteUrl: 'popup/top/sensor.php',
+				nodeComparator: function (node1,node2){ return 1 },
+				dataParser: customDataParser,
+			});
+		}
+		function save_sensor() {
+			var sensor_list = getselectedcombovalue('sensorselect');
+			if (sensor_list != "") {
+				document.getElementById('sensor').value = "LIST";
+				document.getElementById('sensor_list').value = sensor_list;
+			} else {
+				document.getElementById('sensor').value = "ANY";
+				document.getElementById('sensor_list').value = "";
+			}
+		}
+		function save_all() {
+			save_sids();
+			save_network();
+			save_sensor();
+		}
+		function search_plugin(q) {
+			var str = "";
+			var _regex = new RegExp( "^" + q, "i");
+			$('.plugin_line').each(function() {
+				val = $(this).attr("id");
+				if (!val.match(_regex)) {
+					str += val;
+					document.getElementById(val).style.display='none';
+				} else {
+					document.getElementById(val).style.display='block';
+				}
+			});
+			//alert(str);
+		}
+		function taille()
+		{
+			if (document.body)
+			{
+			var larg = (window.parent.document.body.clientWidth);
+			var haut = (window.parent.document.body.clientHeight);
+			}
+			else
+			{
+			var larg = (window.parent.window.innerWidth);
+			var haut = (window.parent.window.innerHeight);
+			}
+			/* default size */
+			   var width = 890;
+			   var height = 550;
+		
+			   /* center the popup to the screen */
+			   if (width < larg)
+			   {
+				 var left = (larg - width) / 2;
+			   }
+			   else
+			   {
+				width = larg - 20;
+				left = 10;
+			 }
+			 
+			 if (height < haut)
+			   {
+			   var top = (haut - height) / 2;
+			   }
+			   else
+			   {
+				height = haut - 20;
+				top = 10;
+			 }
+			 
+			 window.parent.document.getElementById('fenetre').style.top = top;
+			 window.parent.document.getElementById('fenetre').style.left = left;
+			 window.parent.document.getElementById('fenetre').style.width = width;
+			 window.parent.document.getElementById('fenetre').style.height = height;
+			 
+		}
+		
+	   function open_frame(url){
+			var title = "";
+			if (url.match(/top\=from/)) title = "<?php echo _("From")." ("._("Network").")" ?>";
+			if (url.match(/top\=to/)) title = "<?php echo _("To")." ("._("Network").")" ?>";
+			if (url.match(/top\=plugin\_sid/)) title = "<?php echo _("Plugin Sid") ?>";
+			if (url.match(/top\=plugin\_id/)) title = "<?php echo _("Plugin Id") ?>";
+			GB_show(title,'../../'+url,400,'90%');
+		/*
+		var iframe = window.parent.document.getElementById('fenetre');
+		var fond = window.parent.document.getElementById('fond');
+		iframe.childNodes[0].src = url;    
+		taille();
+		fond.style.display = 'block';
+		iframe.style.display = 'block';
+		*/
+	   }
+
+		function change_page(){
+			var page1 = window.document.getElementById('page1');
+			var page2 = window.document.getElementById('page2');
+
+			if (page1.style.display == 'block'){
+				page1.style.display = 'none';
+				page2.style.display = 'block';
+			}
+			else{
+				page1.style.display = 'block';
+				page2.style.display = 'none';
+			}
+		}
+	   </script>
 	</head>
-
-	<body onload="onLoadRuleEditor(
-		'<?php
-echo isList($rule->plugin_sid) ? $rule->plugin_sid : ''; ?>',
-		'<?php
-echo isList($rule->from) ? $rule->from : ''; ?>',
-		'<?php
-echo isList($rule->to) ? $rule->to : ''; ?>',
-		'<?php
-echo isList($rule->port_from) ? $rule->port_from : ''; ?>',
-		'<?php
-echo isList($rule->port_to) ? $rule->port_to : ''; ?>',
-		'<?php
-echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
-	)">
+<body onload="onLoadRuleEditor(
+		'<?php echo isList($rule->plugin_sid) ? $rule->plugin_sid : ''; ?>',
+		'<?php echo isList($rule->from) ? $rule->from : ''; ?>',
+		'<?php echo isList($rule->to) ? $rule->to : ''; ?>',
+		'<?php echo isList($rule->port_from) ? $rule->port_from : ''; ?>',
+		'<?php echo isList($rule->port_to) ? $rule->port_to : ''; ?>',
+		'<?php echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
+	)" >
 	<!-- #################### main container #################### -->
   <form method="POST" id="frule" name="frule" action="../../include/utils.php?query=save_rule">
 	<table class="transparent" width="100%">
@@ -545,14 +530,12 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 				<td class="container" style="vertical-align: top">
 				<table class="transparent" width="100%">
 				<tr><td class="nobborder">
-				<?php
-			include ("global.inc.php"); ?>
+				<?php include ("global.inc.php"); ?>
 				
 				<div id="wizard_4" style="display:none">
 				<table class="transparent">
 				<tr><td class="container">
-				<?php
-			include ("network.inc.php"); ?>
+				<?php include ("network.inc.php"); ?>
 				</td></tr>
 				</table>
 				</div>
@@ -613,7 +596,6 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 	</table>
 	
 	</form>
-	
 	<!-- #################### END: main container #################### -->
 	<?php
 dbClose();

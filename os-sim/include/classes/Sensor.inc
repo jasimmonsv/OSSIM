@@ -698,6 +698,30 @@ class Sensor {
         }
         return $ip;
     }
+	
+	function is_sensor_in_templates($conn, $ip)
+	{
+		$templates = array();
+		
+		if ( !empty($ip) )
+		{
+			$query = OssimQuery("SELECT id, name FROM acl_templates WHERE allowed_sensors LIKE '%$ip%'");
+			
+			if ( !$rs = $conn->Execute($query) ) 
+			{
+				die($conn->ErrorMsg());
+			}
+			while (!$rs->EOF) 
+			{
+				$templates[$rs->fields["id"]] = $rs->fields["name"];
+				$rs->MoveNext();
+			}
+		}
+		
+		return $templates;
+	}
+	
+	
     function get_assets($conn, $name) {
         $list = array();
         $list["host"]= array();

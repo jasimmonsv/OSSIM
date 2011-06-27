@@ -66,6 +66,7 @@ echo gettext("Vulnmeter"); ?> </title>
         $(".scriptinfo").simpletip({
             position: 'right',
             content: '',
+            baseClass: 'vtooltip',
             onBeforeShow: function() { 
                 var txt = this.getParent().attr('txt');
                 this.update(txt);

@@ -287,12 +287,12 @@ include ("../hmenu.php"); ?>
 		<td class='nobborder'>
 			<table width="100%">
 				<tr>
-					<td style="text-align: center;">
+					<td style="text-align: center;" class="nobborder">
 						<!--<input type="button" value="->" onClick="javascript: insertAtCursor(document.myform.subject_tpl);" class="lbutton"/>-->
 						<a style='cursor:pointer;' class='to_add' onClick="javascript: insertAtCursor(document.myform.subject_tpl);"><img src='../pixmaps/play_blue.png' align='absmiddle'/></a>
 					</td>
 					<th width="10%"><?php echo _("Subject") ?></th>
-					<td class='left'>
+					<td class='left nobborder'>
 						<input type="text" name="subject_tpl" value="<?php echo $subject_tpl ?>" size="80" style="font-family: mono-space, mono;"/>
 					</td>
 				</tr>
@@ -302,7 +302,7 @@ include ("../hmenu.php"); ?>
 						<a style='cursor:pointer;' class='to_add' onClick="javascript: insertAtCursor(document.myform.body_tpl);"><img src='../pixmaps/play_blue.png' align='absmiddle'/></a>
 					</td>
 					<th valign="top" width="10%"><?php echo gettext("Body"); ?></th>
-					<td style="text-align: left;" class='nobborder'>
+					<td style="text-align: left;padding-left:5px;" class='nobborder'>
 						<textarea name="body_tpl" rows="25" cols="80" wrap='hard' style="font-family: mono-space, mono;"><?php echo $body_tpl ?></textarea>
 					</td>
 				</tr>                
