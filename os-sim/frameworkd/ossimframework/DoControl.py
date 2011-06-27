@@ -93,7 +93,7 @@ class ControlManager:
                 logger.info("Updating asset list to agent: %s " % (agent_id))
                 logger.debug("Cmd: %s" % new_command)
         else:
-            logger.info("Empty asset list!")
+            logger.info("Empty asset list for sensor :%s!" % agent_id)
     def process(self, requestor, command, line):
         
         try:

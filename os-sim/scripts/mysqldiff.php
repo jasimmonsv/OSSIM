@@ -474,9 +474,9 @@ Class Conf{
  
 	private function __construct(){ 
 		
-		$this->_userdb= trim(`grep "^user=" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`); 
-		$this->_passdb= trim(`grep "^pass=" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`); 
-		$this->_hostdb= trim(`grep db_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
+		$this->_userdb= trim(`grep ^user= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`); 
+		$this->_passdb= trim(`grep ^pass= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`); 
+		$this->_hostdb= trim(`grep ^db_ip= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
 				
 	} 
 

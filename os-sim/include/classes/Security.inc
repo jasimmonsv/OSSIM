@@ -829,23 +829,12 @@ function valid_mac($mac)
 
 function valid_fqdns($fqdns)
 {
-	$valid_sep = array (",", "\n", );
-	$current_sep = '';
-	
-	foreach ( $valid_sep as $k => $v )
-	{
-		if ( preg_match("/$v/", $fqdns) )
-		{
-			$current_sep = $v;
-			break;
-		}
-	}
-	
-	$array_fqdns = ( $current_sep == '') ? array($fqdns) : explode($current_sep, $fqdns);
+	$fqdns       = trim($fqdns);
+	$array_fqdns = ( empty($fqdns) ) ? array() :  explode(",", $fqdns);
 	
 	foreach ($array_fqdns as $k => $v)
 	{
-		if (ossim_valid(trim($v), OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, OSS_NL, 'illegal:' . _("FQDNS/Aliases")) == true) 
+		if (ossim_valid(trim($v), OSS_DIGIT, OSS_DOT, OSS_SCORE, OSS_LETTER, OSS_SPACE, 'illegal:' . _("FQDNS/Aliases")) == true) 
 			continue;
 		else
 		{
@@ -853,6 +842,7 @@ function valid_fqdns($fqdns)
 			return false;
 		}
 	}
+	
 	return true;
 }
 

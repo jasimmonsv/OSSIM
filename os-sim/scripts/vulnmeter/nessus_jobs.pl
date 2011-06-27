@@ -186,10 +186,10 @@ my %loginfo;                                                             #LOGWRI
 
 my %CONFIG = ();
 
-my $dbhost = `grep db_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbhost);
+my $dbhost = `grep ^db_ip= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbhost);
 $dbhost = "localhost" if ($dbhost eq "");
-my $dbuser = `grep "^user=" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbuser);
-my $dbpass = `grep "^pass=" /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbpass);
+my $dbuser = `grep ^user= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbuser);
+my $dbpass = `grep ^pass= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbpass);
 
 my $uuid = "";
 if (-e "/etc/ossim/framework/db_encryption_key") {

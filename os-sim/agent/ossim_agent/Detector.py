@@ -50,7 +50,7 @@ from pytz import timezone, all_timezones
 #import pytz
 from time import mktime, gmtime, strftime
 import Utils
-
+import socket
 #
 # GLOBAL VARIABLES
 #
@@ -149,7 +149,24 @@ class Detector(threading.Thread):
 
         self.consolidation.process()
 
+    def _getLocalIP(self):
+        
+        if self._conf.has_section("plugin-defaults"):
+            logger.info("Using sensor ip")
+            mylocalip = self._conf.get("plugin-defaults", "sensor")
+            return mylocalip
+        
+        hostname, aliaslist, ipaddrlist = socket.gethostbyname_ex(socket.gethostname())
+        for ip in ipaddrlist:
+            if not ip.startswith("127"):
+                return ip
+        #In this case we try to parse the output of ip a
+        lines = commands.getoutput("ip a | grep inet | grep -v inet6 | awk '{print $2}'| grep -v \"127.0.0.1\" | awk -F '/' '{print $1}'").split("\n")
+        if len(lines) > 0:
+            return lines[0]
 
+            
+                
     def _plugin_defaults(self, event):
         ipv4_reg = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         # get default values from config
@@ -217,10 +234,10 @@ class Detector(threading.Thread):
                 if not re.match(ipv4_reg, event['sensor']):
                     data = event['sensor']
                     logger.warning("Event's field sensor (%s) is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata7" % data)
-                    event['sensor'] = '0.0.0.0'
+                    event['sensor'] = self._getLocalIP()
                     event['userdata7'] = data
             else:
-                event['sensor'] = '0.0.0.0'
+                event['sensor'] = self._getLocalIP()
 
         # the type of this event should always be 'detector'
         if event["type"] is None and 'type' in event.EVENT_ATTRS:

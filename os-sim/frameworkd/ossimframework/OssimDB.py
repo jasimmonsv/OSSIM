@@ -4,6 +4,7 @@ import Const
 import time
 import os
 from Logger import Logger
+from threading import Lock
 try:
     from adodb import adodb
 except ImportError:
@@ -25,8 +26,9 @@ class OssimDB:
     def __init__ (self) :
         self.conn = None
         self.conf = OssimConf.OssimMiniConf()
+        self.mutex = Lock()
 
-    def connect (self, host, db, user, passwd = ""):
+    def connect (self, host, db, user, passwd=""):
         self.conn = adodb.NewADOConnection(self.conf["ossim_type"])
         if passwd is None:
             passwd = ""
@@ -43,40 +45,44 @@ class OssimDB:
 
     # execute query and return the result in a hash
     def exec_query (self, query) :
-
+        self.mutex.acquire()
         arr = []
         retries = 0
-        reconnect  = 0
-        while 1: 
-            try: 
-             if reconnect == 1:
-                #retries = retries  + 1 	
-                logger.warning ("Reconnecting to %s,database %s in 10 seconds" % (self._host, self._db))
-                time.sleep(10)
-                self.conn.Connect (self._host,self._user,self._password,self._db)
-                reconnect = 0
-             logger.debug ("Query " + query)
-             cursor = self.conn.Execute(query)
-             break
+        reconnect = 0
+        while 1:
+            try:
+                if reconnect == 1:
+                    #retries = retries  + 1 	
+                    logger.warning ("Reconnecting to %s,database %s in 10 seconds" % (self._host, self._db))
+                    time.sleep(10)
+                    self.connect(self._host, self._db, self._user, self._password)
+    #                self.conn.Connect (self._host,self._user,self._password,self._db)
+                    reconnect = 0
+                logger.debug ("Query " + query)
+                cursor = self.conn.Execute(query)
+                break
             except _mysql_exceptions.OperationalError, e:
-              print __name__, \
+                print __name__, \
                 ': Error executing query (%s) """%s"""' % (query, e)
-              reconnect = 1 
+                reconnect = 1
 
-            except Exception,e:
-              print __name__, \
+            except Exception, e:
+                print __name__, \
                 ': Error executing query (%s) """%s"""' % (query, e)
-              return[]
+                self.mutex.release()
+                return[]
+
        # if retries == 10:
        #  print __name__, \
        #        ": Can't reconected to database after %d retries. Exiting framework" % retries
        #  sys.exit (-1)
-			
+
         while not cursor.EOF:
             arr.append(cursor.GetRowAssoc(0))
             cursor.MoveNext()
         self.conn.CommitTrans()
         cursor.Close()
+        self.mutex.release()
         return arr
 
     def close (self):
@@ -85,7 +91,7 @@ class OssimDB:
 
 if __name__ == "__main__" :
     db = OssimDB()
-    db.connect(host="localhost", db="ossim", user="root", passwd="temporal")
+    db.connect(host="localhost", db="ossim", user="root", passwd="xxxx")
     hash = db.exec_query("SELECT * FROM config")
     for row in hash: print row
     db.close()
