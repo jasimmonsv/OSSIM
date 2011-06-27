@@ -195,8 +195,8 @@ $conn = $db->connect();
 $info_text  = array( _('Wrong User & Password'), _('Invalid address'), _('No assets found') );
 
 
-$server  	= trim(`grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
-$https   	= trim(`grep framework_https /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
+$server  	= trim(`grep ^framework_ip= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
+$https   	= trim(`grep ^framework_https= /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
 $urlPdf  	= '/usr/share/ossim/www/tmp/scheduler';
 
 $server     = 'http'.(($https=="yes") ? "s" : "").'://'.$server.'/ossim';

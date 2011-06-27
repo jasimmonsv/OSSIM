@@ -48,7 +48,7 @@ ob_implicit_flush();
 	echo _("Launching mysqloptimize -A. Please wait a few minutes...\n<br>");
 	$host = `grep db_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d '='`;
 	if ($host=="") $host = "localhost";
-	$cmd = "mysqloptimize -A -u`grep user /etc/ossim/ossim_setup.conf | cut -f 2 -d '='` -h$host  -p`grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d '='`";
+	$cmd = "mysqloptimize -A -u`grep ^user= /etc/ossim/ossim_setup.conf | cut -f 2 -d '='` -h$host  -p`grep ^pass= /etc/ossim/ossim_setup.conf | cut -f 2 -d '='`";
 	system($cmd);
 	echo _("Finished. Try to login again");
 ?>
