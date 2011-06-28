@@ -100,7 +100,7 @@ class Host {
     function Host($ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $descr, $foundrows = 0, $lat = "", $lon = "", $fqdns="", $icon="") {
         $this->ip = Util::htmlentities($ip);
         $this->hostname = Util::htmlentities($hostname);
-		$this->fqdns = Util::htmlentities($fqdns);
+		$this->fqdns = Util::htmlentities(preg_replace("/[\r\n\t]+/","",$fqdns));
         $this->asset = intval($asset);
         $this->threshold_c = intval($threshold_c);
         $this->threshold_a = intval($threshold_a);
