@@ -55,6 +55,19 @@ require_once 'languages.inc';
 $ossim_conf       = $GLOBALS["CONF"];
 $config_languages = $GLOBALS["config_languages"];
 
+$flag_status = $_GET['status'];
+
+$error_sting = $_GET['error'];
+
+if ( $flag_status == 1 ) 
+{
+	$status_message = _("Configuration succesfully updated");
+}elseif($flag_status == 2){
+	$status_message = $error_sting;
+}
+
+
+
 $CONFIG = array(
     "Language" => array(
         "title" => gettext("Language") ,
@@ -1565,16 +1578,25 @@ $CONFIG = array(
 
 ksort($CONFIG);
 
-function valid_value($key, $value, $numeric_values)
+function valid_value($key, $value, $numeric_values, $s_error)
 {
     if (in_array($key, $numeric_values)) {
         if (!is_numeric($value)) 
 		{
             require_once ("ossim_error.inc");
             $error = new OssimError();
-            $error->display("NOT_NUMERIC", array(
-                $key
-            ));
+			//$s_error = $error->get(_("NOT_NUMERIC"), $key);
+			
+			$error_code = ( empty($error->errors[_("NOT_NUMERIC")]) ) ? _("DEFAULT") : _("NOT_NUMERIC");
+		        
+			$s_error = "" . $error->errors["$error_code"]["short_descr"] . ": ";
+			$s_error.= $error->errors["$error_code"]["long_descr"];
+			$s_error = str_replace("%1%", $key, $s_error);
+			
+			// $error->display("NOT_NUMERIC", array(
+                // $key
+            // ), " /* Continue */ ");
+			return false;
         }
     }
     return true;
@@ -1646,6 +1668,8 @@ if ( POST('update') )
 		}
 	}
 	
+	$flag_status = 1;
+	$string_error = "";
 	
 	for ($i = 0; $i < POST('nconfs'); $i++)
 	{
@@ -1680,34 +1704,31 @@ if ( POST('update') )
 		
         ossim_valid(POST("value_$i"), OSS_ALPHA, OSS_NULLABLE, OSS_SCORE, OSS_DOT, OSS_PUNC, "\{\}\|;", 'illegal:' . POST("conf_$i")); 
         
-		if (ossim_error()) {
-           die(ossim_error()); 
-        }
-        
-		
-		
-		if (valid_value(POST("conf_$i") , POST("value_$i"), $numeric_values))
+		if (!(ossim_error() || (valid_value(POST("conf_$i") , POST("value_$i"), $numeric_values, &$s_error))))    // 
 		{
-		    
-			if (!$ossim_conf->is_in_file(POST("conf_$i"))) 
-			{
-                if ( $pass_fields[POST("conf_$i")] == 1 && Util::is_fake_pass(POST("value_$i")) )
-					continue;
-				else
-				{
-					$before_value = $ossim_conf->get_conf(POST("conf_$i"),false); 
-					
-					$config->update(POST("conf_$i") , POST("value_$i"));
-					
-					if (POST("value_$i") != $before_value) 
-						Log_action::log(7, array("variable: ".POST("conf_$i")));
-				}
-                
-            }
+			if ($flag_status==2)
+				$string_error .= "<br />";
+			
+			$string_error .= $s_error;
+			$flag_status=2;	
 		}
 	}
 	
-	
+	if ($flag_status!=2)
+	{
+		for ($i = 0; $i < POST('nconfs'); $i++)
+		{
+			if ( $pass_fields[POST("conf_$i")] == 1 && Util::is_fake_pass(POST("value_$i")) )
+				continue;
+			else
+			{
+				$before_value = $ossim_conf->get_conf(POST("conf_$i"),false); 
+				$config->update(POST("conf_$i") , POST("value_$i"));
+				if (POST("value_$i") != $before_value) 
+					Log_action::log(7, array("variable: ".POST("conf_$i")));
+			}
+		}
+	}
     
     // check valid pass lenght max
     if(intval($pass_length_max) < intval($pass_length_min) || intval($pass_length_max) < 1 || intval($pass_length_max) > 255 )
@@ -1727,7 +1748,7 @@ if ( POST('update') )
         $_SESSION['_user']
     );
     Log_action::log(7, $infolog);*/
-    header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word') . "&section=" . POST('section'));
+	header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word') . "&section=" . POST('section') . "&status=" . $flag_status . "&error=" . $string_error);
     exit;
 }
 
@@ -1789,6 +1810,8 @@ $default_open = intval(GET('open'));
 		.semiopaque { opacity:0.9; MozOpacity:0.9; KhtmlOpacity:0.9; filter:alpha(opacity=90); background-color:#B5C3CF }
 		
 		.m_nobborder { border: none; background: none; }
+		
+		.ossim_success { padding: 15px 10px !important;}
 	</style>
 	
 	<script type='text/javascript'>
@@ -1985,6 +2008,7 @@ $default_open = intval(GET('open'));
 </head>
 
 <body>
+
 	<div id="numeroDiv" style="position:absolute; z-index:999; left:0px; top:0px; height:80px; visibility:hidden; display:none"></div>
 	<?php
 	$advanced = (POST('adv') == "1") ? true : ((GET('adv') == "1") ? true : false);
@@ -1996,8 +2020,20 @@ $default_open = intval(GET('open'));
 	}
 
 	$onsubmit = ( GET('adv') == '1' ) ? "onsubmit='enableall();'" : "";
+	
+	
+	if ($flag_status == 1)
+	{
+		Util::print_succesful( _($status_message) );
+	}elseif($flag_status == 2)
+	{
+		echo ossim_error("
+			<div>"._("We Found the following errors").":</div>
+			<div style='padding:10px;'>$status_message</div>
+		");
+	}
 	?>
-  
+	
 	<form method="POST" style="margin:0px auto" <?php echo $onsubmit;?> action="<?php echo $_SERVER["SCRIPT_NAME"] ?>" />
   
 	<table align='center'>
