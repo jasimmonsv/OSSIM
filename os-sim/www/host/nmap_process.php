@@ -82,7 +82,7 @@ if (GET('action') == "stop") {
     if (preg_match("/^kill \-9\s+\d+$/",$cmd)) {
     	system($cmd);
     	unlink("/tmp/nmap_scan_$ip.log");
-		?><script type="text/javascript">parent.location.href='modifyhostform.php?ip=<?php echo $ip ?>'</script><?php
+		?><script type="text/javascript">parent.location.href='modifyhostform.php?ip=<?php echo $ip ?>&withoutmenu=<?php echo intval(GET('withoutmenu'))?>'</script><?php
 		exit;
     } else {
     	echo "nmap process not found";
@@ -140,8 +140,8 @@ if ($reload && file_exists("/tmp/nmap_scan_$ip.log")) {
         }
     }
     unlink("/tmp/nmap_scan_$ip.log");
-    ?><script type="text/javascript">parent.location.href='modifyhostform.php?ip=<?php echo $ip ?>'</script><?php
+    ?><script type="text/javascript">parent.location.href='modifyhostform.php?ip=<?php echo $ip ?>&withoutmenu=<?php echo intval(GET('withoutmenu'))?>'</script><?php
 }
 
 // Case: Scan is done
-?><script type="text/javascript">document.getElementById('content').innerHTML = "[<a href='modifyhostform.php?ip=<?php echo $ip ?>' target='_parent'>Reload</a>] Nmap is done for <?php echo $ip ?>";</script>
+?><script type="text/javascript">document.getElementById('content').innerHTML = "[<a href='modifyhostform.php?ip=<?php echo $ip ?>&withoutmenu=<?php echo intval(GET('withoutmenu'))?>' target='_parent'>Reload</a>] Nmap is done for <?php echo $ip ?>";</script>
