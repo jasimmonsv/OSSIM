@@ -230,11 +230,11 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found))
         echo $buffer;
 }
 else if ($key == "net") {
-    $buffer = Net::draw_nets_by_class($conn, $key, $filter, $length_name);
+    $buffer = Net::draw_nets_by_class($conn, $key, $filter, $length_name, 1);
     echo $buffer;
 }
 else if ( preg_match("/^.class_(.*)/",$key,$found) ) {
-    $buffer = Net::draw_nets_by_class($conn, $key, $filter, $length_name);
+    $buffer = Net::draw_nets_by_class($conn, $key, $filter, $length_name, 1);
     echo $buffer;
 }
 else if (preg_match("/net_(.*)/",$key,$found))
@@ -598,11 +598,11 @@ else if (preg_match("/host_(.*)/",$key,$found)){
         echo $buffer;
 }
 else if(preg_match("/^e_(.*)_net$/",$key)) {
-    $buffer = Net::draw_nets_by_class($conn, $key, $filter, $length_name);
+    $buffer = Net::draw_nets_by_class($conn, $key, $filter, $length_name, 1);
     echo $buffer;
 }
 else if(preg_match("/^e_(.*)_.class_(.*)/",$key)) {
-    $buffer = Net::draw_nets_by_class($conn, $key, $filter, $length_name);
+    $buffer = Net::draw_nets_by_class($conn, $key, $filter, $length_name, 1);
     echo $buffer;
 }
 else if(preg_match("/e_(.*)_sensor/",$key,$found))

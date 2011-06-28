@@ -677,10 +677,18 @@ class Net {
             }
         }
     }
-    function draw_nets_by_class($conn, $key, $filter, $length_name=50, $low_limit = 10, $high_limit = 100) {
+    /* 
+        Parameters:
+        
+        urltype = 0 Asset Structure
+        urltype = 1 Targets in Vulnerabilities
+        urltype = 2 Asset in wizard
+    */
+    function draw_nets_by_class($conn, $key, $filter, $length_name=50, $urltype=0, $low_limit = 10, $high_limit = 100) {
     
         require_once ('classes/Session.inc');
         require_once ('classes/Host.inc');
+        require_once ('classes/Util.inc');
     
         $buffer    = "";
         $condition = "";
@@ -797,7 +805,14 @@ class Net {
                             
                             $tooltip   = $net_title." (".$net_cidrs.")";
                             
-                            $buffer .= "{ key:'$net_key', isLazy:true, h:'$h', url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip' },";
+                            if( $urltype == 0 )
+                                $url = "../net/newnetform.php?name=".urlencode($net_name);
+                            else if ( $urltype == 1 )
+                                $url = $net_cidrs;
+                            else if ( $urltype == 2 )
+                                $url = "NET:".Util::htmlentities($net_name);
+                            
+                            $buffer .= "{ key:'$net_key', isLazy:true, h:'$h', url:'$url', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip' },";
 
                         }
                         $buffer = preg_replace("/,$/", "", $buffer);
@@ -859,7 +874,14 @@ class Net {
                             
                     $tooltip   = $net_title." (".$net_cidrs.")";
                             
-                    $buffer .= "{ key:'$net_key', isLazy:true, h:'$h', url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip' },";
+                    if( $urltype == 0 )
+                        $url = "../net/newnetform.php?name=".urlencode($net_name);
+                    else if ( $urltype == 1 )
+                        $url = $net_cidrs;
+                    else if ( $urltype == 2 )
+                        $url = "NET:".Util::htmlentities($net_name);
+                            
+                    $buffer .= "{ key:'$net_key', isLazy:true, h:'$h', url:'$url', icon:'../../pixmaps/theme/net.png', title:'$title', tooltip:'$tooltip' },";
                 }
 
                 $buffer = preg_replace("/,$/", "", $buffer);
@@ -869,7 +891,7 @@ class Net {
         }
         
         if ( $buffer == "" || $buffer == "[]" )
-            $buffer = "[{title:'<span>"._("No Networks Found")."<span>', key:'_no_nets_', icon:'../../pixmaps/theme/any.png', addClass:'grey_12'}]";
+            $buffer = "[{title:'"._("No Networks Found")."', noLink:true }]";
 
         return $buffer;
     }
