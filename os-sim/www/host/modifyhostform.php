@@ -1203,7 +1203,7 @@ if ( empty( $ip ) ) {
 			
                 <tr><th style="padding:5px"><?php echo _("Inventory") ?> 
                 <?php if ($scanning) { ?>[ <?php echo _("Now Scanning") ?> ]
-                <?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services' alt="<?php echo _("The scan will run in frameworkd machine") ?>" title="<?php echo _("The scan will run in frameworkd machine") ?>"><?php echo _("Local Scan now") ?></a> ] <?php } ?>
+                <?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services<?php echo (intval(GET('withoutmenu'))==1) ? "&withoutmenu=1" : ""?>' alt="<?php echo _("The scan will run in frameworkd machine") ?>" title="<?php echo _("The scan will run in frameworkd machine") ?>"><?php echo _("Local Scan now") ?></a> ] <?php } ?>
                 </th></tr>
 				
 				<tr>
@@ -1354,7 +1354,7 @@ if ( empty( $ip ) ) {
 									} 
 									else 
 									{ 
-										?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services' alt="<?php echo _("The scan will run in frameworkd machine") ?>" title="<?php echo _("The scan will run in frameworkd machine") ?>"><?php echo _("Local Scan now") ?></a> ] <?php 
+										?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services<?php echo (intval(GET('withoutmenu'))==1) ? "&withoutmenu=1" : ""?>' alt="<?php echo _("The scan will run in frameworkd machine") ?>" title="<?php echo _("The scan will run in frameworkd machine") ?>"><?php echo _("Local Scan now") ?></a> ] <?php 
 									} 
 									?>
 								</th>
@@ -1378,7 +1378,7 @@ if ( empty( $ip ) ) {
 				</tr>
 				
 				<?php if ($scanning) { ?>
-				<tr><td class="nobborder"><iframe src="nmap_process.php?ip=<?php echo $ip ?>" frameborder="0"></iframe></td></tr>
+				<tr><td class="nobborder"><iframe src="nmap_process.php?ip=<?php echo $ip ?>&withoutmenu=<?php echo intval(GET('withoutmenu')); ?>" frameborder="0"></iframe></td></tr>
 				<?php } ?>
 			</table>
 		</td>
