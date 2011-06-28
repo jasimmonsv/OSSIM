@@ -92,7 +92,7 @@ class Net {
     
     function Net($name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $descr, $foundrows = 0,$icon = "") {
         $this->name = $name;
-        $this->ips = $ips;
+        $this->ips = preg_replace("/[\r\n\t]+/","",$ips);
         $this->asset = $asset;
         $this->threshold_c = $threshold_c;
         $this->threshold_a = $threshold_a;
@@ -164,7 +164,7 @@ class Net {
         if (!$rs = & $conn->Execute($query,array($name))) {
             print $conn->ErrorMsg();
         } elseif (!$rs->EOF) {
-			$ips = $rs->fields["ips"];
+			$ips = preg_replace("/[\r\n\t]+/","",$rs->fields["ips"]);
 			$icon = $rs->fields["icon"];
 		}
 		return ($withicon) ? array($ips,$icon) : $ips;
@@ -303,7 +303,7 @@ class Net {
         $rrd_profile = Util::htmlentities($rrd_profile);
         $persistence = Util::htmlentities($persistence);
         $name = str_replace(" ", "_", $name);
-        $ips = str_replace(" ", "", $ips);
+        $ips = preg_replace("/[\r\n\t\s]+/","",$ips);
         $sql = "INSERT INTO net (name, ips, asset, threshold_c, threshold_a, rrd_profile, alert, persistence, descr".($icon!="" ? ", icon" : "").") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?".($icon!="" ? ", ?" : "").")";
         $params = array(
             $name,
@@ -604,7 +604,7 @@ class Net {
 			$exp = CIDR::expand_CIDR($cidr,"SHORT");
 		    $sql = "INSERT IGNORE INTO net_cidrs (`cidr`,`begin`,`end`) VALUES (?, ?, ?)";
 		    $params = array(
-		        $cidr,
+		        trim($cidr),
 		        $exp[0],
 		        $exp[1]
 		    );
@@ -619,7 +619,7 @@ class Net {
     	foreach ($cidrs as $cidr) {
 		    $sql = "DELETE FROM net_cidrs WHERE cidr=?";
 		    $params = array(
-		        $cidr
+		        trim($cidr)
 		    );
 		    if ($conn->Execute($sql, $params) === false) {
 		        print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
@@ -668,7 +668,7 @@ class Net {
         if (!$rs = & $conn->Execute($sql, $params)) {
             print $conn->ErrorMsg();
         } else {
-            $tmp = explode(",", $rs->fields["ips"]);
+            $tmp = explode(",", preg_replace("/[\r\n\t]+/","",$rs->fields["ips"]));
             if(count($tmp)>2) {
                 return $tmp[0]."...".$tmp[count($tmp)-1];
             }
@@ -680,6 +680,7 @@ class Net {
     function draw_nets_by_class($conn, $key, $filter, $length_name=50, $low_limit = 10, $high_limit = 100) {
     
         require_once ('classes/Session.inc');
+        require_once ('classes/Host.inc');
     
         $buffer    = "";
         $condition = "";
@@ -753,9 +754,9 @@ class Net {
                 foreach($acidrs as $cidr) {
                     $data = explode(".", $cidr);
                     
-                    if($cclasses[$data[0].".".$data[1].".".$data[2]]!=1)  $cclasses[$data[0].".".$data[1].".".$data[2]] = 1;
-                    if($cclasses[$data[0].".".$data[1]]!=1)               $bclasses[$data[0].".".$data[1]] = 1;
-                    if($cclasses[$data[0]]!=1)                            $aclasses[$data[0]] = 1;
+                    if($cclasses[$data[0].".".$data[1].".".$data[2]]=="")  $cclasses[$data[0].".".$data[1].".".$data[2]] = Host::ip2ulong($data[0].".".$data[1].".".$data[2].".0");
+                    if($bclasses[$data[0].".".$data[1]]=="")               $bclasses[$data[0].".".$data[1]]              = Host::ip2ulong($data[0].".".$data[1].".0.0");
+                    if($aclasses[$data[0]]=="")                            $aclasses[$data[0]]                           = Host::ip2ulong($data[0].".0.0.0");
                 }
                 
                 $name = trim($net->get_name());
@@ -763,6 +764,10 @@ class Net {
             
             }
             
+            asort($aclasses);
+            asort($bclasses);
+            asort($cclasses);
+
             ksort($nets);
             $data = array();
             $found = array();

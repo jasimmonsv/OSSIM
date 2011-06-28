@@ -156,7 +156,7 @@ class ControlManager():
             self.__response.append(message + "\n")
 
         elif action == "agent_restart":
-            self.__response.append(message + ' %s ackend\n' % ControlError.get(1006))
+            self.__response.append(message + ' %s ackend\n' % ControlError.get(1000))
 
         # backup an ossim configuration file
         elif action == "config_file_backup":

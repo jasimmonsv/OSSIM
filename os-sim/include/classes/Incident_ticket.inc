@@ -171,6 +171,7 @@ class Incident_ticket {
             'description' => array(
 				OSS_TEXT, 
 				OSS_PUNC_EXT,
+				"\t",
 				'>',
 				'<',
                 'error:' . _("Description required")
@@ -179,6 +180,7 @@ class Incident_ticket {
                 OSS_NULLABLE, 
 				OSS_TEXT, 
 				OSS_PUNC_EXT,
+				"\t",
 				'>',
 				'<',
             ) ,
@@ -605,7 +607,7 @@ class Incident_ticket {
         return $values;
     }
     function get_email_template($type) {
-        $default_subject_template = '[ossim-incident] PRIORITY_STR: TITLE';
+        $default_subject_template = '[alienvault-incident] PRIORITY_STR: TITLE';
         $default_body_template = 'Incident details
 ------------------------------------------------
      Title: INCIDENT_NO - TITLE

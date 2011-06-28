@@ -254,7 +254,7 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found))
 				$host_key   = utf8_encode($key.$k);
 				
 				$host_name  = $ossim_hosts[$ip];
-				$hname      = ( $host_name != '' ) ? utf8_encode($host_name) : "";
+				$hname      = ( $host_name != '' ) ? $host_name : "";
 						   
 				$aux_hname  = ( strlen($hname) > $length_hn ) ? substr($hname, 0, $length_hn)."..." : $hname;
 								
@@ -305,7 +305,7 @@ else if (preg_match("/net_(.*)/",$key,$found))
 			foreach ($nets_ips as $net_ips) 
 			{
                 $net_range     = CIDR::expand_CIDR($net_ips,"SHORT","IP");
-                $host_list_aux = Host::get_list($conn,"WHERE inet_aton(ip)>=inet_aton('".$net_range[0]."') && inet_aton(ip)<=inet_aton('".$net_range[1]."')");
+                $host_list_aux = Host::get_list($conn,"WHERE inet_aton(ip)>=inet_aton('".$net_range[0]."') && inet_aton(ip)<=inet_aton('".$net_range[1]."')", "ORDER BY ip");
                 foreach ($host_list_aux as $h) 
 				{
                     $hostin[$h->get_ip()] = $h->get_hostname();
@@ -323,7 +323,7 @@ else if (preg_match("/net_(.*)/",$key,$found))
         if ($k>=$from && $k<$to) 
 		{
             $host_key   = utf8_encode($key.$k);
-			$hname      = ( $host_name == $ip ) ? "" : utf8_encode($host_name);
+			$hname      = ( $host_name == $ip ) ? "" : $host_name;
 					   
 			$aux_hname  = ( strlen($hname) > $length_name ) ? substr($hname, 0, $length_name)."..." : $hname;
 								
@@ -489,7 +489,7 @@ else if (preg_match("/all_(.*)/",$key,$found))
 			if ($i>=$from && $i<$to) 
 			{
 				$host_key   = utf8_encode($key.$j);
-				$host_name  = ( $ossim_hosts[$ip] != '' ) ? utf8_encode($ossim_hosts[$ip]) : "";
+				$host_name  = ( $ossim_hosts[$ip] != '' ) ? $ossim_hosts[$ip] : "";
 					   
 				$aux_hname  = ( strlen($host_name) > $length_hn ) ? substr($host_name, 0, $length_hn)."..." : $host_name;
 								
@@ -824,15 +824,16 @@ else if( preg_match("/servers/",$key) )
 		{
 			$icon = "../../pixmaps/theme/host.png";
 			
-			$server_name = utf8_encode($server->get_name());
+			$server_name = $server->get_name();
 			$serv_title  = Util::htmlentities($server_name);
+			$server_url  = urlencode($server_name);
 			
 			$title   = ( strlen($server_name) > $length_name ) ? substr($server_name, 0, $length_name)."..." : $server_name;	
 			$title   = Util::htmlentities($title);
 			
 			$tooltip = $serv_title;
 						
-			$li      = "title:'$title', tooltip:'$tooltip', icon:'$icon', h:'$h', url:'../server/newserverform.php?name=".utf8_encode($server_name)."'";
+			$li      = "title:'$title', tooltip:'$tooltip', icon:'$icon', h:'$h', url:'../server/newserverform.php?name=".$server_url."'";
 			$buffer .= (($j > 0) ? "," : "") . "{ $li }";
 			$j++;
 		}
@@ -867,7 +868,7 @@ else if( preg_match("/databases/",$key) )
 			
 			$tooltip  = $db_title;
 						
-			$li      = "title:'$title', tooltip:'$tooltip', icon:'$icon', h:'$h', url:'../server/newdbsform.php?name=".utf8_encode($db_name)."'";
+			$li      = "title:'$title', tooltip:'$tooltip', icon:'$icon', h:'$h', url:'../server/newdbsform.php?name=".urlencode($db_name)."'";
 			$buffer .= (($j > 0) ? "," : "") . "{ $li }";
 			$j++;
 		}
@@ -890,10 +891,11 @@ else if(preg_match("/sensors/",$key))
 	{
         $icon = "../../pixmaps/server.png";
             
-		$sensor_name    = utf8_encode($sensor->get_name());
+		$sensor_name    = $sensor->get_name();
 		$related_assets = Sensor::get_assets($conn, $sensor_name);
 		
 		$s_title  = Util::htmlentities($sensor_name);
+		$s_url    = urlencode($sensor_name);
 			
 		$title    = ( strlen($sensor_name) > $length_name ) ? substr($sensor_name, 0, $length_name)."..." : $sensor_name;	
 		$title    = Util::htmlentities($title);		
@@ -902,9 +904,9 @@ else if(preg_match("/sensors/",$key))
 				
 
 		if ( count($related_assets["host"]) == 0 && count($related_assets["net"]) == 0 && count($related_assets["hgroup"]) == 0 && count($related_assets["ngroup"]) == 0 )
-			$li = "title:'$title', tooltip:'$tooltip', icon:'$icon', h:'$h', url:'../sensor/interfaces.php?sensor=".utf8_encode($sensor_name)."&name=".utf8_encode($sensor_name)."'";
+			$li = "title:'$title', tooltip:'$tooltip', icon:'$icon', h:'$h', url:'../sensor/interfaces.php?sensor=".$s_url."&name=".utf8_encode($sensor_name)."'";
 		else
-			$li = "title:'$title', tooltip:'$tooltip', icon:'$icon', key:'sensor_".utf8_encode($sensor_name)."' ,isLazy:true, h:'$h', url:'../sensor/interfaces.php?sensor=".utf8_encode($sensor_name)."&name=".utf8_encode($sensor_name)."'";
+			$li = "title:'$title', tooltip:'$tooltip', icon:'$icon', key:'sensor_".utf8_encode($sensor_name)."' ,isLazy:true, h:'$h', url:'../sensor/interfaces.php?sensor=".$s_url."&name=".utf8_encode($sensor_name)."'";
 
 		$buffer .= (($j > 0) ? "," : "") . "{ $li }";
 		
@@ -1032,7 +1034,7 @@ else
 			
 			$e_key  = "e_".$entity['id'];
 			$e_sn   = ( strlen($entity['name']) > $length_name )	? substr($entity['name'], 0, $length_name)."..." : $entity['name'];	
-			$e_name = Util::htmlentities(utf8_encode($entity_name));
+			$e_name = Util::htmlentities($entity_name);
 			
 			
 			$entities_admin[$entity['admin_user']] = $entity['id'];
@@ -1110,7 +1112,7 @@ function echochildrens($entities,$parent_id, $withusers, $entities_admin) {
 			
 			$child_key  = "e_".$child_id;
 			$child_sn   = ( strlen($child['name']) > $length_name )	? substr($child['name'], 0, $length_name)."..." : $child['name'];	
-			$child_name = Util::htmlentities(utf8_encode($child['name']));
+			$child_name = Util::htmlentities($child['name']);
 			
 			$chil_ent_admin                       = $entities_admin;
 			$chil_ent_admin[$child['admin_user']] = $child_id;

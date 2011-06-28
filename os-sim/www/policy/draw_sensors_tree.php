@@ -39,12 +39,13 @@ require_once ('classes/Security.inc');
 require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "PolicyPolicy");
 
-$cachefile = "/var/ossim/sessions/".$_SESSION["_user"]."_sensors.json";
+/*$cachefile = "/var/ossim/sessions/".$_SESSION["_user"]."_sensors.json";
 
 if (file_exists($cachefile)) {
     readfile($cachefile);
     exit;
 }
+*/
 
 require_once ('classes/Sensor.inc');
 require_once ('ossim_db.inc');
@@ -76,16 +77,14 @@ if (count($sensors) > 0)
     
 	foreach($sensors as $ip => $sname) 
 	{
-        $sname       = utf8_encode($sname);
-		
-		$s_title     = Util::htmlentities(utf8_encode($sname));
+       	$s_title     = Util::htmlentities($sname);
 		$sensor_key  = utf8_encode("sensor;".$sname);
 		
 		$title    = ( strlen($sname) > $length_name ) ? substr($sname, 0, $length_name)."..." : $sname;	
-		$title    = Util::htmlentities(utf8_encode($title))." <font style=\"font-weight:normal;font-size:80%\">(".$ip.")</font>";
+		$title    = Util::htmlentities($title)." <font style=\"font-weight:normal;font-size:80%\">(".$ip.")</font>";
 		$tooltip  = $s_title." ($ip)";
 				
-		$buffer  .= (($j > 1) ? "," : "") . "{ key:'key1.1.$j', url:'$sname', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip' }\n";
+		$buffer  .= (($j > 1) ? "," : "") . "{ key:'key1.1.$j', url:'".utf8_encode($sname)."', icon:'../../pixmaps/theme/server.png', title:'$title', tooltip:'$tooltip' }\n";
         $j++;
     }
     

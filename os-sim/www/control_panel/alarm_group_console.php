@@ -595,6 +595,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 				}
 			});
 		} else {
+			alert("alarm_group_response.php?only_delete="+index+selected_group);
 			$.ajax({
 				type: "GET",
 				url: "alarm_group_response.php?only_delete="+index+selected_group,
@@ -662,7 +663,12 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 				        <b><?=_("Sensor")?></b>:
 				    </td>
 				    <td style="text-align: left; border-width: 0px" nowrap>
-						<input type="text" name="sensor_query" id="sensors" value="<?php echo $sensor_query ?>">
+						<select name="sensor_query">
+						<option value="">
+						<?php foreach ($sensors as $sensor_ip=>$sensor_name) { ?>
+						<option value="<?php echo $sensor_ip ?>" <?php if ($sensor_query == $sensor_ip) { echo "selected"; } ?>><?php echo $sensor_name ?> (<?php echo $sensor_ip ?>)
+						<?php } ?>
+						</select>
 				    </td>
 				</tr>
 				<tr>
@@ -709,7 +715,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 		<td style="text-align: left;border-bottom:0px solid white" nowrap>
 			<table class="noborder">
 				<tr><td class="nobborder" style="padding-bottom:5px"><input type="button" onclick="close_groups()" value="<?php echo _("Close Selected") ?>" class="lbutton">
-					<br><br><input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
+					<br><br><input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Would you like to close the alarm instead of deleting it? Click cancel to close, or Accept to continue deleting.")?>')) bg_delete(); else close_groups()" class="lbutton">
 					</td>
 				</tr>
 				<tr>
@@ -858,7 +864,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
     // Timezone correction
     $tz = Util::get_timezone();
     foreach($alarm_group as $group) {
-        $group['date'] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$group['date'])+(3600*$tz));
+        $group['date'] = ($group['date'] != "") ? gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$group['date'])+(3600*$tz)) : "";
 		$group_id = $group['group_id'];
 		$_SESSION[$group_id] = $group['name'];
 		$ocurrences = $group['group_count'];
@@ -1024,18 +1030,7 @@ $(document).ready(function(){
 		GB_show(t,this.href,150,'40%');
 		return false;
 	});
-	var sensors = [<?=preg_replace("/\,$/","",$sensors_str)?>];
-	$("#sensors").autocomplete(sensors, {
-		minChars: 0,
-		width: 225,
-		matchContains: "word",
-		autoFill: true,
-		formatItem: function(row, i, max) {
-			return row.txt;
-		}
-	}).result(function(event, item) {
-		$("#sensors").val(item.id);
-	});
+	
 	var hosts = [<?=preg_replace("/\,$/","",$hosts_str)?>];
 	$("#src_ip").autocomplete(hosts, {
 		minChars: 0,

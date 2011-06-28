@@ -902,13 +902,16 @@ class Alarm {
     function delete_from_backlog($conn, $backlog_id, $alarm_id, $hide_closed = 0, $src_ip = null, $dst_ip = null, $from_date = null, $to_date = null) {
         /* delete ALL */
         if (!strcmp($backlog_id, "all")) {
-            if (($conn->Execute("DELETE FROM alarm") === false) or ($conn->Execute("DELETE FROM event") === false) or ($conn->Execute("DELETE FROM backlog") === false) or ($conn->Execute("DELETE FROM backlog_event") === false)) {
+        	if (($conn->Execute("DELETE FROM alarm") === false) or ($conn->Execute("DELETE FROM event") === false) or ($conn->Execute("DELETE FROM backlog") === false) or ($conn->Execute("DELETE FROM backlog_event") === false)) {
                 print _("error deleting").': ' . $conn->ErrorMsg() . '<BR>';
             }
             // XXXX Work in progress, non functional
-            
+        } elseif (!strcmp($backlog_id, "closeall")) {
+        	if (($conn->Execute("UPDATE alarm SET status = 'closed'") === false)) {
+                print _("error deleting").': ' . $conn->ErrorMsg() . '<BR>';
+            }
         } elseif ($backlog_id == 'filter') {
-            $where_ip = array();
+        	$where_ip = array();
             $where_alarm_status = array();
             $where_timestamp = array();
             /* ip filter */

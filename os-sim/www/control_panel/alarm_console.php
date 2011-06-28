@@ -298,7 +298,11 @@ if (empty($refresh_time) || ($refresh_time != 30000 && $refresh_time != 60000 &&
 	  }
     function delete_all_alarms(id) {
         if(confirm('<?php echo _("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?") ?>')) {
-            document.location.href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id='+id;
+        	if(confirm('<?php echo _("Would you like to close the alarm instead of deleting it? Click cancel to close, or Accept to continue deleting.") ?>')) {
+            	document.location.href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id='+id;
+        	} else {
+        		document.location.href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id='+id+'&only_close=1';
+        	}
         }
     }
   </script>
@@ -337,6 +341,7 @@ if ($list = GET('delete_backlog')) {
 			} else {
 				list($backlog_id, $id) = split("-", $list);
 			}
+			if (GET('only_close') != "") { $backlog_id = "closeall"; }
 			Alarm::delete_from_backlog($conn, $backlog_id, $id);
 		}
 		else die(ossim_error("Can't do this action for security reasons."));
@@ -419,7 +424,12 @@ if (!isset($_GET["hide_search"])) {
 			        <b><?=_("Sensor")?></b>:
 			    </td>
 			    <td style="text-align: left; border-width: 0px" nowrap>
-					<input type="text" name="sensor_query" id="sensors" value="<?php echo $sensor_query ?>">
+					<select name="sensor_query">
+					<option value="">
+					<?php foreach ($sensors as $sensor_ip=>$sensor_name) { ?>
+					<option value="<?php echo $sensor_ip ?>" <?php if ($sensor_query == $sensor_ip) { echo "selected"; } ?>><?php echo $sensor_name ?> (<?php echo $sensor_ip ?>)
+					<?php } ?>
+					</select>
 			    </td>
 			</tr>
 			<tr>
@@ -468,12 +478,11 @@ if (!isset($_GET["hide_search"])) {
 		</table>
 	</td>
 	<td class="nobborder" style="text-align:center">
-		<table class="noborder">
+		<table class="noborder" align="center">
 			<tr><td class="nobborder" style="padding-bottom:5px">
-				<a href="javascript:;" onclick="delete_all_alarms('<?php echo $unique_id?>');"><?php
-    echo gettext("Delete ALL alarms"); ?></a> <br><br>
-				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
-				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="lbutton">
+				<input type="button" onclick="delete_all_alarms('<?php echo $unique_id?>');" value="<?php echo gettext("Delete ALL alarms"); ?>" style="width:110px" class="lbutton"> <br><br>
+				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Would you like to close the alarm instead of deleting it? Click cancel to close, or Accept to continue deleting.")?>')) bg_delete(); else { document.fchecks.only_close.value='1';document.fchecks.submit(); }" style="width:110px" class="lbutton">
+				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" style="width:110px" class="lbutton">
 				<?php
 				/* OBSOLETE. DO NOT USE FROM ALARM CONSOLE <br><br><a href="" onclick="$('#divadvanced').toggle();return false;"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"> <?=_("Advanced")?></a>
 				<div id="divadvanced" style="display:none"><a href="<?php
@@ -1022,10 +1031,11 @@ if ($count > 0) {
 <?php
         $event_id = $alarm->get_event_id();
         if (($status = $alarm->get_status()) == "open") {
-            echo "<a title='" . gettext("Click here to close alarm") . " #$event_id' " . "href=\"" . $_SERVER['SCRIPT_NAME'] . "?close=$event_id" . "&sup=" . "$sup" . "&inf=" . ($sup - $ROWS) . "&hide_closed=$hide_closed&query=".urlencode($query)."&unique_id=$unique_id\"" . " style='color:#923E3A'><b>" . gettext($status) . "</b></a>";
+            //echo "<a title='" . gettext("Click here to close alarm") . " #$event_id' " . "href=\"" . $_SERVER['SCRIPT_NAME'] . "?close=$event_id" . "&sup=" . "$sup" . "&inf=" . ($sup - $ROWS) . "&hide_closed=$hide_closed&query=".urlencode($query)."&unique_id=$unique_id\"" . " style='color:#923E3A'><b>" . gettext($status) . "</b></a>";
+            echo "<font style='color:#923E3A'><b>" . gettext($status) . "</b></font>";
         } else {
             //echo gettext($status);
-            echo "<a title='" . gettext("Click here to open alarm") . " #$event_id' " . "href=\"" . $_SERVER['SCRIPT_NAME'] . "?open=$event_id" . "&sup=" . "$sup" . "&inf=" . ($sup - $ROWS) . "&hide_closed=$hide_closed&query=".urlencode($query)."&unique_id=$unique_id\"" . " style='color:#4C7F41'><b>" . gettext($status) . "</b></a>";
+            echo "<font style='color:#4C7F41'><b>" . gettext($status) . "</b></font>";
         }
 ?>
         </td>
@@ -1087,6 +1097,13 @@ $tmp_eid = $alarm->get_event_id();
 <?php
 } /* if alarm_list */
 ?>
+	<tr>
+		<td class="nobborder" colspan="11">
+		<input type="button" onclick="delete_all_alarms('<?php echo $unique_id?>');" value="<?php echo gettext("Delete ALL alarms"); ?>" style="width:110px" class="button">
+		&nbsp;<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Would you like to close the alarm instead of deleting it? Click cancel to close, or Accept to continue deleting.")?>')) bg_delete(); else { document.fchecks.only_close.value='1';document.fchecks.submit(); }" style="width:110px" class="button">
+		&nbsp;<input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" style="width:110px" class="button">
+		</td>
+	</tr>
     </table>
 
 
@@ -1123,18 +1140,6 @@ $(document).ready(function(){
 		}
 	});
 	
-	var sensors = [<?=preg_replace("/\,$/","",$sensors_str)?>];
-	$("#sensors").autocomplete(sensors, {
-		minChars: 0,
-		width: 225,
-		matchContains: "word",
-		autoFill: false,
-		formatItem: function(row, i, max) {
-			return row.txt;
-		}
-	}).result(function(event, item) {
-		$("#sensors").val(item.id);
-	});
 	var hosts = [<?=preg_replace("/\,$/","",$hosts_str)?>];
 	$("#src_ip").autocomplete(hosts, {
 		minChars: 0,

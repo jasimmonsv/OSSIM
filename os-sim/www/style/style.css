@@ -868,6 +868,23 @@ div.bballoon:hover span.bottom {
 	text-decoration: none !important;
 }
 
+.vtooltip {
+	text-align:left;
+	position: absolute;
+	padding: 5px;
+	z-index: 10;
+
+	color: #303030;
+	background-color: #D3EF95;
+	border: 1px solid #8DC41B;
+
+	height:150px; overflow-y:auto;
+
+	font-family: arial;
+	font-size: 12px;
+	text-decoration: none !important;
+}
+
 .gtooltip {
 	text-align:left;
 	position: absolute;

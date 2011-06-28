@@ -106,7 +106,7 @@ class Inventory:
 	def updateProp(self, ip, prop, source, value, extra):
 		self.connectDB()
 		sql = "UPDATE host_properties SET source_id = %d, date = now(), value = '%s', extra = '%s' where ip = '%s' and property_ref = %d" % (self.sources[source][0], value, extra, ip, self.properties[prop])
-		print sql
+		#print sql
 		logger.debug(sql)
 		self.db.exec_query(sql)
 		self.closeDB()
@@ -141,7 +141,7 @@ class Inventory:
 		self.connectDB()
 		sql = "select n.ips from ossim.net as n, ossim.sensor as s, ossim.net_sensor_reference as nsr where s.ip = '%s' and nsr.sensor_name = s.name and n.name = nsr.net_name;" % ip
 		data = self.db.exec_query(sql)
-		print sql
+		#print sql
 		logger.debug(sql)
 		nets = []
 		for n in data:
@@ -234,7 +234,7 @@ class Inventory:
 	def hostInNetworks(self, ip, nets):
 		t = SubnetTree.SubnetTree()
 		for n in nets:
-			print "XX : %s" % n
+			#print "XX : %s" % n
 			t[n] = n
 		if ip in t:
 			return True

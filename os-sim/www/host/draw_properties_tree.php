@@ -42,75 +42,38 @@ require_once '../ossec/utils.php';
 
 function getPropertyImage($property)
 {
-	switch (strtolower($property)){
-		case "software": 
-			$icon = "software.png";
-		break;
-		
-		case "operating-system": 
-			$icon = "host_os.png";
-		break;
-		case "cpu": 
-			$icon = "cpu.png";
-		break;
-		
-		case "services": 
-			$icon = "ports.png";
-		break;
-		
-		case "memory": 
-			$icon = "ram.png";
-		break;
-		
-		case "department": 
-			$icon = "host_group.png";
-		break;
-		
-		case "macaddress": 
-			$icon = "mac.png";
-		break;
-		
-		case "workgroup": 
-			$icon = "net_group.png";
-		break;
-		
-		case "role": 
-			$icon = "server_role.png";
-		break;
-		
-		case "property": 
-			$icon = "notebook.png";
-		break;
-		
-		case "nagios_ok": 
-			$icon = "tick.png";
-		break;
-		
-		case "nagios_ko": 
-			$icon = "cross.png";
-		break;
-
-		case "acl": $icon = "acl.png";
-		break;
-		
-		case "storage": $icon = "storage.png";
-		break;
-		
-		case "route": $icon = "route.png";
-		break;
-                                                                        		
-		default:
-			$icon = "folder.png";
-    }
+	$icons = array (
+		"software" 		   => "software",
+		"operating-system" => "host_os",
+		"cpu" 			   => "cpu",
+		"services" 		   => "ports",
+		"memory" 		   => "ram",
+		"department" 	   => "host_group",
+		"macaddress"       => "mac",
+		"workgroup" 	   => "net_group",
+		"role" 		       => "server_role",
+		"property"         => "notebook",
+		"nagios_ok"        => "tick",
+		"nagios_ko"        => "cross",
+		"acl" 		       => "acl",
+		"storage"	       => "storage",
+		"route" 		   => "route"
+	);
 	
-	if (preg_match("/^OS\=/",$property))
+	$property = strtolower($property);
+	
+	$icon  = ( empty($icons[$property]) ) ? "folder" : $icons[$property];
+    $icon .= ".png";
+	
+	if (preg_match("/^OS\=/i",$property))
 	{
-		$os_icon = Host_os::get_os_pixmap_nodb($property,"../",true);
 		
-		if ($os_icon!="") 
+		$os_icon = Host_os::get_os_pixmap_nodb($property, "..", true);
+		
+		if ( $os_icon != "" ) 
 			$icon = $os_icon;
 	}
-	
+	 
 	return $icon;
 
 }
@@ -123,6 +86,8 @@ $ip        = GET('ip');
 $tree      = GET('tree');
 
 ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
+
+$length_name = ( !empty($_GET['length_name']) ) ? GET('length_name') : 40;
 
 if ( ossim_error() ) 
 	$ossim_error = true;
@@ -192,9 +157,7 @@ switch ($tree)
 			$num_p  = count($property);
 			$cont_2 = 0;
 			$is_folder = ( $num_p > 0 ) ? "true" : "false";
-			
-			
-			
+						
 			$json_properties .= "{title: '<span>"._(ucfirst($p[2]))."</span>', addClass:'size12', key:'property_".$p[1]."', isFolder:".$is_folder.", hideCheckbox: true, expand:true, icon:'".$image_url.getPropertyImage($p[0])."', children:[";
 								
 			foreach ($property as $j => $v )
@@ -203,16 +166,32 @@ switch ($tree)
 				$class       = ( $v['anom'] == 1 ) ? "size12ig" : "size12n";
 				$to_delete   = ( $v['source'] == $source_m ) ? "false" : "true";
 				
-				$json_properties .=  "{ title: '<span class=\'$class\'>".utf8_encode($v['value'])."</span>', value:'".utf8_encode($v['value'])."', anom:'".$v['anom']."', hideCheckbox: $to_delete, key:'item_prop_".$p[1]."_$cont_2###".$v['id']."###".$p[1]."', isFolder:true, icon:'".$image_url.getPropertyImage("OS=".$v["value"])."', children:[";
+				$prop_value  = $v['value'];
+				$prop_title  = Util::htmlentities($prop_value);
+				
+				$title    = ( strlen($prop_value) > $length_name ) ? substr($prop_value, 0, $length_name)."..." : $prop_value;	 
+				$title    = "<span class=\'$class\'>".Util::htmlentities($title)."</span>";
+				
+				$tooltip  = $prop_title;		
+			
+				$json_properties .=  "{ title: '$title', tooltip: '$tooltip', value:'".utf8_encode($prop_value)."', anom:'".$v['anom']."', hideCheckbox: $to_delete, key:'item_prop_".$p[1]."_$cont_2###".$v['id']."###".$p[1]."', isFolder:true, icon:'".$image_url.getPropertyImage("OS=".$v["value"])."', children:[";
 				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Date").": </span><span class=\'ml3 size12b\'>".$v['date']."</span>', date:'".$v['date']."', hideCheckbox: true, key:'date_".$v['id']."', isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
 				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Source").": </span><span class=\'ml3 size12b\'> ".$v['source']."</span>', source:'".$v['source']."',  source_id:'".$v['source_ref']."', hideCheckbox: true, key:'source_".$v['id']."', isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
-				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Version").": </span><span class=\'ml3 size12b\'>".utf8_encode($v['extra'])."</span>', extra:'".utf8_encode($v['extra'])."', hideCheckbox: true, key:'extra_".$v['id']."', isFolder:false,icon:'".$image_url.getPropertyImage('property')."'}";
+				
+				$prop_extra = $v['extra']; 
+				$prop_title = Util::htmlentities($prop_extra);
+				
+				$title    = ( strlen($prop_extra) > $length_name ) ? substr($prop_extra, 0, $length_name)."..." : $prop_extra;	 
+				$title    = "<span class=\'ml3 size12b\'>".Util::htmlentities($title)."</span>";
+				
+				$tooltip  = $prop_title;
+				
+				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Version").": </span>$title', tooltip: '$tooltip', extra:'".utf8_encode($prop_extra)."', hideCheckbox: true, key:'extra_".$v['id']."', isFolder:false,icon:'".$image_url.getPropertyImage('property')."'}";
 				$json_properties .= ($num_p == $cont_2) ? "]}" : "]},";
 			}
 			
 			$json_properties .= ($num_gp == $cont_1) ? "]}" : "]},";
 		}
-
 
 
 		$json_properties .= ( $cont_1 > 0 ) ? "," : "";
@@ -240,6 +219,7 @@ switch ($tree)
 			$nagios_key       = "nagios_$cont_3###".$v['port']."###".$img_nagios;
 			$nagios           = "<img src=\'../pixmaps/theme/".getPropertyImage($img_nagios)."\'/>";
 			$json_properties .= "{ title: '<span class=\'size12n\'>"._("Nagios").": </span><span class=\'ml3 size12b\'>$nagios</span>', key:'$nagios_key', hideCheckbox: true, isFolder:false, icon:'".$image_url.getPropertyImage('property')."'}";
+			
 			$json_properties .= ($num_s == $cont_3) ? "]}" : "]},";
 		}
 	
