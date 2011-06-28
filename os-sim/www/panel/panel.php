@@ -916,10 +916,12 @@ if (GET('edit') && $tabsavt[$panel_id] != "") {
 		foreach($tabs as $tab_id => $tab_values) {
 			if ($last_tab_id < $tab_id) $last_tab_id = $tab_id;
 		}
-	if ($last_tab_id < 1) $last_tab_id = 1;
-	?>
-<span align="center"><?php echo _("This tab can not be edited, ") ?><a href="panel.php?edit_tabs=1&panel_id=<?php echo $panel_id ?>&mode=clone&clonefrom=<?php echo $panel_id ?>&tab_name=<?php echo $tabsavt[$panel_id]['tab_name'] ?>Clone&tab_id=<?php echo $last_tab_id + 1 ?>"> <?php echo gettext("click here"); ?> </a><?php echo _(" to clone and edit a copy of this tab") ?>. <i>[<?php echo gettext("You will create a new tab called"); ?> '<b><?php echo $tabsavt[$panel_id]['tab_name'] ?>Clone</b>']</i></span>
-<?php exit; }
+	if ($last_tab_id < 1) 
+		$last_tab_id = 1;
+	$var_tmp = _("This tab can not be edited, ").'<a style="color: #D8000C;" href="panel.php?edit_tabs=1&panel_id='.$panel_id.'&mode=clone&clonefrom='.$panel_id.'&tab_name='.$tabsavt[$panel_id]["tab_name"].'Clone&tab_id='. ($last_tab_id + 1) .'">'. _("click here") .'</a>'. _(" to clone and edit a copy of this tab") .'<i> ['. _("You will create a new tab called") .' <b>'. $tabsavt[$panel_id]['tab_name'].' Clone</b>]</i>';
+	echo ossim_error($var_tmp);
+ exit; 
+}
 
 if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 ?>
