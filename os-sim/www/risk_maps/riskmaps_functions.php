@@ -87,26 +87,40 @@ function is_in_assets($conn,$name,$type) {
 // get asset name, value and sensor
 function get_assets($conn,$name,$type,$host_types) {
 	// in_assets first
+	
 	$in_assets = is_in_assets($conn,$name,$type);
-	// asset values
-	$ips = $name;
+	
+	// Asset values
+	$ips  = $name;
 	$what = "name";
-	if(in_array($type, $host_types)){
-    	if($type == "host") $what = "hostname";                
-        $query = "select ip from $type where $what = ?";
+	
+	if(in_array($type, $host_types))
+	{
+    	if($type == "host") 
+			$what = "hostname";                
+        
+		$query  = "select ip from $type where $what = ?";
+					
         $params = array($name);
-        if ($rs3 = &$conn->Execute($query, $params)) {
+        
+		if ($rs3 = &$conn->Execute($query, $params)) 
+		{
             $name = $rs3->fields["ip"];
             if ($rs3->EOF) $in_assets = 0;
         }
-        // related sensor
+				        
+		// Related sensor
         $sensor = $name;
-        if ($type == "host") {
+        
+		if ($type == "host") 
+		{
             require_once 'classes/Host.inc';
             $sensors = Host::get_related_sensors($conn,$name,false);
-            $sensor = ($sensors[0]!="") ? $sensors[0] : $name;
+            $sensor  = ($sensors[0]!="") ? $sensors[0] : $name;
         }
-    } elseif ($type == "net") {
+    } 
+	elseif ($type == "net") 
+	{
         $query = "select ips from net where name = ?";
         $params = array($name);
         if ($rs3 = &$conn->Execute($query, $params)) {
@@ -117,7 +131,9 @@ function get_assets($conn,$name,$type,$host_types) {
         require_once 'classes/Net.inc';
         $sensors = Net::get_related_sensors($conn,$name);
         $sensor = ($sensors[0]!="") ? $sensors[0] : "";
-    } elseif ($type == "host_group") {
+    } 
+	elseif ($type == "host_group") 
+	{
         $query = "select host_ip from host_group_reference where host_group_name = ?";
         $params = array($name);
         if ($rs3 = &$conn->Execute($query, $params)) {
@@ -245,7 +261,7 @@ function get_map_values($conn,$map,$name,$type,$host_types) {
 }
 
 // print risk indicator table 
-function print_indicator_content($conn,$rs) {
+function print_indicator_content($conn,$rs,$linked = 1) {
 
     $host_types = array("host", "server", "sensor");
         
@@ -257,9 +273,12 @@ function print_indicator_content($conn,$rs) {
 	else 
 	{
     	// Asset Values
+			
     	list ($name,$sensor,$type,$ips,$what,$in_assets) = get_assets($conn,$rs->fields["type_name"],$rs->fields["type"],$host_types);
     	list ($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip,$r_ip) = get_values($conn,$host_types,$type,$name,$ips,false);
     }
+	
+	
     
     $gtype = ($type=="net") ? "net" : "host";
     $ips   = ($type=="net") ? $ips : $name;
@@ -278,8 +297,17 @@ function print_indicator_content($conn,$rs) {
 	else
 		$bgcolor = "transparent";
 	
-	
-	$url = ($rs->fields["url"] == "REPORT") ? "../report/index.php?host=".$ips : (($rs->fields["url"] != "") ? $rs->fields["url"] : "javascript:;");
+	if ($linked==0)
+	{
+		$url="javascript:;";
+	}else{
+		if ( $rs->fields["url"] == "REPORT" )
+		{
+			$url = "../report/index.php?host=".$ips;
+		}
+		else
+			$url =  ( $rs->fields["url"] != '' ) ? $rs->fields["url"] : "javascript:;";
+	}
 	
 	if (!$in_assets) {
 		$icon = "../pixmaps/marker--exclamation.png";
@@ -338,10 +366,11 @@ function print_rectangle_content($conn,$print_inputs) {
 	<?php
 }
 
-function print_indicators($map, $print_inputs = false) {
+function print_indicators($map, $print_inputs = false, $linked = 1) {
 	require_once 'classes/Host.inc';
 	require_once 'classes/Net.inc';
 	require_once 'ossim_db.inc';
+
 	$db   = new ossim_db();
 	$conn = $db->connect();
 	list($sensors_aux, $hosts_aux) = Host::get_ips_and_hostname($conn,true);
@@ -376,9 +405,9 @@ function print_indicators($map, $print_inputs = false) {
 				
 				if ($print_inputs) 
 				{
-					$name      = (mb_detect_encoding($rs->fields["name"]." ",'UTF-8,ISO-8859-1') == 'UTF-8') ?  $rs->fields["name"] : mb_convert_encoding($rs->fields["name"], 'UTF-8', 'ISO-8859-1');
+					$name      = ( mb_detect_encoding($rs->fields["name"]." ",'UTF-8,ISO-8859-1') == 'UTF-8' ) ?  $rs->fields["name"] : mb_convert_encoding($rs->fields["name"], 'UTF-8', 'ISO-8859-1');
 					$type 	   = $rs->fields["type"];
-					$type_name = $rs->fields["type_name"];
+					$type_name = ( mb_detect_encoding($rs->fields["type_name"]." ",'UTF-8,ISO-8859-1') == 'UTF-8' ) ?  $rs->fields["type_name"] : mb_convert_encoding($rs->fields["type_name"], 'UTF-8', 'ISO-8859-1');
 					$url  	   = $rs->fields["url"];
 					$size 	   = $rs->fields["size"];
 					$icon 	   = preg_replace("/\#.*/","",$rs->fields["icon"]);
@@ -388,7 +417,7 @@ function print_indicators($map, $print_inputs = false) {
 					echo "<input type='hidden' name='dataname".$id."'     id='dataname".$id."'     value='".$name."'/>\n";
 					echo "<input type='hidden' name='datatype".$id."'     id='datatype".$id."'     value='".$type."'/>\n";
 					echo "<input type='hidden' name='type_name".$id."'    id='type_name".$id."'    value='".$type_name."'/>\n";
-					echo "<input type='hidden' name='datanurl".$id."'     id='dataurl".$id."'      value='".$url."'/>\n";
+					echo "<input type='hidden' name='dataurl".$id."'     id='dataurl".$id."'      value='".$url."'/>\n";
 					echo "<input type='hidden' name='dataicon".$id."'     id='dataicon".$id."'     value='".$icon."'/>\n";
 					echo "<input type='hidden' name='dataiconsize".$id."' id='dataiconsize".$id."' value='".$size."'/>\n";
 					echo "<input type='hidden' name='dataiconbg".$id."'   id='dataiconbg".$id."'   value='".$val."'/>\n";
@@ -408,7 +437,7 @@ function print_indicators($map, $print_inputs = false) {
 				
 				?>
 				<div id="indicator<?php echo $id?>" class="itcanbemoved" style="<?php echo $style?>">
-					<?php print_indicator_content($conn,$rs) ?>
+					<?php print_indicator_content($conn,$rs,$linked) ?>
 				</div>
 				<?php
 			}
@@ -465,7 +494,7 @@ function print_indicators($map, $print_inputs = false) {
 					$url  = $rs->fields["url"];
 					
 					echo "<input type='hidden' name='dataname".$id."' id='dataname".$id."' value='".$name."'/>\n";
-					echo "<input type='hidden' name='datanurl".$id."' id='dataurl".$id."' value='".$url."'/>\n";
+					echo "<input type='hidden' name='dataurl".$id."' id='dataurl".$id."' value='".$url."'/>\n";
 				}
 				
 				$style = "border:1px solid transparent;
@@ -490,4 +519,17 @@ function print_indicators($map, $print_inputs = false) {
 		}
 	}
 }
+
+function print_small_error($message, $width="100%"){
+	$style = '
+		color: #D8000C; 
+		background-color: #FFBABA; 
+		background-image: url("../pixmaps/ossim_error.png");
+		display: block;
+		text-align:center;
+		width=$width;
+	';
+		echo "<div class='ossim_success' style='$style' >$message</div>";
+	}
+
 ?>

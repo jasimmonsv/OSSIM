@@ -378,35 +378,47 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				dobj = fobj
 				return false;
 			}
-			else if (fobj.className == "itcanbemoved") {
+			else if (fobj.className == "itcanbemoved") 
+			{
 				fobj.style.border = "1px dotted red";
 				var ida = fobj.id.replace("indicator","").replace("rect","");
-				if (document.getElementById('dataname'+ida)) {
-					if (document.getElementById('dataurl'+ida).value=="REPORT") {
+				if (document.getElementById('dataname'+ida)) 
+				{
+					if (document.getElementById('dataurl'+ida).value=="REPORT") 
+					{
 						document.getElementById('check_report').checked=1;
 					}
-					else {
+					else 
+					{
 						document.getElementById('linktomapurl').style.display = '';
 						document.getElementById('linktomapmaps').style.display = '';
 						document.getElementById('check_report').checked=0;
 					}
 					document.f.url.value = document.getElementById('dataurl'+ida).value
 					document.f.alarm_id.value = ida
-					if (!fobj.id.match(/rect/)) {
+					
+					if (!fobj.id.match(/rect/)) 
+					{
 						document.f.alarm_name.value = document.getElementById('dataname'+ida).value
+						
 						document.f.type.value = document.getElementById('datatype'+ida).value
 						var id_type = 'elem_'+document.getElementById('datatype'+ida).value
 						document.getElementById('elem').value = document.getElementById('type_name'+ida).value
+						
 						change_select()
+						
 						if(document.getElementById('dataicon' + ida) != null) {
 							document.getElementById('chosen_icon').src = document.getElementById('dataicon'+ida).value
 						}
+						
 						if(document.getElementById('dataiconsize' + ida) != null) {
 							document.getElementById('iconsize').value = document.getElementById('dataiconsize'+ida).value
 						}
+						
 						if(document.getElementById('dataiconbg' + ida) != null) {
 							document.getElementById('iconbg').value = document.getElementById('dataiconbg'+ida).value
 						}
+												
 					}
 				}
 				moving = true;
@@ -423,26 +435,32 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 		function urlencode(str) { return escape(str).replace('+','%2B').replace('%20','+').replace('*','%2A').replace('/','%2F').replace('@','%40'); }
 
 		function drawDiv (id, name, valor, icon, url, x, y, w, h, type, type_name, size) {
-			if (size == 0) size = '100%';
-			if (icon.match(/\#/)) {
+			if (size == 0) 
+				size = '100%';
+			
+			if (icon.match(/\#/)) 
+			{
 				var aux = icon.split(/\#/);
 				var iconbg = aux[1];
 				icon = aux[0];
-			} else {
+			} 
+			else 
+			{
 				var iconbg = "transparent";
 			}
-			var el = document.createElement('div');
-			var the_map= document.getElementById("map_img")
-			var map_pos = [];
-			map_pos = findPos(the_map);
-			el.id='indicator'+id
-			el.className='itcanbemoved'
+			
+			var el            = document.createElement('div');
+			var the_map       = document.getElementById("map_img")
+			var map_pos       = [];
+			map_pos           = findPos(the_map);
+			el.id             = 'indicator'+id
+			el.className      = 'itcanbemoved'
 			el.style.position = 'absolute';
-			el.style.left = x + map_pos[0];
-			el.style.top = y
-			el.style.width = w
-			el.style.height = h
-			el.innerHTML = "<img src='../pixmaps/loading.gif'>";
+			el.style.left     = x + map_pos[0];
+			el.style.top      = y
+			el.style.width    = w
+			el.style.height   = h
+			el.innerHTML        = "<img src='../pixmaps/loading.gif'>";
 			el.style.visibility = 'visible'
 			document.body.appendChild(el);
 			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataname' + id + '" id="dataname' + id + '" value="' + name + '">\n';
@@ -516,12 +534,13 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				onActivate: function(dtnode) {
                     if (dtnode.data.key.indexOf(';')!=-1) 
 					{
-                        var keys = dtnode.data.key.split(/\;/);
+                        dtnode.deactivate();
+						var keys = dtnode.data.key.split(/\;/);
                         
 						document.getElementById('type').value = keys[0];
                         document.getElementById('elem').value = keys[1];
                         
-						if (keys[0] == "host" || keys[0] == "net" || keys[0] == "sensor") 
+						if (keys[0] == "host" || keys[0] == "net" || keys[0] == "sensor" ) 
 							document.getElementById('check_report').checked = true;
                         else 
 							document.getElementById('check_report').checked = false;
@@ -530,12 +549,12 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 						
 						var asset_text  = document.f.type.value + " - " + document.f.elem.value;
 						
-						if ( asset_text.length > 35 )
-							asset_text  = "<div style='padding-left: 10px;'>"+ asset_text + "</div>";
+						if ( asset_text.length > 45 )
+							asset_text  = "<div style='padding-left: 10px;'>"+ asset_text.substring(0, 42) + "...</div>";
 						
 												
 						document.getElementById('selected_msg').innerHTML = "<div style='"+style+"'<strong><?php echo _("Selected type")?></strong>: "+ asset_text+"</div>";
-                       
+                       					   
 					    if (document.f.type.value == "host_group" || document.f.type.value == "server") 
                             document.getElementById('linktoreport').style.display = 'none';
                         
@@ -571,53 +590,77 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 		
 		function addnew(map,type) {
 			
-			document.f.alarm_id.value = ''
+			$('#alarm_id').val('');
+			$('#state').html("<img src='../pixmaps/loading.gif' width='20'>");
 			
 			if (type == 'alarm') 
 			{
 				if (document.f.alarm_name.value != '') 
 				{
-					var txt = '';
-					var robj = document.getElementById("chosen_icon").src;
-					robj = robj.replace(/.*\/ossim\/risk\_maps\//,"");
-					txt = txt + urlencode(robj) + ';';
-					type = document.f.type.value;
-					elem = document.getElementById('elem').value;
-					txt = txt + urlencode(type) + ';' + urlencode(elem) + ';';
-					var temp_value=document.f.alarm_name.value;
-					if(temp_value.match(/^[a-zA-Z0-9ó]$/)==null) {
-						txt = txt + document.f.alarm_name.value + ';';
-					} else {
-						txt = txt + urlencode(document.f.alarm_name.value) + ';';
-					}
-					txt = txt + urlencode(document.f.url.value) + ';';
-					txt = txt.replace(/\//g,"url_slash");
-					txt = txt.replace(/\%3F/g,"url_quest");
-					txt = txt.replace(/\%3D/g,"url_equal");
-					document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20'>";
+					var asset_type  = $("#type").val();
+					var asset_name  = $("#elem").serialize();
+					var chosen_icon = $("#chosen_icon").attr("src"); 
+						chosen_icon = chosen_icon.replace(/.*\/ossim\/risk\_maps\//,"");
+						chosen_icon = chosen_icon.replace(/\//g,"url_slash");
+						chosen_icon = chosen_icon.replace(/\%3F/g,"url_quest");
+						chosen_icon = chosen_icon.replace(/\%3D/g,"url_equal");
+								
+					var alarm_name  = $("#alarm_name").serialize();
+					var iconbg      = $("#iconbg").val();
+					var iconsize    = $("#iconsize").val();
+					var url_data    =  $("#url").serialize();
+					
+					var url         = "responder.php?map=" + map + "&type="+type+"&chosen_icon="+urlencode(chosen_icon)+"&asset_type="+asset_type+"&"+asset_name+"&"+alarm_name+"&"+url_data+"&iconbg="+iconbg+"&iconsize="+iconsize;
+												
 					$.ajax({
 					   type: "GET",
-					   url: 'responder.php?map=' + map + '&data=' + txt + '&iconbg=' + document.f.iconbg.value + '&iconsize=' + document.f.iconsize.value,
+					   url : url,
 					   success: function(msg){
-							eval(msg);
-							refresh_indicators();
-							document.getElementById('state').innerHTML = '<?php echo  _("New Indicator created") ?>';
+							
+							var status = msg.split("###");
+							if (status[0] == "OK")
+							{
+								eval(status[1]);
+								refresh_indicators();
+								document.getElementById('state').innerHTML = '<?php echo  _("New Indicator created") ?>';
+							}
+							else
+							{	
+								var msg_error = '<div style="color: #D8000C;"><?php echo  _("Error: New Indicator hasn\'t been created") ?></br>'+status[0]+'</div>';
+								document.getElementById('state').innerHTML = msg_error;
+							}
+							
 					   }
 					});	
-				} else {
+				} 
+				else 
+				{
 					alert("<?php echo  _("Indicator name can't be void") ?>")
 				}	
 			} 
 			else 
 			{
-				document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20'>";
+				
+				var type      = "rect";
+				var url_data  =  $("#url").serialize();  
+				var url       = "responder.php?map=" + map + "&type="+type+"&"+url_data;
+				
 				$.ajax({
 				   type: "GET",
-				   url: 'responder.php?map=' + map + '&type=rect&url=' + urlencode(document.f.url.value),
+				   url: url,
 				   success: function(msg){
-					   	eval(msg);
-					   	document.getElementById('state').innerHTML = '<?php echo  _("New Rectangle created") ?>';
-						refresh_indicators();
+					   	var status = msg.split("###");
+						if (status[0] == "OK")
+						{
+							eval(status[1]);
+							document.getElementById('state').innerHTML = '<?php echo  _("New Rectangle created") ?>';
+							refresh_indicators();
+						}
+						else
+						{
+							var msg_error = '<div style="color: #D8000C;"><?php echo  _("Error: New Indicator hasn\'t been created") ?></br>'+status[0]+'</div>';
+							document.getElementById('state').innerHTML = msg_error;
+						}
 				   }
 				});	
 			}
@@ -648,6 +691,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 		}
 
 		function save(map) {
+						
 			var x = 0;
 			var y = 0;
 			var el = document.getElementById('map_img');
@@ -662,7 +706,8 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 			var txt = ''
 			
 			for (var i=0; i < objs.length; i++) {
-				if (objs[i].className == "itcanbemoved" && objs[i].style.visibility != "hidden") {
+				if (objs[i].className == "itcanbemoved" && objs[i].style.visibility != "hidden") 
+				{
 					xx = objs[i].style.left.replace('px','');
 					yy = objs[i].style.top.replace('px','');
 					txt = txt + objs[i].id + ',' + (xx-x) + ',' + (yy-y) + ',' + objs[i].style.width + ',' + objs[i].style.height + ';';
@@ -671,18 +716,31 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 			
 			var id_type = 'elem_'+document.f.type.value;
 			var url_aux = urlencode(document.f.url.value);
-			if (document.f.type.value == "host" || document.f.type.value == "net" || document.f.type.value == "sensor") {
-				url_aux = (document.getElementById('check_report').checked) ? "REPORT" : "";
+			
+			if ( document.f.type.value == "host" || document.f.type.value == "net" || document.f.type.value == "sensor" ) 
+			{
+				if ( document.getElementById('check_report').checked == true )
+				{
+					$('#url').val("REPORT");
+					url_aux = "REPORT";
+				}
+				else
+				{
+					url_aux = "";
+					$('#url').val("");
+				}
 			}
 			
 			var icon_aux = urlencode(document.getElementById("chosen_icon").src);
+				icon_aux = icon_aux.replace(/\//g,"url_slash");
+				icon_aux = icon_aux.replace(/\%3F/g,"url_quest");
+				icon_aux = icon_aux.replace(/\%3D/g,"url_equal");
+			
 			url_aux = url_aux.replace(/\//g,"url_slash");
 			url_aux = url_aux.replace(/\%3F/g,"url_quest");
 			url_aux = url_aux.replace(/\%3D/g,"url_equal");
-			icon_aux = icon_aux.replace(/\//g,"url_slash");
-			icon_aux = icon_aux.replace(/\%3F/g,"url_quest");
-			icon_aux = icon_aux.replace(/\%3D/g,"url_equal");
-						
+			
+			
 			var type        = $("#type").serialize()
 			var type_name   = $("#elem").serialize()
 			var id          = document.f.alarm_id.value;
@@ -697,17 +755,29 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 			   	type: "GET",
 			   	url: urlsave,
 			   	success: function(msg){
+					
 			   		document.getElementById('state').innerHTML = "<?php echo _("Indicators saved.") ?>";
 			   		changed = 0;
 			   		document.getElementById('save_button').className = "lbutton";
-			   		refresh_indicators();
-			   							
-					$('#type_name'+id).value    = document.getElementById('elem').value;
-			   		$('#datatype'+id).value     = document.f.type.value;
-					$('#datanurl'+id).value     = document.f.url.value;
-			   		$('#dataicon'+id).value     = $("#chosen_icon").attr("src");
-			   		$('#dataiconsize'+id).value = document.f.iconsize.value;
-			   		$('#dataiconbg'+id).value   = document.f.iconbg.value;
+			   																
+					$('#dataname'+id).val(document.getElementById('alarm_name').value);
+					$('#type_name'+id).val(document.getElementById('elem').value);
+			   	 	$('#datatype'+id).val(document.getElementById('type').value);
+					
+					$('#dataurl'+id).val(document.getElementById('url').value);
+			   		$('#dataicon'+id).val($("#chosen_icon").attr("src"));
+			   		$('#dataiconsize'+id).val(document.f.iconsize.value);
+			   		$('#dataiconbg'+id).val(document.f.iconbg.value);
+					
+					var status = msg.split("###");
+					
+					if (status[0] == "OK")
+						eval(status[1]);
+					else
+						show_error(msg);
+					
+						
+					
 				}
 			});
 		}
@@ -717,7 +787,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 			document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20' align='absmiddle'/> <?php echo _("Refreshing indicators") ?>...";
 			$.ajax({
 			   type: "GET",
-			   url: "get_indicators.php?map=<?php echo $map ?>&print_inputs=1",
+			   url: "get_indicators.php?map=<?php echo $map ?>&print_inputs=1&linked=0",
 			   success: function(msg){
 				// Output format ID_1####DIV_CONTENT_1@@@@ID_2####DIV_CONTENT_2...
 				   var indicators = msg.split("@@@@");
@@ -733,6 +803,16 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 			   }
 			});	
 		}
+		
+		function show_error(data) 
+		{
+			if  (data!=''){
+			document.getElementById('state').innerHTML = 
+			"<div class='ossim_error' style='font-family:Arial, Helvetica, sans-serif; font-size:11px; border: 1px solid; margin: 0px auto; padding:10px 0px 10px 40px; background-repeat: no-repeat; background-position: 5px center; color: #D8000C; background-color: #FFBABA; background-image: url(../pixmaps/ossim_error.png); width: 250px;' >" 
+				+ data + 
+				"</div>" ;
+			}
+		}		
 
 		function chk(fo) {
 			if  (fo.name.value=='') {
@@ -747,18 +827,30 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 		function change_select()
 		{
 			var style = 'background-color:#EFEBDE; padding:2px 5px 2px 5px; border:1px dotted #cccccc; font-size:11px; width: 90%';
-			document.getElementById('selected_msg').innerHTML = "<div style='"+style+"'><strong><?php echo _("Selected type")?></strong>: "+document.f.type.value+" - "+document.f.elem.value+"</div>";
+						
+			var asset_text  = document.f.type.value + " - " + document.f.elem.value;
+						
+			if ( asset_text.length > 45 )
+				asset_text  = "<div style='padding-left: 10px;'>"+ asset_text.substring(0, 42) + "...</div>";
 			
+									
+			document.getElementById('selected_msg').innerHTML = "<div style='"+style+"'<strong><?php echo _("Selected type")?></strong>: "+ asset_text+"</div>";
+									
 			if (document.f.type.value == "host_group") {
 				document.getElementById('linktoreport').style.display = 'none';
 			}
-			else {
+			else 
+			{
 				document.getElementById('linktoreport').style.display = '';
 			}
-			if (document.f.url.value.match(/view\.php/)) {
+			
+			if (document.f.url.value.match(/view\.php/)) 
+			{
 				document.getElementById('link_option_map').checked = true;
 				show_maplink();
-			} else {
+			} 
+			else 
+			{
 				document.getElementById('link_option_asset').checked = true;
 				show_assetlink();
 			}
@@ -767,15 +859,22 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 		function show_maplink() {
 			document.getElementById('link_map').style.display = "block";
 			document.getElementById('link_asset').style.display = "none";
-			if (!document.f.url.value.match(/view\.php/)) document.f.url.value = "";
+			
+			if (!document.f.url.value.match(/view\.php/)) 
+				document.f.url.value = "";
+			
 			document.getElementById('check_report').checked = false;
 			document.f.type.value = "";
 			document.f.elem.value = "";
-			document.getElementById('selected_msg').innerHTML = "";
+			$('#selected_msg').html('')
 		}
-		function show_assetlink() {
+		
+		function show_assetlink() 
+		{
 			document.getElementById('link_map').style.display = "none";
 			document.getElementById('link_asset').style.display = "block";
+			if ( $('#selected_msg').html() != '')
+				$('#selected_msg').css('display', '');
 		}
 
 		function set_changed() {
@@ -869,9 +968,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 	?>
 	
 	<tr>
-		<td valign='top' class='ne1' nowrap='nowrap' style="padding:5px;">
+		<td valign='top' class='ne1' nowrap='nowrap' style="padding:5px; width:320px;">
 		
-		<table width="100%">
+		<table width="320px;">
 			<tr><th colspan="2" class='rm_tit_section'><?php echo _("Icons")?></th></tr>
 			<tr>
 				<td colspan='2' class='ne1' id="uploadform" style="display:none;">
@@ -1030,13 +1129,13 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
  <input type="hidden" name="type" id="type" value=""/>
  <input type="hidden" name="elem" id="elem" value=""/>
  
- <table width="100%">
+  <table width="320px;">
 	<tr>
 		<td class='ne1'>
-			<table width="100%" class="noborder">
+			<table  class="noborder">
 				<tr>
 					<th class='rm_tit_section' style="font-size:12px" nowrap='nowrap'><?php echo  _("Indicator Name"); ?></th>
-					<td><input type='text' size='30' name="alarm_name" id='alarm_name' class='ne1'/></td>
+					<td><input type='text' size='30' name="alarm_name" id='alarm_name' class='ne1' /></td>
 				</tr>
 				<tr><td colspan="2" id="selected_msg"></td></tr>
 				
@@ -1055,7 +1154,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 							<tr id="linktoreport" style="display:none">
 								<td class="nobborder">
 									<table style="border:0px"><tr>
-										<td><input type="checkbox" id="check_report"/></td>
+										<td><input type="checkbox" id="check_report" name="check_report"/></td>
 										<td class='ne1' nowrap='nowrap'><i><?php echo  _("Link to Asset Report"); ?></i></td>
 										</tr>
 									</table>
@@ -1073,7 +1172,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 						<table id="link_map" style="display:none">
 						<tr id="linktomapurl">
 							<td class='ne11'> <?php echo  _("URL"); ?> </td>
-							<td><input type='text' size='30' name="url" class='ne1'/></td>
+							<td><input type='text' size='30' name="url" id="url" class='ne1'/></td>
 						</tr>
 						<tr id="linktomapmaps">
 							<td class='ne1 bold'><i> <?php echo  _("Choose map to link") ?> </i></td>
@@ -1085,8 +1184,8 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				<tr><td colspan="2" id="state" class="ne" height="30">&nbsp;</td></tr>
 				<tr>
 					<td colspan="2" nowrap='nowrap'>
-						<input type='button' value="<?php echo  _("New Indicator") ?>" onclick="addnew('<? echo $map ?>','alarm')" class="lbutton" /> 
-						<input type='button' value="<?php echo  _("New Rect") ?>" onclick="addnew('<? echo $map ?>','rect')" class="lbutton"/> 
+						<input type='button' value="<?php echo  _("New Indicator") ?>" onclick="addnew('<?php echo $map ?>','alarm')" class="lbutton" /> 
+						<input type='button' value="<?php echo  _("New Rect") ?>" onclick="addnew('<?php echo $map ?>','rect')" class="lbutton"/> 
 						<input id="save_button" type='button' value="<?php echo  _("Save Changes") ?>" onclick="save('<?php echo $map ?>')" class="lbutton"/>
 					</td>
 				</tr>	
@@ -1100,7 +1199,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 
 <?php
 // *************** Print Indicators DIVs (print_inputs = true) ******************
-print_indicators($map,true);
+print_indicators($map,true,0);
 
 $conn->close();
 

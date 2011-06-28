@@ -87,14 +87,19 @@ ossim_valid($type, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,
 ossim_valid($type_name, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("Type_name"));
 ossim_valid($iconbg, OSS_ALPHA, OSS_NULLABLE, 'illegal:'._("iconbg"));
 ossim_valid($iconsize, OSS_DIGIT, 'illegal:'._("iconsize"));
+
+
+
 //var_dump($type);
 //var_dump($type_name);
 
 $path = explode("pixmaps",$icon);
 if (count($path)>1) $icon = "pixmaps".$path[1];
 
-if (ossim_error()) {
-die(ossim_error());
+if (ossim_error()) 
+{
+	echo ossim_get_error(); 
+	exit();
 }
 
     // clean bp_asset_member
@@ -144,7 +149,7 @@ die(ossim_error());
 			$query = "UPDATE risk_indicators set icon= ?, name= ?, url= ?, type= ?, type_name= ?, size= ? WHERE id= ?";
             $params = array($icon, $name, $url, $type, $type_name, $iconsize, $ida);
             $conn->Execute($query,$params);
-            echo "refresh_indicators();\n";
+            echo "OK###refresh_indicators();";
         }
     } 
 	else 
@@ -154,7 +159,7 @@ die(ossim_error());
             $query = "UPDATE risk_indicators set  name= ?, url= ?, type= ?, type_name= ?, size= ? where id= ?";
             $params = array($name, $url, $type, $type_name, $iconsize, $ida);
             $conn->Execute($query,$params);
-            echo "refresh_indicators();\n";
+            echo "OK###refresh_indicators();";
         }
     }
     

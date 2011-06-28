@@ -45,6 +45,8 @@ require_once 'classes/Security.inc';
 
 $map          = $_GET["map"];
 $print_inputs = ($_GET["print_inputs"] == "1") ? true : false;
+$linked       = ($_GET["linked"] =="0" ? 0 : 1 ;
+
 
 ossim_valid($map, OSS_DIGIT, OSS_ALPHA, ".",'illegal:'._("Map"));
 
@@ -64,7 +66,7 @@ else
     while (!$rs->EOF)
 	{
 		// Output format ID_1####DIV_CONTENT_1@@@@ID_2####DIV_CONTENT_2...
-		echo "indicator".$rs->fields["id"] ?>####<?php print_indicator_content($conn,$rs) ?>@@@@<?php
+		echo "indicator".$rs->fields["id"] ?>####<?php print_indicator_content($conn,$rs,$linked) ?>@@@@<?php
         //if ($in_assets) echo $change_div;
         $rs->MoveNext();
     }
