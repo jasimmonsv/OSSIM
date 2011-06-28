@@ -170,20 +170,19 @@ $incident_tag = new Incident_tag($conn);
 		<tr>
 			<th colspan="7">
 			<?php
-			echo _("Filter");
 			
-			$change_to = _("change to ");
+			$change_to = _("switch to ");
 			
 			if ($advanced_search) 
 			{
-				$label     = _("Advanced");
+				$label     = _("Advanced Filters");
 				$change_to.= ' ' . _("Simple");
 				
 				echo " $label [<a href=\"" . $_SERVER["SCRIPT_NAME"] . "\" title=\"$change_to $\">$change_to</a>]";
 			}
 			else 
 			{
-				$label     = _("Simple");
+				$label     = _("Simple Filters");
 				$change_to.= ' ' . _("Advanced");
 				echo " $label [<a href=\"" . $_SERVER["SCRIPT_NAME"] . "?advanced_search=1\" title=\"$change_to $\">$change_to</a>]";
 			}
@@ -514,7 +513,7 @@ $incident_tag = new Incident_tag($conn);
 					<table valign="absmiddle" align="center" class="noborder">
 						<tr>
 							<td class="noborder" valign="middle" align="center">
-							   <span><?php echo _("Create new ticket of class: ")?></span>
+							   <span><?php echo _("Open a new ticket manually: ")?></span>
 							</td>
 							<td class="noborder" valign="middle" align="center">
 								<select id="selectnewincident">

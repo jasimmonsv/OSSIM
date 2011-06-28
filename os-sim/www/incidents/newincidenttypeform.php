@@ -90,7 +90,14 @@ if ( isset($_POST['send']) && !empty($_POST['send']) )
 	
 }
 
-
+if ( isset($send) && !empty($send) && $error == false )
+{
+	if ($custom == 1 ) 
+		header("Location: modifyincidenttypeform.php?msg=1&id=".urlencode($id));
+	else
+		header("Location: incidenttype.php?msg=2");
+}
+	
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -128,20 +135,12 @@ if ( isset($_POST['send']) && !empty($_POST['send']) )
 <body>
 
 
-	<?php include ("../hmenu.php"); ?>
+	<?php include ("../hmenu.php"); 
+		if (!empty($_GET['msg']))
+			Util::print_succesful( _() );
+	?>
 	
 	<h1> <?php echo gettext("New ticket type"); ?> </h1>
-	
-	<?php 
-		if ( isset($send) && !empty($send) && $error == false )
-		{
-			echo "<div id='ticket_ok'>".gettext("New Ticket type  succesfully inserted")."</div>";
-			$location = ( $custom == 1 ) ? "modifyincidenttypeform.php?id=".urlencode($id) : "incidenttype.php";
-			sleep(1);
-			echo "<script type='text/javascript'>window.location='$location';</script>";
-		}
-	
-	?>
 	
 	<div id='info_error' class='ossim_error' style='<?php echo $display;?>'><div style='text-align:center;'><?php echo implode("<br>", $info_error)?></div></div>
 

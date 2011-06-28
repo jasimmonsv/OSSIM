@@ -58,6 +58,24 @@ Session::logcheck("MenuIncidents", "IncidentsTypes");
 
 <?php include ("../hmenu.php");
 
+if (!empty($_GET['msg']))
+{
+	$var_tmp="";
+	switch($_GET['msg'])
+	{
+		case 1:
+			$var_tmp="New Custom Ticket Type succesfully created";
+			break;
+		case 2:
+			$var_tmp="New Ticket Type succesfully created";
+			break;
+		case 3:
+			$var_tmp="Action type deleted";
+			break;
+	}
+	if ($var_tmp!="")
+		Util::print_succesful( _($var_tmp) );
+}	
 
 $db   = new ossim_db();
 $conn = $db->connect();
@@ -99,7 +117,7 @@ $conn = $db->connect();
 					{
 						echo "<td align='center'><img src='../pixmaps/$custom' title='$alt' border='0'></td>";
 						echo "<td><a href=\"modifyincidenttypeform.php?id=" . urlencode($inctype->get_id()) . "\"> <img src='../vulnmeter/images/pencil.png' border='0' title='"._("Modify type")."'/> </a>
-								  <a href=\"deleteincidenttype.php?confirm=1&inctype_id=" . urlencode($inctype->get_id()) . "\"> <img src='../vulnmeter/images/delete.gif' border='0' title='"._("Delete type")."'/> </a></td>";
+								  <a href=\"deleteincidenttype.php?msg='type deleted successfully'&confirm=1&inctype_id=" . urlencode($inctype->get_id()) . "\"> <img src='../vulnmeter/images/delete.gif' border='0' title='"._("Delete type")."'/> </a></td>";
 					} 
 					else
 						echo "<td> -- </td><td> -- </td>";
@@ -114,7 +132,7 @@ $conn = $db->connect();
 			?>
 			<tr>
 				<td colspan="4" align="center" style="height:30px" class='noborder'>
-					<a href="newincidenttypeform.php" class="buttonlink"><?php echo gettext("Add new type"); ?></a>
+					<a href="newincidenttypeform.php" class="buttonlink"><?php echo gettext("New custom Ticket Type"); ?></a>
 				</td>
 			</tr>
 		</table>

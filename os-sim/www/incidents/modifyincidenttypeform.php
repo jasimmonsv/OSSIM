@@ -272,6 +272,24 @@ $(document).ready(function() {
 
 include ("../hmenu.php"); 
 
+if (!empty($_GET['msg']))
+{
+	$var_tmp="";
+	switch($_GET['msg'])
+	{
+		case 1:
+			$var_tmp="New Custom Ticket Type succesfully created";
+			break;
+		case 2:
+			$var_tmp="New Ticket Type succesfully created";
+			break;
+		case 3:
+			$var_tmp="Action type deleted";
+			break;
+	}
+	if ($var_tmp!="")
+		Util::print_succesful( _($var_tmp) );
+}	
 
 $inctype_id = GET('id');
 

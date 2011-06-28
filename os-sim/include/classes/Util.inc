@@ -677,6 +677,10 @@ class Util {
 		echo "<div class='ossim_error'>".$message."</div><br/>";
 	}
 	
+	function print_succesful($message, $width="100%"){
+		echo "<div id='success_message' class='ossim_success' style='display: block;text-align:center;width=$width' >$message</div>";
+	}
+	
 	function print_gadget($title,$color,$content) {
 		return "<table height=\"100%\" style=\"background:$color;background:url(../pixmaps/fondo_hdr2.png) repeat-x\"><tr><td height=\"15\" class=\"nobborder\" style=\"text-align:center;font-weight:bold;font-size:12px\">$title</td></tr><tr><td class=\"nobborder\" valign=\"top\">".$content."</td></tr></table>";
 	}

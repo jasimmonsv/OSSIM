@@ -84,13 +84,8 @@ $db = new ossim_db();
 $conn = $db->connect();
 Incident_type::delete($conn, $inctype_id);
 $db->close($conn);
-?>
 
-    <p> <?php
-echo gettext("Action type deleted"); ?> </p>
-<?php
-$location = "incidenttype.php";
-sleep(2);
+$location = "incidenttype.php?msg=3";
 echo "<script>
 ///history.go(-1);
 window.location='$location';
