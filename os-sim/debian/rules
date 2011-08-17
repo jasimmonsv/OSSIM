@@ -124,6 +124,7 @@ install: build
 	# ossim-utils
 	install -m755 include/ossim_conf.pm $(TMP)/ossim-utils/usr/lib/perl5/
 	install -m755 scripts/*.pl $(TMP)/ossim-utils/usr/share/ossim/scripts/
+	install -m755 scripts/av-auth $(TMP)/ossim-utils/usr/share/ossim/scripts/
 	install -d $(TMP)/ossim-utils/usr/share/ossim/scripts/vulnmeter/
 	install -d $(TMP)/ossim-utils/usr/share/ossim/scripts/vulnmeter/tmp/
 	install -m755 scripts/vulnmeter/*.pl $(TMP)/ossim-utils/usr/share/ossim/scripts/vulnmeter/
