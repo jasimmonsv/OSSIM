@@ -18,7 +18,9 @@ $dbconn     = $db->connect();
 $allowed_users = Session_activity::get_list($dbconn, " ORDER BY activity desc");
 preg_match("/.*PHPSESSID=(\w+).*/", $_ENV["COOKIE"], $matches);
 foreach ($allowed_users as $au) {
+	# Old check
 	#if ( trim($au->get_login()) == trim($_ENV["USER"]) && trim($au->get_id()) == trim($matches[1]) ) {
+	#New check with libapache2-mod-auth-alienvault
 	if ( trim($au->get_id()) == trim($matches[1]) ) {
 	$auth=1;
   }
